@@ -1,4 +1,5 @@
 import type { SessionManager, SettingsManager, AgentSessionEvent } from "@earendil-works/pi-coding-agent";
+import type { ExtensionRunner } from "@earendil-works/pi-coding-agent";
 
 export interface ContextUsage {
   percent: number | null;
@@ -51,4 +52,5 @@ export interface AgentSessionLike {
   setActiveToolsByName(names: string[]): void;
   abortCompaction(): void;
   getContextUsage(): ContextUsage | undefined;
+  readonly extensionRunner: ExtensionRunner | undefined;
 }

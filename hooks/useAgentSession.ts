@@ -334,6 +334,50 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const handleSend = useCallback(async (message: string, images?: AttachedImage[]) => {
     if (!message.trim() && !images?.length) return;
     if (agentRunning) return;
+    // Check if this is a tGD slash command
+    const tgdCommandMatch = message.trim().match(/^\/tgd-(\w+)(.*)$/);
+    if (tgdCommandMatch) {
+      const [, commandName, args] = tgdCommandMatch;
+      const command = `tgd-${commandName}`;
+      
+      // Add user message to UI
+      const userMsg: AgentMessage = {
+        role: "user",
+        content: message,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+      setAgentRunning(true);
+      setAgentPhase({ kind: "waiting_model" });
+      dispatch({ type: "start" });
+      pendingScrollToUserRef.current = true;
+
+      try {
+        // Execute the extension command
+        const sid = session?.id;
+        if (!sid) {
+          throw new Error("No session available");
+        }
+        
+        connectEvents(sid);
+        const res = await fetch(`/api/agent/${sid}/command`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ command, args: args.trim() }),
+        });
+        
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || `HTTP ${res.status}`);
+        }
+      } catch (e) {
+        console.error("Failed to execute command:", e);
+        setAgentRunning(false);
+        setAgentPhase(null);
+        dispatch({ type: "end" });
+      }
+      return;
+    }
 
     const imageBlocks = images?.map((img) => ({ type: "image" as const, source: { type: "base64" as const, media_type: img.mimeType, data: img.data } }));
     const userMsg: AgentMessage = {
