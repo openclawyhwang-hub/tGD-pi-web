@@ -441,7 +441,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             border: `1px solid ${isStreaming && (onSteer || onFollowUp)
               ? "rgba(234,179,8,0.4)"
               : "color-mix(in srgb, var(--border) 70%, transparent)"}`,
-            borderRadius: 14,
+            borderRadius: "var(--radius-lg)",
             padding: "10px 10px 10px 14px",
             boxShadow: "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10)",
             transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
@@ -475,7 +475,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               outline: "none",
               resize: "none",
               color: "var(--text)",
-              fontSize: 14,
+              fontSize: "var(--text-base)",
               lineHeight: 1.6,
               fontFamily: "inherit",
               minHeight: 24,
@@ -503,7 +503,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   marginBottom: 8,
                   background: "var(--bg)",
                   border: "1px solid var(--border)",
-                  borderRadius: 10,
+                  borderRadius: "var(--radius-md)",
                   boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
                   overflow: "hidden",
                   zIndex: 100,
@@ -533,14 +533,14 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                       border: "none",
                       color: i === slashSelectedIndex ? "var(--text)" : "var(--text-muted)",
                       cursor: "pointer",
-                      fontSize: 13,
+                      fontSize: "var(--text-sm)",
                       textAlign: "left",
                     }}
                   >
-                    <span style={{ fontFamily: "var(--font-mono), monospace", fontWeight: 600, minWidth: 100 }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, minWidth: 100, fontSize: "var(--text-sm)" }}>
                       {cmd.name}
                     </span>
-                    <span style={{ color: "var(--text-dim)", fontSize: 12 }}>
+                    <span style={{ color: "var(--text-dim)", fontSize: "var(--text-sm)", fontFamily: "inherit", whiteSpace: "nowrap" }}>
                       {cmd.description}
                     </span>
                   </button>
@@ -610,10 +610,10 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 padding: "7px 14px",
                 background: (value.trim() || attachedImages.length) ? "var(--accent)" : "var(--bg-panel)",
                 border: "none",
-                borderRadius: 8,
+                borderRadius: "var(--radius-md)",
                 color: (value.trim() || attachedImages.length) ? "#fff" : "var(--text-dim)",
                 cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
-                fontSize: 13,
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
                 boxShadow: (value.trim() || attachedImages.length) ? "0 1px 3px rgba(37,99,235,0.25)" : "none",
@@ -642,7 +642,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 width: 32, height: 32, padding: 0,
                 background: "none", border: "none",
-                borderRadius: 9,
+                borderRadius: "var(--radius-md)",
                 color: attachedImages.length ? "var(--accent)" : "var(--text-muted)",
                 cursor: isStreaming ? "not-allowed" : "pointer",
                 opacity: isStreaming ? 0.5 : 1,
@@ -681,7 +681,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                       maxWidth: 220, overflow: "hidden",
                       background: modelDropdownOpen ? "var(--bg-hover)" : "none",
                       border: "none",
-                      borderRadius: 9,
+                      borderRadius: "var(--radius-md)",
                       color: "var(--text-muted)",
                       cursor: isStreaming ? "not-allowed" : "pointer",
                       fontSize: 12,
