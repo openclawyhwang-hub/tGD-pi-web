@@ -351,24 +351,61 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       setAgentPhase({ kind: "waiting_model" });
       dispatch({ type: "start" });
       pendingScrollToUserRef.current = true;
-
       try {
-        // Execute the extension command
-        const sid = session?.id;
-        if (!sid) {
+        let sid: string;
+        
+        if (isNew && newSessionCwd) {
+          // New session - create it first, then execute command
+          const selectedModel = newSessionModel;
+          if (selectedModel) setPendingModel(selectedModel);
+          const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/ToolPanel");
+          const toolNames = toolPreset === "none" ? PRESET_NONE : toolPreset === "default" ? PRESET_DEFAULT : PRESET_FULL;
+          
+          // Create new session with the command as initial message
+          const createRes = await fetch("/api/agent/new", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cwd: newSessionCwd,
+              type: "prompt",
+              message,  // Send the slash command as the initial message
+              toolNames,
+              ...(selectedModel ? { provider: selectedModel.provider, modelId: selectedModel.modelId } : {}),
+              ...(thinkingLevel !== "auto" ? { thinkingLevel } : {}),
+            }),
+          });
+          
+          if (!createRes.ok) throw new Error(`HTTP ${createRes.status}`);
+          const result = await createRes.json() as { sessionId: string };
+          sid = result.sessionId;
+          sessionIdRef.current = sid;
+          connectEvents(sid);
+          onSessionCreated?.({
+            id: sid,
+            path: "",
+            cwd: newSessionCwd,
+            name: undefined,
+            created: new Date().toISOString(),
+            modified: new Date().toISOString(),
+            messageCount: 1,
+            firstMessage: message,
+          });
+        } else if (session) {
+          // Existing session - execute command directly
+          sid = session.id;
+          connectEvents(sid);
+          const res = await fetch(`/api/agent/${sid}/command`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ command, args: args.trim() }),
+          });
+          
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || `HTTP ${res.status}`);
+          }
+        } else {
           throw new Error("No session available");
-        }
-        
-        connectEvents(sid);
-        const res = await fetch(`/api/agent/${sid}/command`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ command, args: args.trim() }),
-        });
-        
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || `HTTP ${res.status}`);
         }
       } catch (e) {
         console.error("Failed to execute command:", e);
