@@ -60,6 +60,17 @@ const THINKING_LEVEL_DESC: Record<typeof THINKING_LEVELS[number], string> = {
   xhigh: "最高强度推理",
 };
 
+// tGD 7-phase slash commands
+const TGD_COMMANDS = [
+  { name: "/tgd-map", description: "Map - 定義問題空間" },
+  { name: "/tgd-define", description: "Define - 拆解需求" },
+  { name: "/tgd-plan", description: "Plan - 規劃實作" },
+  { name: "/tgd-develop", description: "Develop - 實作開發" },
+  { name: "/tgd-verify", description: "Verify - 測試驗證" },
+  { name: "/tgd-review", description: "Review - 程式碼審查" },
+  { name: "/tgd-ship", description: "Ship - 部署上線" },
+];
+
 export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   onSend, onAbort, onSteer, onFollowUp, isStreaming, model, modelNames, modelList, onModelChange,
   onCompact, onAbortCompaction, isCompacting, compactError, toolPreset, onToolPresetChange,
@@ -73,8 +84,12 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   const [toolDropdownOpen, setToolDropdownOpen] = useState(false);
   const [thinkingDropdownOpen, setThinkingDropdownOpen] = useState(false);
   const [attachedImages, setAttachedImages] = useState<AttachedImage[]>([]);
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashFilter, setSlashFilter] = useState("");
+  const [slashSelectedIndex, setSlashSelectedIndex] = useState(0);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const slashMenuRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const modelDropdownPanelRef = useRef<HTMLDivElement>(null);
   const toolDropdownRef = useRef<HTMLDivElement>(null);
@@ -195,6 +210,43 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
         nativeEvent.isComposing ||
         nativeEvent.keyCode === 229;
 
+      // Slash menu navigation
+      if (showSlashMenu) {
+        const filtered = TGD_COMMANDS.filter((cmd) =>
+          cmd.name.toLowerCase().includes(slashFilter.toLowerCase())
+        );
+
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setSlashSelectedIndex((i) => (i + 1) % filtered.length);
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setSlashSelectedIndex((i) => (i - 1 + filtered.length) % filtered.length);
+          return;
+        }
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          if (filtered[slashSelectedIndex]) {
+            // Insert command into textarea, don't auto-send
+            setValue(filtered[slashSelectedIndex].name + " ");
+            setShowSlashMenu(false);
+            setSlashFilter("");
+            setSlashSelectedIndex(0);
+            requestAnimationFrame(() => textareaRef.current?.focus());
+          }
+          return;
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setShowSlashMenu(false);
+          setSlashFilter("");
+          setSlashSelectedIndex(0);
+          return;
+        }
+      }
+
       if (e.key === "Enter" && !e.shiftKey && (isComposing || recentlyComposed)) {
         if (recentlyComposed) e.preventDefault();
         return;
@@ -210,7 +262,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
         }
       }
     },
-    [isStreaming, onSteer, onFollowUp, sendQueued, handleSend]
+    [isStreaming, onSteer, onFollowUp, sendQueued, handleSend, showSlashMenu, slashFilter, slashSelectedIndex]
   );
 
   const handleInput = useCallback(() => {
@@ -218,6 +270,33 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
     if (!ta) return;
     ta.style.height = "auto";
     ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`;
+
+    // Detect slash command trigger
+    const val = ta.value;
+    const slashIndex = val.lastIndexOf("/");
+    if (slashIndex >= 0 && slashIndex === val.length - 1) {
+      // User just typed "/"
+      setShowSlashMenu(true);
+      setSlashFilter("");
+      setSlashSelectedIndex(0);
+    } else if (slashIndex >= 0 && slashIndex === val.length - 2 && val[slashIndex + 1] === " ") {
+      // User typed "/ " (space after slash) - close menu
+      setShowSlashMenu(false);
+      setSlashFilter("");
+    } else if (slashIndex >= 0 && slashIndex === val.length - 1 - (val.length - slashIndex - 1)) {
+      // User is typing after slash - update filter
+      const filterText = val.slice(slashIndex + 1);
+      if (filterText.includes(" ")) {
+        setShowSlashMenu(false);
+        setSlashFilter("");
+      } else {
+        setSlashFilter(filterText);
+        setSlashSelectedIndex(0);
+      }
+    } else {
+      setShowSlashMenu(false);
+      setSlashFilter("");
+    }
   }, []);
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
@@ -395,8 +474,73 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               minHeight: 24,
               maxHeight: 200,
               overflow: "auto",
+              position: "relative",
+              zIndex: 1,
             }}
           />
+
+          {/* Slash command menu */}
+          {showSlashMenu && (() => {
+            const filtered = TGD_COMMANDS.filter((cmd) =>
+              cmd.name.toLowerCase().includes(slashFilter.toLowerCase())
+            );
+            if (filtered.length === 0) return null;
+            return (
+              <div
+                ref={slashMenuRef}
+                style={{
+                  position: "absolute",
+                  bottom: "100%",
+                  left: 0,
+                  right: 0,
+                  marginBottom: 8,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10,
+                  boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                  overflow: "hidden",
+                  zIndex: 100,
+                  maxHeight: 240,
+                  overflowY: "auto",
+                }}
+              >
+                {filtered.map((cmd, i) => (
+                  <button
+                    key={cmd.name}
+                    onClick={() => {
+                      setValue(cmd.name + " ");
+                      setShowSlashMenu(false);
+                      setSlashFilter("");
+                      setSlashSelectedIndex(0);
+                      textareaRef.current?.focus();
+                    }}
+                    onMouseEnter={() => setSlashSelectedIndex(i)}
+                    onMouseLeave={(e) => { if (i === slashSelectedIndex) setSlashSelectedIndex(-1); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      width: "100%",
+                      padding: "8px 12px",
+                      background: i === slashSelectedIndex ? "var(--bg-selected)" : "none",
+                      border: "none",
+                      color: i === slashSelectedIndex ? "var(--text)" : "var(--text-muted)",
+                      cursor: "pointer",
+                      fontSize: 13,
+                      textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontFamily: "var(--font-mono), monospace", fontWeight: 600, minWidth: 100 }}>
+                      {cmd.name}
+                    </span>
+                    <span style={{ color: "var(--text-dim)", fontSize: 12 }}>
+                      {cmd.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
 
           {isStreaming ? (
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, alignSelf: "flex-end" }}>
