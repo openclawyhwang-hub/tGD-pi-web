@@ -339,6 +339,8 @@ export function AppShell() {
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            aria-expanded={sidebarOpen}
+            aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 36, height: 36, padding: 0,
@@ -623,22 +625,49 @@ export function AppShell() {
               onSystemPromptChange={handleSystemPromptChange}
               onSessionStatsChange={handleSessionStatsChange}
               onContextUsageChange={handleContextUsageChange}
+              onSessionNamed={() => setRefreshKey((k) => k + 1)}
             />
           ) : showPlaceholder ? (
             activeCwd ? (
-              <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 15 }}>
-                Select a session from the sidebar
+              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 32 }}>
+                <div style={{ width: 56, height: 56, borderRadius: "var(--radius-lg)", background: "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>Select a session</div>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                    Choose from the sidebar or start a new one
+                  </div>
+                </div>
               </div>
             ) : (
-              <div style={{ position: "absolute", top: 12, left: 12, display: "flex", alignItems: "flex-start", gap: 8, userSelect: "none", pointerEvents: "none" }}>
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, flexShrink: 0 }}>
-                  <line x1="20" y1="12" x2="4" y2="12" /><polyline points="10 6 4 12 10 18" />
-                </svg>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>Get Started</div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.8 }}>
-                    <span style={{ color: "var(--text-dim)", marginRight: 6 }}>1.</span>Select a project directory from the sidebar<br />
-                    <span style={{ color: "var(--text-dim)", marginRight: 6 }}>2.</span>Add models via the <strong style={{ color: "var(--text)" }}>Models</strong> button at the bottom
+              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: 40, maxWidth: 400 }}>
+                <div style={{ width: 72, height: 72, borderRadius: "var(--radius-full)", background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(37,99,235,0.04))", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(37,99,235,0.15)" }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <line x1="9" y1="10" x2="15" y2="10" />
+                  </svg>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 20, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>Pi with tGD</div>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.7 }}>
+                    Your AI coding assistant, powered by Pi
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>1</span>
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Select a project directory from the sidebar</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>2</span>
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Click <strong style={{ color: "var(--text)" }}>+ New</strong> to start a session</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>3</span>
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Configure models via <strong style={{ color: "var(--text)" }}>Models</strong> at the bottom</span>
                   </div>
                 </div>
               </div>

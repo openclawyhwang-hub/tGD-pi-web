@@ -350,12 +350,25 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   }, [selectedCwd, onNewSession]);
 
   const recentCwds = getRecentCwds(allSessions);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
   const filteredSessions = selectedCwd
     ? allSessions.filter((s) => s.cwd === selectedCwd)
     : allSessions;
 
+  // Apply search filter
+  const searchFilteredSessions = searchQuery.trim()
+    ? filteredSessions.filter((s) => {
+        const q = searchQuery.toLowerCase();
+        const name = s.name?.toLowerCase() ?? "";
+        const firstMsg = s.firstMessage?.toLowerCase() ?? "";
+        return name.includes(q) || firstMsg.includes(q);
+      })
+    : filteredSessions;
+
   // Build parent-child tree within the filtered set
-  const sessionTree = buildSessionTree(filteredSessions);
+  const sessionTree = buildSessionTree(searchFilteredSessions);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -682,8 +695,41 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         </div>
       </div>
 
+      {/* Search — always visible when a search is active, otherwise only when >3 sessions */}
+      {(filteredSessions.length > 3 || searchQuery.trim()) && (
+        <div style={{ padding: "6px 10px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+          <div style={{ position: "relative" }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search sessions…"
+              aria-label="Search sessions"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Escape") { setSearchQuery(""); searchInputRef.current?.blur(); } }}
+              style={{
+                width: "100%",
+                padding: "5px 8px 5px 26px",
+                background: "var(--bg-hover)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius-md)",
+                color: "var(--text)",
+                fontSize: 11,
+                outline: "none",
+                transition: "border-color 0.15s",
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.4)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Session list */}
-      <div style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto", overflowY: "auto", padding: "0", minHeight: 80 }}>
+      <div role="listbox" aria-label="Sessions" style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto", overflowY: "auto", padding: "0", minHeight: 80 }}>
         {loading && (
           <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
             Loading...
@@ -697,6 +743,11 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         {!loading && !error && filteredSessions.length === 0 && (
           <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
             No sessions found
+          </div>
+        )}
+        {!loading && !error && filteredSessions.length > 0 && searchFilteredSessions.length === 0 && searchQuery.trim() && (
+          <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
+            No matches for &ldquo;{searchQuery}&rdquo;
           </div>
         )}
         {sessionTree.map((node) => (
@@ -1074,6 +1125,8 @@ function SessionItem({
             <button
               onClick={(e) => { e.stopPropagation(); onToggleCollapse?.(); }}
               title={collapsed ? "Expand forks" : "Collapse forks"}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? "Expand forks" : "Collapse forks"}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: 20, height: 20, padding: 0, flexShrink: 0,
