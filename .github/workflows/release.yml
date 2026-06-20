@@ -59,7 +59,10 @@ jobs:
 
           build_section() {
             local title="$1" content="$2"
-            [ -n "$content" ] && echo "### $title" && echo -e "$content"
+            if [ -n "$content" ]; then
+              echo "### $title"
+              echo -e "$content"
+            fi
           }
 
           {
