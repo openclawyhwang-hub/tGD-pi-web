@@ -1,8 +1,21 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { getFileIcon, FolderIcon } from "./FileIcons";
 import { encodeFilePathForApi, getRelativeFilePath, joinFilePath } from "@/lib/file-paths";
+
+const JUNK_DIRS = new Set([
+  ".git", ".next", ".nuxt", "node_modules", "__pycache__", ".venv", "venv",
+  ".idea", ".vscode", ".DS_Store", "dist", "build", ".cache", ".turbo",
+]);
+
+function matchesFilter(node: FileNode, q: string): boolean {
+  if (node.name.toLowerCase().includes(q)) return true;
+  if (node.isDir && node.children) {
+    return node.children.some((c) => matchesFilter(c, q));
+  }
+  return false;
+}
 
 interface FileEntry {
   name: string;
@@ -32,14 +45,16 @@ async function fetchEntries(dirPath: string): Promise<FileNode[]> {
   const res = await fetch(`/api/files/${encoded}?type=list`);
   if (!res.ok) return [];
   const data = await res.json() as { entries?: FileEntry[] };
-  return (data.entries ?? []).map((e) => ({
-    name: e.name,
-    fullPath: joinFilePath(dirPath, e.name),
-    isDir: e.isDir,
-    size: e.size,
-    children: e.isDir ? [] : undefined,
-    loaded: !e.isDir,
-  }));
+  return (data.entries ?? [])
+    .filter((e) => !JUNK_DIRS.has(e.name))
+    .map((e) => ({
+      name: e.name,
+      fullPath: joinFilePath(dirPath, e.name),
+      isDir: e.isDir,
+      size: e.size,
+      children: e.isDir ? [] : undefined,
+      loaded: !e.isDir,
+    }));
 }
 
 function TreeNode({
@@ -51,6 +66,7 @@ function TreeNode({
   expandedPaths,
   onToggleExpanded,
   refreshKey,
+  filterQuery,
 }: {
   node: FileNode;
   depth: number;
@@ -60,6 +76,7 @@ function TreeNode({
   expandedPaths: Set<string>;
   onToggleExpanded: (fullPath: string, open: boolean) => void;
   refreshKey?: number;
+  filterQuery?: string;
 }) {
   const open = expandedPaths.has(node.fullPath);
   const [children, setChildren] = useState<FileNode[]>(node.children ?? []);
@@ -194,8 +211,10 @@ function TreeNode({
       </div>
       {node.isDir && open && (
         <div>
-          {children.map((child) => (
-            <TreeNode key={child.fullPath} node={child} depth={depth + 1} cwd={cwd} onOpenFile={onOpenFile} onAtMention={onAtMention} expandedPaths={expandedPaths} onToggleExpanded={onToggleExpanded} refreshKey={refreshKey} />
+          {children
+            .filter((c) => !filterQuery || c.isDir ? true : matchesFilter(c, filterQuery))
+            .map((child) => (
+            <TreeNode key={child.fullPath} node={child} depth={depth + 1} cwd={cwd} onOpenFile={onOpenFile} onAtMention={onAtMention} expandedPaths={expandedPaths} onToggleExpanded={onToggleExpanded} refreshKey={refreshKey} filterQuery={filterQuery} />
           ))}
           {children.length === 0 && loaded && (
             <div style={{ paddingLeft: 8 + (depth + 1) * 14, fontSize: 11, color: "var(--text-dim)", height: 22, display: "flex", alignItems: "center" }}>
@@ -214,6 +233,8 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
   const [error, setError] = useState<string | null>(null);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const prevCwdRef = useRef<string | null>(null);
+  const [filterQuery, setFilterQuery] = useState("");
+  const filterInputRef = useRef<HTMLInputElement>(null);
 
   const handleToggleExpanded = useCallback((fullPath: string, open: boolean) => {
     setExpandedPaths((prev) => {
@@ -229,6 +250,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
     // Reset expanded state only when cwd changes, not on refreshKey bumps
     if (cwdChanged) setExpandedPaths(new Set());
+    if (cwdChanged) setFilterQuery("");
 
     setLoading(cwdChanged);
     setError(null);
@@ -237,6 +259,28 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
   }, [cwd, refreshKey]);
+
+  // Auto-expand parent paths when filter is active
+  const effectiveExpanded = useMemo(() => {
+    if (!filterQuery.trim()) return expandedPaths;
+    const q = filterQuery.toLowerCase();
+    const autoExpand = new Set<string>();
+    const walk = (nodes: FileNode[]) => {
+      for (const n of nodes) {
+        if (n.isDir && matchesFilter(n, q)) {
+          // expand this dir so children are visible
+          autoExpand.add(n.fullPath);
+          if (n.children && n.children.length > 0) {
+            walk(n.children);
+          }
+        }
+      }
+    };
+    walk(roots);
+    // Merge with user-toggled paths
+    for (const p of expandedPaths) autoExpand.add(p);
+    return autoExpand;
+  }, [filterQuery, roots, expandedPaths]);
 
   if (loading) {
     return (
@@ -254,26 +298,58 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
     );
   }
 
+  const filteredRoots = filterQuery.trim()
+    ? roots.filter((n) => matchesFilter(n, filterQuery.toLowerCase()))
+    : roots;
+
   return (
-    <div style={{ padding: "2px 4px" }}>
-      {roots.map((node) => (
-        <TreeNode
-          key={node.fullPath}
-          node={node}
-          depth={0}
-          cwd={cwd}
-          onOpenFile={onOpenFile}
-          onAtMention={onAtMention}
-          expandedPaths={expandedPaths}
-          onToggleExpanded={handleToggleExpanded}
-          refreshKey={refreshKey}
+    <div>
+      {/* Filter input */}
+      <div style={{ padding: "4px 6px" }}>
+        <input
+          ref={filterInputRef}
+          type="text"
+          placeholder="Filter files…"
+          aria-label="Filter files"
+          value={filterQuery}
+          onChange={(e) => setFilterQuery(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Escape") { setFilterQuery(""); filterInputRef.current?.blur(); } }}
+          style={{
+            width: "100%",
+            padding: "4px 8px",
+            background: "var(--bg-hover)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--text)",
+            fontSize: 11,
+            outline: "none",
+            transition: "border-color 0.15s",
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.4)"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         />
-      ))}
-      {roots.length === 0 && (
-        <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
-          No files found
-        </div>
-      )}
+      </div>
+      <div style={{ padding: "0 4px 2px" }}>
+        {filteredRoots.map((node) => (
+          <TreeNode
+            key={node.fullPath}
+            node={node}
+            depth={0}
+            cwd={cwd}
+            onOpenFile={onOpenFile}
+            onAtMention={onAtMention}
+            expandedPaths={effectiveExpanded}
+            onToggleExpanded={handleToggleExpanded}
+            refreshKey={refreshKey}
+            filterQuery={filterQuery.trim() || undefined}
+          />
+        ))}
+        {filteredRoots.length === 0 && (
+          <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
+            {filterQuery.trim() ? "No matches" : "No files found"}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

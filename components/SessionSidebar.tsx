@@ -57,6 +57,21 @@ function shortenCwd(cwd: string, homeDir?: string): string {
   return "…/" + parts.slice(-2).join(sep);
 }
 
+function getSessionDateGroup(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+  if (date >= startOfToday) return "Today";
+  if (date >= startOfYesterday) return "Yesterday";
+  if (date >= startOfWeek) return "This Week";
+  return "Earlier";
+}
+
 
 
 interface SessionTreeNode {
@@ -750,20 +765,39 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             No matches for &ldquo;{searchQuery}&rdquo;
           </div>
         )}
-        {sessionTree.map((node) => (
-          <SessionTreeItem
-            key={node.session.id}
-            node={node}
-            selectedSessionId={selectedSessionId}
-            onSelectSession={onSelectSession}
-            onRenamed={loadSessions}
-            onSessionDeleted={(id) => {
-              onSessionDeleted?.(id);
-              loadSessions();
-            }}
-            depth={0}
-          />
-        ))}
+        {sessionTree.map((node, idx) => {
+          const group = getSessionDateGroup(node.session.modified);
+          const prevGroup = idx > 0 ? getSessionDateGroup(sessionTree[idx - 1].session.modified) : null;
+          const showHeader = group !== prevGroup;
+          return (
+            <div key={node.session.id}>
+              {showHeader && (
+                <div style={{
+                  padding: "8px 14px 4px",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: "var(--text-dim)",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  userSelect: "none",
+                }}>
+                  {group}
+                </div>
+              )}
+              <SessionTreeItem
+                node={node}
+                selectedSessionId={selectedSessionId}
+                onSelectSession={onSelectSession}
+                onRenamed={loadSessions}
+                onSessionDeleted={(id) => {
+                  onSessionDeleted?.(id);
+                  loadSessions();
+                }}
+                depth={0}
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* File Explorer section */}
