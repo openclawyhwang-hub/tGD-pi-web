@@ -1,10 +1,12 @@
 import type { Config } from "tailwindcss";
 
+// Tailwind v4: content detection is automatic via @tailwindcss/postcss.
+// This config is kept for v3 fallback compatibility only.
 const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./hooks/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {},
