@@ -4,17 +4,23 @@
 
 ## Quick Start
 
-**無需安裝，直接運行：**
+**一鍵安裝：**
 
 ```bash
-npx @agegr/pi-web@latest
+git clone https://github.com/openclawyhwang-hub/tGD-pi-web.git
+cd tGD-pi-web
+./setup.sh
 ```
 
-**或全局安裝：**
+`setup.sh` 會自動檢查 Node.js 版本、安裝依賴、驗證編譯，並詢問是否立即啟動。
+
+**手動安裝：**
 
 ```bash
-npm install -g @agegr/pi-web
-pi-web
+git clone https://github.com/openclawyhwang-hub/tGD-pi-web.git
+cd tGD-pi-web
+npm install
+npm run dev
 ```
 
 啟動後打開 [http://localhost:30141](http://localhost:30141)。
@@ -22,11 +28,8 @@ pi-web
 **可選參數：**
 
 ```bash
-pi-web --port 8080               # 自訂連接埠
-pi-web --hostname 127.0.0.1      # 僅本機存取
-pi-web -p 8080 -H 127.0.0.1      # 組合使用
-
-PORT=8080 pi-web                 # 也支援環境變數
+npm run dev -- --port 8080               # 自訂連接埠
+PORT=8080 npm run dev                    # 環境變數
 ```
 
 ## Features
