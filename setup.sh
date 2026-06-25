@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#
+# tGD-pi-web — 一鍵安裝 + 啟動
+# 需要：Node.js 18+
+#
+set -e
+
+# ── 顏色 ──────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+echo -e "${CYAN}${BOLD}🚀 tGD-pi-web 一鍵安裝${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# ── 檢查 Node.js ──────────────────────────────────────
+echo ""
+echo -e "${BOLD}📦 檢查 Node.js...${NC}"
+if ! command -v node &>/dev/null; then
+  echo -e "  ${RED}❌ 找不到 Node.js${NC}"
+  echo ""
+  echo "  安裝方式："
+  echo "    macOS:   brew install node"
+  echo "    Ubuntu:  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs"
+  echo "    其他:    https://nodejs.org/"
+  exit 1
+fi
+
+NODE_MAJOR=$(node -e "console.log(process.versions.node.split('.')[0])")
+if [ "$NODE_MAJOR" -lt 18 ]; then
+  echo -e "  ${RED}❌ Node.js 版本過舊 ($NODE_MAJOR.x)，需要 18+${NC}"
+  exit 1
+fi
+echo -e "  ${GREEN}✅ Node.js $(node --version)${NC}"
+
+# ── 檢查 npm ──────────────────────────────────────────
+if ! command -v npm &>/dev/null; then
+  echo -e "  ${RED}❌ 找不到 npm${NC}"
+  exit 1
+fi
+echo -e "  ${GREEN}✅ npm $(npm --version)${NC}"
+
+# ── 安裝依賴 ──────────────────────────────────────────
+echo ""
+echo -e "${BOLD}📦 安裝依賴...${NC}"
+if [ ! -d "node_modules" ]; then
+  npm install
+  echo -e "  ${GREEN}✅ 依賴安裝完成${NC}"
+else
+  echo -e "  ${YELLOW}⏭️  node_modules 已存在，跳過安裝${NC}"
+  echo -e "  ${YELLOW}   如需更新：npm update${NC}"
+fi
+
+# ── 檢查 Pi Agent ─────────────────────────────────────
+echo ""
+echo -e "${BOLD}🤖 檢查 Pi Agent...${NC}"
+PI_DIR="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}"
+if [ -d "$PI_DIR" ]; then
+  echo -e "  ${GREEN}✅ Pi Agent 資料目錄: $PI_DIR${NC}"
+else
+  echo -e "  ${YELLOW}⚠️  Pi Agent 尚未安裝或未初始化${NC}"
+  echo -e "  ${YELLOW}   資料目錄 $PI_DIR 不存在${NC}"
+  echo ""
+  echo "  安裝 Pi Agent："
+  echo "    npm install -g @earendil-works/pi-coding-agent"
+  echo "    pi  # 首次運行會自動初始化"
+  echo ""
+  echo -e "  ${YELLOW}繼續啟動 Web 界面（瀏覽功能可用，對話需先裝 Pi Agent）${NC}"
+fi
+
+# ── 驗證 ──────────────────────────────────────────────
+echo ""
+echo -e "${BOLD}🔍 驗證...${NC}"
+if node_modules/.bin/tsc --noEmit 2>/dev/null; then
+  echo -e "  ${GREEN}✅ TypeScript 編譯通過${NC}"
+else
+  echo -e "  ${YELLOW}⚠️  TypeScript 有警告（不影響運行）${NC}"
+fi
+
+# ── 啟動 ──────────────────────────────────────────────
+echo ""
+echo -e "${CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}${BOLD}✅ 安裝完成！${NC}"
+echo -e "${CYAN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "  啟動開發模式：  ${BOLD}npm run dev${NC}"
+echo -e "  啟動生產模式：  ${BOLD}npm run build && npm start${NC}"
+echo -e "  直接 npx 運行： ${BOLD}npx @agegr/pi-web@latest${NC}"
+echo ""
+echo -e "  預設埠號：      ${BOLD}30141${NC}"
+echo -e "  自訂埠號：      ${BOLD}PORT=8080 npm run dev${NC}"
+echo ""
+
+# ── 詢問是否立即啟動 ──────────────────────────────────
+if [ -t 0 ]; then
+  read -p "$(echo -e ${CYAN}是否立即啟動開發伺服器？[Y/n]${NC} )" choice
+  case "$choice" in
+    n|N)
+      echo "bye 👋"
+      exit 0
+      ;;
+    *)
+      echo ""
+      echo -e "${CYAN}啟動中...${NC}"
+      echo -e "  打開 http://localhost:30141"
+      echo -e "  Ctrl+C 停止"
+      echo ""
+      exec npm run dev
+      ;;
+  esac
+fi
