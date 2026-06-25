@@ -1,75 +1,155 @@
-# pi-web
+# Pi with tGD — Web Interface
 
-[pi 编程智能体](https://github.com/badlogic/pi-mono) 的网页界面。在浏览器中浏览会话、与智能体对话、分叉对话、切换消息分支。
+[Pi 編程智能體](https://github.com/earendil-works/pi) 的網頁界面。在瀏覽器中瀏覽會話、與智能體即時對話、分叉對話、切換消息分支。
 
-## 快速开始
+## Quick Start
 
-**无需安装，直接运行：**
+**無需安裝，直接運行：**
 
 ```bash
 npx @agegr/pi-web@latest
 ```
 
-**或全局安装后使用：**
+**或全局安裝：**
 
 ```bash
 npm install -g @agegr/pi-web
 pi-web
 ```
 
-启动后打开 [http://localhost:30141](http://localhost:30141)。
+啟動後打開 [http://localhost:30141](http://localhost:30141)。
 
-**可选参数：**
+**可選參數：**
 
 ```bash
-pi-web --port 8080               # 自定义端口
-pi-web --hostname 127.0.0.1      # 仅本机访问
-pi-web -p 8080 -H 127.0.0.1     # 组合使用
+pi-web --port 8080               # 自訂連接埠
+pi-web --hostname 127.0.0.1      # 僅本機存取
+pi-web -p 8080 -H 127.0.0.1      # 組合使用
 
-PORT=8080 pi-web                 # 也支持环境变量
+PORT=8080 pi-web                 # 也支援環境變數
 ```
 
-## 功能介绍
+## Features
 
-- **会话浏览器** — 按工作目录分组展示所有 pi 会话
-- **实时对话** — 通过 SSE 流式输出与智能体实时交互
-- **会话分叉** — 从任意用户消息创建独立的新会话分支
-- **会话内分支** — 回退到任意节点继续对话，在同一文件内创建分支
-- **分支导航器** — 可视化切换同一会话内的各个分支
-- **模型切换** — 对话中途随时切换模型
-- **工具面板** — 控制智能体可使用的工具
-- **压缩会话** — 对长会话进行摘要，节省上下文窗口
-- **引导 / 追加** — 打断正在运行的智能体，或在其完成后追加消息
+### 對話
+- **即時串流** — SSE 串流輸出，邊生成邊顯示
+- **引導 / 追加** — 中斷正在運行的智能體，或在其完成後追加訊息
+- **模型切換** — 對話中途隨時切換模型和 thinking level
+- **工具面板** — 控制智能體可使用的工具（無工具 / 預設 / 全部）
+- **壓縮會話** — 對長會話進行摘要，節省上下文窗口
 
-## 注意事项
+### 會話管理
+- **會話瀏覽器** — 按工作目錄分組，自動偵測最近使用的專案
+- **時間分組** — Today / Yesterday / This Week / Earlier
+- **會話搜尋** — 按名稱或首條訊息即時搜尋
+- **自動命名** — 首次對話後自動生成會話標題
+- **會話分叉** — 從任意用戶訊息建立獨立的新會話
+- **會話內分支** — 回退到任意節點繼續對話，同一檔案內建立分支
+- **分支導航器** — 視覺化切換同一會話內的各個分支
+- **匯出 HTML** — 將會話匯出為獨立 HTML 檔
 
-- **数据目录** — 默认读取 `~/.pi/agent/sessions` 下的会话文件。可通过环境变量 `PI_CODING_AGENT_DIR` 指定其他目录。
-- **模型配置** — 从智能体数据目录下的 `models.json` 读取可用模型，可在侧边栏的「Models」面板中编辑。
-- **文件浏览** — 侧边栏内置文件浏览器，可在标签页中查看当前工作目录下的文件。
+### 檔案瀏覽
+- **檔案總管** — 側邊欄內建檔案樹，支援展開/摺疊
+- **檔案搜尋** — 即時過濾，匹配的目錄自動展開
+- **垃圾目錄過濾** — 自動隱藏 `.git`、`node_modules`、`__pycache__` 等
+- **檔案預覽** — 在分頁中查看檔案內容，支援 Markdown 渲染
+- **@提及** — 點擊檔案旁的按鈕插入路徑到聊天輸入框
 
-## 开发
+### 渲染
+- **Markdown** — GFM 語法、表格、任務清單
+- **程式碼** — 語法高亮 + 行號
+- **數學公式** — KaTeX 渲染行內與區塊公式
+- **圖表** — Mermaid 流程圖、時序圖等
+- **Provider 圖示** — Anthropic、OpenAI、Google、ZAI 等
+
+### 體驗
+- **深色模式** — 自動偵測系統主題，手動切換有圓形展開動畫
+- **跨平台字型** — 打包 Inter + JetBrains Mono，零網路依賴
+- **無障礙** — 鍵盤焦點指示、減少動態效果尊重、ARIA 標籤
+- **響應式** — 桌面與觸控裝置自適應（scrollbar、佈局）
+- **IME 支援** — 正確處理中文/日文輸入法組字
+
+### tGD 整合
+- **Slash Commands** — 在網頁直接執行 `/tgd-map`、`/tgd-define` 等 7-phase 命令
+- **Skills 管理** — 搜尋與安裝 tGD skills
+
+## Configuration
+
+| 項目 | 說明 |
+|------|------|
+| 會話目錄 | 預設 `~/.pi/agent/sessions/`，可設 `PI_CODING_AGENT_DIR` |
+| 模型配置 | 讀取 `models.json`，可在側邊欄 Models 面板編輯 |
+| API Keys | 各 provider 的 key 存於 `auth.json` |
+| 預設目錄 | 可在 CWD 選擇器中設定或自訂路徑 |
+
+## Development
 
 ```bash
 npm install
-npm run dev   # 端口 30141
+npm run dev    # port 30141
 ```
 
-## 项目结构
+**驗證指令：**
+
+```bash
+node_modules/.bin/tsc --noEmit     # Typecheck
+npx eslint .                       # Lint
+```
+
+> ⚠️ 開發期間**不要**跑 `next build` — 會污染 `.next/` 並導致 `npm run dev` 異常。
+
+## Tech Stack
+
+| 層 | 技術 |
+|----|------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + CSS Variables (zero CSS-in-JS) |
+| Agent SDK | @earendil-works/pi-ai + pi-coding-agent |
+| Markdown | react-markdown + remark-gfm + rehype-katex |
+| Diagrams | Mermaid |
+| Code | react-syntax-highlighter |
+| Fonts | Inter + JetBrains Mono (bundled .woff2) |
+
+## Architecture
+
+```
+Browser                Next.js Server              AgentSession (in-process)
+  │                        │                               │
+  ├─ GET /api/sessions ────▶ reads ~/.pi/agent/sessions/   │
+  ├─ GET /api/sessions/[id] reads .jsonl file directly     │
+  │                        │                               │
+  ├─ send message ─────────▶ POST /api/agent/[id]          │
+  │                        │   startRpcSession() ─────────▶│ createAgentSession()
+  │                        │   session.send(cmd) ─────────▶│ session.prompt()
+  │                        │                               │
+  ├─ SSE connect ──────────▶ GET /api/agent/[id]/events    │
+  │                        │   session.onEvent() ◀─────────│ session.subscribe()
+  │◀── data: {...} ─────────│                               │
+```
+
+## Project Structure
 
 ```
 app/
   api/
-    sessions/      # 读写会话文件
-    agent/         # 发送命令、SSE 事件流
-    files/         # 文件内容读取
-    models/        # 可用模型列表与默认模型
-    models-config/ # 读写 models.json
-components/        # UI 组件
+    agent/          # 發送命令、SSE 事件流、自動命名
+    sessions/       # 讀寫會話檔案、匯出
+    files/          # 檔案內容讀取
+    models/         # 可用模型與預設模型
+    models-config/  # 讀寫 models.json
+    auth/           # Provider 登入/登出
+    skills/         # tGD skills 搜尋與安裝
+    cwd/            # 工作目錄驗證
+components/         # UI 元件
 lib/
-  session-reader.ts  # 解析 .jsonl 会话文件
-  rpc-manager.ts     # 管理 AgentSession 生命周期
-  normalize.ts       # 规范化 toolCall 字段名
-  types.ts
+  rpc-manager.ts    # AgentSession 生命週期管理
+  session-reader.ts # 解析 .jsonl 會話檔案
+  normalize.ts      # 規範化 toolCall 欄位名
+  types.ts          # 共用 TypeScript 型別
+hooks/
+  useTheme.ts       # 深色模式切換 + View Transitions API
 ```
 
-会话文件存储路径：`~/.pi/agent/sessions/<编码后的工作目录>/<时间戳>_<uuid>.jsonl`
+## License
+
+MIT
