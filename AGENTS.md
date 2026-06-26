@@ -3,11 +3,11 @@
 ## Quick Start
 
 ```bash
-npm run dev   # port 3030
+npm run dev   # port 30141
 ```
 
 Typecheck: `node_modules/.bin/tsc --noEmit`  
-Lint: `node node_modules/next/dist/bin/next lint`  
+Lint: `npm run lint`  
 **Never run `next build` during dev** — pollutes `.next/` and breaks `npm run dev`.
 
 ---
@@ -47,6 +47,14 @@ app/api/
   files/[...path]/route.ts        GET file contents for viewer
   models/route.ts                 GET { models, modelList, defaultModel }
   models-config/route.ts          GET/POST — read/write ~/.pi/agent/models.json
+  skills/route.ts                 GET/PATCH — list/toggle skills
+  skills/search/route.ts          POST — search skills.sh
+  skills/install/route.ts         POST — install skill package
+  auth/providers/route.ts         GET — OAuth providers
+  auth/login/[id]/route.ts        GET SSE / POST — OAuth login flow
+  auth/logout/[id]/route.ts       POST — disconnect OAuth
+  auth/api-key/[id]/route.ts      POST/DELETE — API key management
+  models-config/test/route.ts     POST — test model connection
 
 lib/
   rpc-manager.ts      AgentSessionWrapper + registry + startRpcSession
@@ -56,18 +64,19 @@ lib/
   system-prompt-off.ts  minimal system prompt when all tools are disabled
 
 components/
-  AppShell.tsx        layout + URL state + tab management
-  SessionSidebar.tsx  session tree + FileExplorer
-  ChatWindow.tsx      messages + streaming + SSE + fork/navigate logic
-  ChatInput.tsx       input bar + model/thinking/tools/compact controls
-  MessageView.tsx     renders one message (user/assistant/toolCall/toolResult)
-  BranchNavigator.tsx in-session branch switcher
-  ChatMinimap.tsx     scroll minimap alongside the message list
-  ToolPanel.tsx       exports PRESET_NONE/DEFAULT/FULL + getPresetFromTools
-  ModelsConfig.tsx    modal for editing models.json (opened from sidebar bottom)
-  FileExplorer.tsx    file tree inside sidebar
-  FileViewer.tsx      file content in a tab
-  TabBar.tsx          tab bar (Chat + open file tabs)
+  layout/             AppShell, TabBar, FileViewer, ErrorBoundary
+  chat/               ChatWindow, ChatInput, MessageView, BranchNavigator, ChatMinimap, MarkdownBody
+  sidebar/            SessionSidebar, FileExplorer, FileIcons
+  modals/             ModelsConfig, SkillsConfig, ToolPanel
+    models-config-types.ts    — interfaces, types, constants
+    models-config-forms.tsx   — Field, TextInput, SecretTextInput, NumInput, Select, Check, SectionTitle
+    ProviderIcon.tsx          — provider icon with fallback initials
+    OAuthDetail.tsx           — OAuth login flow UI
+    ApiKeyDetail.tsx          — API key management UI
+    AddProviderPicker.tsx     — add provider search/dialog
+    skills-config-types.ts    — Skill interface, shortenPath, sourceLabel
+    SkillDetail.tsx           — skill detail view + toggle
+    AddSkillPanel.tsx         — search & install skills
 ```
 
 ---
@@ -109,6 +118,10 @@ Newer pi emits `compaction_start` / `compaction_end`; older versions emitted `au
 ### Orphaned sessions
 Sessions whose first line can't be parsed as a valid header are marked `orphaned: true` in the API response — displayed with an "incomplete" badge in the sidebar and not clickable.
 
+### CSS Design Tokens (`app/globals.css`)
+Semantic color system with light/dark mode variants. All components use CSS variables — never hardcoded hex/rgba.
+Categories: base (bg/text/border), semantic (error/success/warning/info), overlay, accent-tints, shadows, typography (font sizes), radius.
+
 ---
 
 ## Pi Session File Format
@@ -126,14 +139,3 @@ Location: `~/.pi/agent/sessions/<encoded-cwd>/<timestamp>_<uuid>.jsonl`
 ```
 
 `entryIds[]` in `SessionContext` is a parallel array to `messages[]` — maps each displayed message back to its `.jsonl` entry id, used for fork and navigate_tree calls.
-
----
-
-## CSS Variables (`app/globals.css`)
-
-```
---bg --bg-panel --bg-hover --bg-selected --border
---text --text-muted --text-dim
---accent --user-bg --tool-bg
---font-mono
-```

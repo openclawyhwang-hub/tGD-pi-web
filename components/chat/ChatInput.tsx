@@ -389,8 +389,8 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
         {retryInfo && (
           <div style={{
             marginBottom: 8, padding: "5px 10px",
-            background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)",
-            borderRadius: 6, fontSize: 12, color: "rgba(180,130,0,0.9)",
+            background: "var(--color-warning-bg)", border: "1px solid var(--color-warning-border)",
+            borderRadius: 6, fontSize: 12, color: "var(--color-warning-text)",
             display: "flex", alignItems: "center", gap: 6,
           }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -504,7 +504,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   background: "var(--bg)",
                   border: "1px solid var(--border)",
                   borderRadius: "var(--radius-md)",
-                  boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                  boxShadow: "var(--color-shadow-popup)",
                   overflow: "hidden",
                   zIndex: 100,
                   maxHeight: 240,
@@ -559,10 +559,10 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 12px",
-                    background: (value.trim() || attachedImages.length) ? "rgba(234,179,8,0.12)" : "none",
-                    border: "1px solid rgba(234,179,8,0.35)",
+                    background: (value.trim() || attachedImages.length) ? "var(--color-warning-bg-strong)" : "none",
+                    border: "1px solid var(--color-warning-border-strong)",
                     borderRadius: 8,
-                    color: (value.trim() || attachedImages.length) ? "rgba(180,130,0,1)" : "var(--text-dim)",
+                    color: (value.trim() || attachedImages.length) ? "var(--color-warning-text-strong)" : "var(--text-dim)",
                     cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
                     fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
                     transition: "background 0.12s",
@@ -582,10 +582,10 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 12px",
-                    background: (value.trim() || attachedImages.length) ? "rgba(129,140,248,0.12)" : "none",
-                    border: "1px solid rgba(129,140,248,0.35)",
+                    background: (value.trim() || attachedImages.length) ? "var(--color-accent-bg-strong)" : "none",
+                    border: "1px solid var(--color-accent-border)",
                     borderRadius: 8,
-                    color: (value.trim() || attachedImages.length) ? "rgba(99,102,241,1)" : "var(--text-dim)",
+                    color: (value.trim() || attachedImages.length) ? "var(--accent)" : "var(--text-dim)",
                     cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
                     fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
                     transition: "background 0.12s",
@@ -616,7 +616,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
-                boxShadow: (value.trim() || attachedImages.length) ? "0 1px 3px rgba(37,99,235,0.25)" : "none",
+                boxShadow: (value.trim() || attachedImages.length) ? "0 1px 3px var(--color-accent-glow)" : "none",
                 transition: "background 0.15s, box-shadow 0.15s, transform 0.1s",
                 minHeight: 36,
               }}
@@ -721,7 +721,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                       position: "fixed",
                       bottom, left: modelDropdownRect.left,
                       zIndex: 500, background: "var(--bg)", border: "1px solid var(--border)",
-                      borderRadius: 8, boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                      borderRadius: 8, boxShadow: "var(--color-shadow-popup)",
                       overflow: "hidden", width: "max-content", minWidth: modelDropdownRect.width, maxHeight: maxH, overflowY: "auto",
                     }}>
                       {modelsByProvider.map((group, gi) => (
@@ -821,7 +821,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   <div style={{
                     position: "absolute", bottom: "calc(100% + 6px)", right: 0,
                     zIndex: 100, background: "var(--bg)", border: "1px solid var(--border)",
-                    borderRadius: 8, boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                    borderRadius: 8, boxShadow: "var(--color-shadow-popup)",
                     overflow: "hidden", minWidth: 180,
                   }}>
                     {THINKING_LEVELS.filter((lvl) => {
@@ -904,7 +904,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   <div style={{
                     position: "absolute", bottom: "calc(100% + 6px)", right: 0,
                     zIndex: 100, background: "var(--bg)", border: "1px solid var(--border)",
-                    borderRadius: 8, boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                    borderRadius: 8, boxShadow: "var(--color-shadow-popup)",
                     overflow: "hidden", minWidth: 120,
                   }}>
                     {TOOL_PRESETS.map((lvl) => {
@@ -949,7 +949,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                     background: "var(--tool-bg)", color: "var(--color-error-text)",
                     fontSize: 11, padding: "4px 8px", borderRadius: 5,
                     whiteSpace: "nowrap", pointerEvents: "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)", zIndex: 50,
+                    boxShadow: "var(--color-shadow-dropdown)", zIndex: 50,
                   }}>
                     {compactError}
                   </div>

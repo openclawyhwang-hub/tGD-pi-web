@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SessionSidebar } from "../sidebar/SessionSidebar";
 import { ChatWindow } from "../chat/ChatWindow";
 import { FileViewer } from "./FileViewer";
 import { TabBar, type Tab } from "./TabBar";
-import { ModelsConfig } from "../modals/ModelsConfig";
-import { SkillsConfig } from "../modals/SkillsConfig";
 import { BranchNavigator } from "../chat/BranchNavigator";
 import { useTheme } from "@/hooks/useTheme";
 import { ErrorBoundary } from "./ErrorBoundary";
 import type { SessionInfo, SessionTreeNode } from "@/lib/types";
 import type { ChatInputHandle } from "../chat/ChatInput";
+
+// Lazy-load heavy modals — they're ~1000 lines each and rarely opened
+const ModelsConfig = lazy(() => import("../modals/ModelsConfig").then((m) => ({ default: m.ModelsConfig })));
+const SkillsConfig = lazy(() => import("../modals/SkillsConfig").then((m) => ({ default: m.SkillsConfig })));
 
 export function AppShell() {
   const router = useRouter();
@@ -311,7 +313,7 @@ export function AppShell() {
           position: "fixed",
           inset: 0,
           zIndex: 199,
-          background: "rgba(0,0,0,0.4)",
+          background: "var(--color-overlay-heavy)",
           opacity: sidebarOpen ? 1 : 0,
           pointerEvents: sidebarOpen ? "auto" : "none",
           transition: "opacity 0.25s ease",
@@ -731,9 +733,9 @@ export function AppShell() {
         <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="15" y1="3" x2="15" y2="21" />
       </svg>
     </button>
-    {modelsConfigOpen && <ModelsConfig onClose={() => { setModelsConfigOpen(false); setModelsRefreshKey((k) => k + 1); }} />}
+    {modelsConfigOpen && <Suspense fallback={null}><ModelsConfig onClose={() => { setModelsConfigOpen(false); setModelsRefreshKey((k) => k + 1); }} /></Suspense>}
     {skillsConfigOpen && (activeCwd ?? selectedSession?.cwd ?? newSessionCwd) && (
-      <SkillsConfig cwd={(activeCwd ?? selectedSession?.cwd ?? newSessionCwd)!} onClose={() => setSkillsConfigOpen(false)} />
+      <Suspense fallback={null}><SkillsConfig cwd={(activeCwd ?? selectedSession?.cwd ?? newSessionCwd)!} onClose={() => setSkillsConfigOpen(false)} /></Suspense>
     )}
     </>
   );

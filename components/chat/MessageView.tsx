@@ -123,7 +123,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
             flex: 1,
             minWidth: 0,
             background: "var(--user-bg)",
-            border: "1px solid rgba(59,130,246,0.2)",
+            border: "1px solid var(--color-accent-border)",
             borderRadius: 12,
             padding: "8px 12px",
             fontSize: 14,
@@ -151,7 +151,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                     key={i}
                     src={src}
                     alt=""
-                    style={{ maxWidth: 240, maxHeight: 240, borderRadius: 6, objectFit: "contain", display: "block", border: "1px solid rgba(59,130,246,0.15)" }}
+                    style={{ maxWidth: 240, maxHeight: 240, borderRadius: 6, objectFit: "contain", display: "block", border: "1px solid var(--color-accent-border)" }}
                   />
                 );
               })}

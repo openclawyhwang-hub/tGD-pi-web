@@ -104,6 +104,25 @@
   --color-thinking-med: #a78bfa;
   --color-thinking-high: #f472b6;
   --color-thinking-max: #fb923c;
+
+  /* Design Tokens - Overlay & Accent tints */
+  --color-overlay: rgba(0,0,0,0.35);
+  --color-overlay-heavy: rgba(0,0,0,0.4);
+  --color-accent-bg: rgba(37,99,235,0.08);
+  --color-accent-bg-strong: rgba(37,99,235,0.12);
+  --color-accent-border: rgba(37,99,235,0.2);
+  --color-accent-glow: rgba(37,99,235,0.25);
+  --color-warning-bg: rgba(234,179,8,0.08);
+  --color-warning-border: rgba(234,179,8,0.25);
+  --color-warning-text: rgba(180,130,0,0.9);
+  --color-warning-bg-strong: rgba(234,179,8,0.12);
+  --color-warning-border-strong: rgba(234,179,8,0.35);
+  --color-warning-text-strong: rgba(180,130,0,1);
+  --color-project-bg: rgba(99,102,241,0.12);
+  --color-project-text: rgba(99,102,241,0.8);
+  --color-shadow-modal: 0 8px 32px rgba(0,0,0,0.18);
+  --color-shadow-popup: 0 -4px 16px rgba(0,0,0,0.10);
+  --color-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 html.dark {
@@ -139,6 +158,25 @@ html.dark {
   --color-thinking-med: #c4b5fd;
   --color-thinking-high: #f9a8d4;
   --color-thinking-max: #fdba74;
+
+  /* Dark mode - Overlay & Accent tints */
+  --color-overlay: rgba(0,0,0,0.5);
+  --color-overlay-heavy: rgba(0,0,0,0.6);
+  --color-accent-bg: rgba(96,165,250,0.12);
+  --color-accent-bg-strong: rgba(96,165,250,0.16);
+  --color-accent-border: rgba(96,165,250,0.3);
+  --color-accent-glow: rgba(96,165,250,0.3);
+  --color-warning-bg: rgba(250,204,21,0.1);
+  --color-warning-border: rgba(250,204,21,0.3);
+  --color-warning-text: rgba(250,204,21,0.9);
+  --color-warning-bg-strong: rgba(250,204,21,0.15);
+  --color-warning-border-strong: rgba(250,204,21,0.4);
+  --color-warning-text-strong: rgba(250,204,21,1);
+  --color-project-bg: rgba(167,139,250,0.12);
+  --color-project-text: rgba(167,139,250,0.8);
+  --color-shadow-modal: 0 8px 32px rgba(0,0,0,0.35);
+  --color-shadow-popup: 0 -4px 16px rgba(0,0,0,0.2);
+  --color-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.4);
 }
 
 /* Theme toggle: circular wipe via View Transitions API.

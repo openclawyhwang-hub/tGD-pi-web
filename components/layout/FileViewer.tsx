@@ -420,7 +420,7 @@ function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
               maxWidth: "100%",
               maxHeight: "100%",
               objectFit: "contain",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              boxShadow: "var(--color-shadow-dropdown)",
             }}
           />
         )}
