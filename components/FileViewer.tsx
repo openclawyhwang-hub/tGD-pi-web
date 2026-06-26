@@ -239,7 +239,7 @@ function DiffView({ oldContent, newContent }: { oldContent: string; newContent: 
           const prefix =
             line.type === "added" ? "+" : line.type === "removed" ? "-" : " ";
           const prefixColor =
-            line.type === "added" ? "#4ade80" : line.type === "removed" ? "#f87171" : "var(--text-dim)";
+            line.type === "added" ? "var(--color-diff-add)" : line.type === "removed" ? "var(--color-diff-remove)" : "var(--text-dim)";
 
           return (
             <div
@@ -248,9 +248,9 @@ function DiffView({ oldContent, newContent }: { oldContent: string; newContent: 
                 display: "flex",
                 background: bg,
                 borderLeft: line.type === "added"
-                  ? "3px solid #4ade80"
+                  ? "3px solid var(--color-diff-add)"
                   : line.type === "removed"
-                  ? "3px solid #f87171"
+                  ? "3px solid var(--color-diff-remove)"
                   : "3px solid transparent",
               }}
             >
@@ -374,16 +374,16 @@ function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         {formatSizeStr && <span>{formatSizeStr}</span>}
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
+          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
         >
           <span
             style={{
               width: 7,
               height: 7,
               borderRadius: "50%",
-              background: watching ? "#4ade80" : "var(--border)",
+              background: watching ? "var(--color-success)" : "var(--border)",
               display: "inline-block",
-              boxShadow: watching ? "0 0 4px #4ade80" : "none",
+              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
             }}
           />
           {watching ? "live" : "static"}
@@ -405,7 +405,7 @@ function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         }}
       >
         {error ? (
-          <div style={{ color: "#f87171", fontSize: 13 }}>{error}</div>
+          <div style={{ color: "var(--color-error-text)", fontSize: 13 }}>{error}</div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -508,16 +508,16 @@ function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         {size != null && <span>{formatSize(size)}</span>}
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
+          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
         >
           <span
             style={{
               width: 7,
               height: 7,
               borderRadius: "50%",
-              background: watching ? "#4ade80" : "var(--border)",
+              background: watching ? "var(--color-success)" : "var(--border)",
               display: "inline-block",
-              boxShadow: watching ? "0 0 4px #4ade80" : "none",
+              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
             }}
           />
           {watching ? "live" : "static"}
@@ -535,7 +535,7 @@ function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
       >
         <div style={{ width: "min(680px, 100%)" }}>
           {error && (
-            <div style={{ color: "#f87171", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
+            <div style={{ color: "var(--color-error-text)", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
               {error}
             </div>
           )}
@@ -642,16 +642,16 @@ function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
         <DownloadLink filePath={filePath} />
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)", flexShrink: 0 }}
+          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)", flexShrink: 0 }}
         >
           <span
             style={{
               width: 7,
               height: 7,
               borderRadius: "50%",
-              background: watching ? "#4ade80" : "var(--border)",
+              background: watching ? "var(--color-success)" : "var(--border)",
               display: "inline-block",
-              boxShadow: watching ? "0 0 4px #4ade80" : "none",
+              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
             }}
           />
           {watching ? "live" : "static"}
@@ -659,7 +659,7 @@ function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
       </div>
       <div style={{ flex: 1, minHeight: 0, background: "var(--bg-panel)" }}>
         {error ? (
-          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "#f87171", fontSize: 13, textAlign: "center" }}>
+          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "var(--color-error-text)", fontSize: 13, textAlign: "center" }}>
             {error}
           </div>
         ) : (
@@ -668,7 +668,7 @@ function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
             src={previewUrl}
             sandbox={isPdf ? undefined : ""}
             title={`Preview ${getFileName(filePath)}`}
-            style={{ width: "100%", height: "100%", border: "none", background: isPdf ? "var(--bg)" : "#eef1f5" }}
+            style={{ width: "100%", height: "100%", border: "none", background: isPdf ? "var(--bg)" : "var(--bg-panel)" }}
           />
         )}
       </div>
@@ -786,7 +786,7 @@ function TextFileViewer({ filePath, cwd }: Props) {
 
   if (error) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#f87171", fontSize: 13 }}>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-error-text)", fontSize: 13 }}>
         {error}
       </div>
     );
@@ -825,16 +825,16 @@ function TextFileViewer({ filePath, cwd }: Props) {
         {/* Live watch indicator */}
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
+          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
         >
           <span
             style={{
               width: 7,
               height: 7,
               borderRadius: "50%",
-              background: watching ? "#4ade80" : "var(--border)",
+              background: watching ? "var(--color-success)" : "var(--border)",
               display: "inline-block",
-              boxShadow: watching ? "0 0 4px #4ade80" : "none",
+              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
             }}
           />
           {watching ? "live" : "static"}
@@ -863,7 +863,7 @@ function TextFileViewer({ filePath, cwd }: Props) {
                 fontWeight: viewMode === "diff" ? 600 : 400,
               }}
             >
-              Diff {changeCount > 0 && <span style={{ color: "#4ade80", marginLeft: 2 }}>+{changeCount}</span>}
+              Diff {changeCount > 0 && <span style={{ color: "var(--color-diff-add)", marginLeft: 2 }}>+{changeCount}</span>}
             </button>
           </div>
         )}

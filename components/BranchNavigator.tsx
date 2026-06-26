@@ -100,7 +100,7 @@ function TreeNodeView({ node, activePathIds, depth, isLast, parentLines, onSelec
         style={{
           display: "flex",
           alignItems: "center",
-          height: 24,
+          height: 32,
           cursor: "pointer",
         }}
         onClick={() => onSelect(rep.entry.id)}

@@ -294,7 +294,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
   if (error) {
     return (
-      <div style={{ padding: "8px 12px", fontSize: 11, color: "#f87171" }}>
+      <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--color-error-text)" }}>
         {error}
       </div>
     );

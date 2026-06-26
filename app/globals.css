@@ -82,6 +82,28 @@
   --text-sm: 12px;
   --text-base: 14px;
   --text-lg: 16px;
+
+  /* Design Tokens - Semantic Colors */
+  --color-error: #ef4444;
+  --color-error-text: #dc2626;
+  --color-error-bg: rgba(239,68,68,0.08);
+  --color-error-bg-strong: rgba(239,68,68,0.16);
+  --color-error-border: rgba(239,68,68,0.3);
+  --color-success: #16a34a;
+  --color-success-bg: rgba(22,163,74,0.08);
+  --color-success-border: rgba(22,163,74,0.2);
+  --color-info-border: rgba(59,130,246,0.2);
+  --color-diff-add: #4ade80;
+  --color-diff-remove: #f87171;
+  --color-tps-fast: #53b3cb;
+  --color-tps-good: #9bc53d;
+  --color-tps-mid: #f9c22e;
+  --color-tps-slow: #e01a4f;
+  --color-thinking: #6b7280;
+  --color-thinking-low: #60a5fa;
+  --color-thinking-med: #a78bfa;
+  --color-thinking-high: #f472b6;
+  --color-thinking-max: #fb923c;
 }
 
 html.dark {
@@ -99,6 +121,24 @@ html.dark {
   --assistant-bg: #1a1a1a;
   --tool-bg: #1f2937;
   --bg-subtle: rgba(255,255,255,0.04);
+
+  /* Dark mode semantic colors — lighter tints for dark bg */
+  --color-error: #f87171;
+  --color-error-text: #fca5a5;
+  --color-error-bg: rgba(239,68,68,0.12);
+  --color-error-bg-strong: rgba(239,68,68,0.22);
+  --color-error-border: rgba(239,68,68,0.4);
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74,222,128,0.12);
+  --color-success-border: rgba(74,222,128,0.3);
+  --color-info-border: rgba(96,165,250,0.3);
+  --color-diff-add: #4ade80;
+  --color-diff-remove: #f87171;
+  --color-thinking: #9ca3af;
+  --color-thinking-low: #93c5fd;
+  --color-thinking-med: #c4b5fd;
+  --color-thinking-high: #f9a8d4;
+  --color-thinking-max: #fdba74;
 }
 
 /* Theme toggle: circular wipe via View Transitions API.

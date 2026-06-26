@@ -140,7 +140,7 @@ function SkillDetail({
           onToggle={() => onToggle(skill)}
         />
         {saveError && (
-          <span style={{ fontSize: 12, color: "#f87171", flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: "var(--color-error-text)", flexShrink: 0 }}>
             {saveError}
           </span>
         )}
@@ -361,11 +361,11 @@ function AddSkillPanel({
 
         {/* Errors */}
         {searchError && (
-          <div style={{ fontSize: 12, color: "#f87171" }}>{searchError}</div>
+          <div style={{ fontSize: 12, color: "var(--color-error-text)" }}>{searchError}</div>
         )}
         {installError && (
           <div
-            style={{ fontSize: 12, color: "#f87171", wordBreak: "break-word" }}
+            style={{ fontSize: 12, color: "var(--color-error-text)", wordBreak: "break-word" }}
           >
             {installError}
           </div>
@@ -464,9 +464,9 @@ function AddSkillPanel({
                       isInstalled || isInstalling || installing !== null
                         ? "not-allowed"
                         : "pointer",
-                    background: isInstalled ? "rgba(34,197,94,0.1)" : "none",
+                    background: isInstalled ? "var(--color-success-bg)" : "none",
                     color: isInstalled
-                      ? "#16a34a"
+                      ? "var(--color-success)"
                       : isInstalling
                         ? "var(--accent)"
                         : "var(--text-muted)",
@@ -685,7 +685,7 @@ export function SkillsConfig({
                   style={{
                     padding: "10px 8px",
                     fontSize: 11,
-                    color: "#f87171",
+                    color: "var(--color-error-text)",
                   }}
                 >
                   {error}
