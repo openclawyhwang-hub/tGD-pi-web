@@ -198,8 +198,12 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center text-text-muted">
-        Loading session...
+      <div className="flex h-full items-center justify-center">
+        <div style={{ width: 320 }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="skeleton-line" style={{ width: `${40 + (i % 3) * 20}%`, marginBottom: 10, marginLeft: i % 2 === 0 ? 0 : 60 }} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -282,6 +286,46 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
                   pi <span style={{ color: "var(--text)" }}>v{process.env.NEXT_PUBLIC_PI_VERSION ?? "0.0.0"}</span>
                 </span>
               </div>
+            </div>
+            {/* tGD Phase Quick Actions */}
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16,
+              marginLeft: 16, marginRight: 52,
+            }}>
+              {[
+                { cmd: "/tgd-map", label: "Map", icon: "🗺️", desc: "Understand codebase" },
+                { cmd: "/tgd-define", label: "Define", icon: "📝", desc: "Write PRD" },
+                { cmd: "/tgd-plan", label: "Plan", icon: "📋", desc: "Break into tasks" },
+                { cmd: "/tgd-develop", label: "Develop", icon: "⚙️", desc: "Build features" },
+                { cmd: "/tgd-verify", label: "Verify", icon: "✅", desc: "Run tests" },
+                { cmd: "/tgd-review", label: "Review", icon: "🔍", desc: "Code review" },
+                { cmd: "/tgd-ship", label: "Ship", icon: "🚀", desc: "Deploy" },
+              ].map((phase) => (
+                <button
+                  key={phase.cmd}
+                  onClick={() => chatInputRef?.current?.insertIfEmpty(phase.cmd + " ")}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "6px 12px", background: "var(--bg-panel)",
+                    border: "1px solid var(--border)", borderRadius: "var(--radius-md)",
+                    cursor: "pointer", fontSize: 12, color: "var(--text)",
+                    transition: "border-color 0.15s, background 0.15s",
+                    minHeight: 36,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "var(--accent)";
+                    e.currentTarget.style.background = "var(--bg-hover)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.background = "var(--bg-panel)";
+                  }}
+                  title={`${phase.cmd} — ${phase.desc}`}
+                >
+                  <span>{phase.icon}</span>
+                  <span style={{ fontWeight: 500 }}>{phase.label}</span>
+                </button>
+              ))}
             </div>
             {chatInputElement}
           </div>

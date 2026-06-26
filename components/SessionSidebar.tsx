@@ -746,8 +746,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {/* Session list */}
       <div role="listbox" aria-label="Sessions" style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto", overflowY: "auto", padding: "0", minHeight: 80 }}>
         {loading && (
-          <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
-            Loading...
+          <div style={{ padding: "12px 14px" }}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="skeleton-line" style={{ width: `${55 + (i % 4) * 12}%`, marginBottom: 8 }} />
+            ))}
           </div>
         )}
         {error && (

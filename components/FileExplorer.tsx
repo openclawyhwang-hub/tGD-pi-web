@@ -135,7 +135,7 @@ function TreeNode({
           gap: 4,
           paddingLeft: 8 + depth * 14,
           paddingRight: 8,
-          height: 24,
+          height: 28,
           cursor: "pointer",
           background: hovered ? "var(--bg-hover)" : "transparent",
           borderRadius: 4,
@@ -217,7 +217,7 @@ function TreeNode({
             <TreeNode key={child.fullPath} node={child} depth={depth + 1} cwd={cwd} onOpenFile={onOpenFile} onAtMention={onAtMention} expandedPaths={expandedPaths} onToggleExpanded={onToggleExpanded} refreshKey={refreshKey} filterQuery={filterQuery} />
           ))}
           {children.length === 0 && loaded && (
-            <div style={{ paddingLeft: 8 + (depth + 1) * 14, fontSize: 11, color: "var(--text-dim)", height: 22, display: "flex", alignItems: "center" }}>
+            <div style={{ paddingLeft: 8 + (depth + 1) * 14, fontSize: 11, color: "var(--text-dim)", height: 24, display: "flex", alignItems: "center" }}>
               empty
             </div>
           )}
@@ -284,8 +284,10 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
   if (loading) {
     return (
-      <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
-        Loading files...
+      <div style={{ padding: "8px 12px" }}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="skeleton-line" style={{ width: `${60 + (i % 3) * 15}%`, marginBottom: 6, marginLeft: i * 4 }} />
+        ))}
       </div>
     );
   }
