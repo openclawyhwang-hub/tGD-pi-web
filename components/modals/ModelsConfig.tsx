@@ -225,8 +225,8 @@ function SecretTextInput({
           right: 5,
           top: "50%",
           transform: "translateY(-50%)",
-          width: 24,
-          height: 24,
+          width: 32,
+          height: 32,
           padding: 0,
           border: "none",
           background: "transparent",
@@ -583,7 +583,7 @@ function ModelDetail({
               title={testSummary}
               style={{
                 maxWidth: 260,
-                height: 24,
+                height: 28,
                 padding: "0 8px",
                 border: `1px solid ${testState.phase === "error" ? "var(--color-error-border)" : testState.phase === "success" ? "var(--color-success-border)" : "var(--border)"}`,
                 borderRadius: 4,
@@ -606,7 +606,7 @@ function ModelDetail({
             disabled={!model.id.trim() || testState.phase === "testing"}
             title="Test model connection"
             style={{
-              height: 24,
+              height: 28,
               padding: "0 8px",
               background: testState.phase === "success" ? "var(--color-success)" : "none",
               border: `1px solid ${testState.phase === "success" ? "var(--color-success)" : "var(--border)"}`,
@@ -629,7 +629,7 @@ function ModelDetail({
             {testState.phase === "testing" ? "Testing…" : testState.phase === "success" ? "OK" : "Test"}
           </button>
           <button onClick={onDelete}
-            style={{ height: 24, padding: "0 8px", background: "none", border: "1px solid var(--color-error-border)", borderRadius: 4, color: "var(--color-error)", cursor: "pointer", fontSize: 11, boxSizing: "border-box" }}>
+            style={{ height: 28, padding: "0 8px", background: "none", border: "1px solid var(--color-error-border)", borderRadius: 4, color: "var(--color-error)", cursor: "pointer", fontSize: 11, boxSizing: "border-box" }}>
             Remove
           </button>
         </div>

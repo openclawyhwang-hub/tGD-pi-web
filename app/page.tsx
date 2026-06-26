@@ -1,10 +1,13 @@
 import { Suspense } from "react";
-import { AppShell } from "@/components/AppShell";
+import { AppShell } from "@/components/layout/AppShell";
+import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 
 export default function Home() {
   return (
-    <Suspense>
-      <AppShell />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense>
+        <AppShell />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect, useReducer } from "react";
 import type { AgentMessage, SessionInfo, SessionTreeNode } from "@/lib/types";
 import { normalizeToolCalls } from "@/lib/normalize";
 import { sendAgentCommand } from "@/lib/agent-client";
-import type { ToolEntry } from "@/components/ToolPanel";
+import type { ToolEntry } from "@/components/modals/ToolPanel";
 
 export interface SessionData {
   sessionId: string;
@@ -206,7 +206,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     try {
       const tools = await sendAgentCommand<ToolEntry[]>(sid, { type: "get_tools" });
       if (tools) {
-        const { getPresetFromTools } = await import("@/components/ToolPanel");
+        const { getPresetFromTools } = await import("@/components/modals/ToolPanel");
         setToolPresetState(getPresetFromTools(tools));
       }
     } catch (e) {
@@ -367,7 +367,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
           // New session - create it first, then execute command
           const selectedModel = newSessionModel;
           if (selectedModel) setPendingModel(selectedModel);
-          const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/ToolPanel");
+          const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/modals/ToolPanel");
           const toolNames = toolPreset === "none" ? PRESET_NONE : toolPreset === "default" ? PRESET_DEFAULT : PRESET_FULL;
           
           // Create new session with the command as initial message
@@ -445,7 +445,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       if (isNew && newSessionCwd) {
         const selectedModel = newSessionModel;
         if (selectedModel) setPendingModel(selectedModel);
-        const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/ToolPanel");
+        const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/modals/ToolPanel");
         const toolNames = toolPreset === "none" ? PRESET_NONE : toolPreset === "default" ? PRESET_DEFAULT : PRESET_FULL;
         const res = await fetch("/api/agent/new", {
           method: "POST",
@@ -624,7 +624,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   }, []);
 
   const handleToolPresetChange = useCallback(async (preset: "none" | "default" | "full") => {
-    const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/ToolPanel");
+    const { PRESET_NONE, PRESET_DEFAULT, PRESET_FULL } = await import("@/components/modals/ToolPanel");
     const toolNames = preset === "none" ? PRESET_NONE : preset === "default" ? PRESET_DEFAULT : PRESET_FULL;
     setToolPresetState(preset);
     const sid = sessionIdRef.current;

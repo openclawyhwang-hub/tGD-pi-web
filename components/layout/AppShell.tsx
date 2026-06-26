@@ -2,16 +2,17 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SessionSidebar } from "./SessionSidebar";
-import { ChatWindow } from "./ChatWindow";
+import { SessionSidebar } from "../sidebar/SessionSidebar";
+import { ChatWindow } from "../chat/ChatWindow";
 import { FileViewer } from "./FileViewer";
 import { TabBar, type Tab } from "./TabBar";
-import { ModelsConfig } from "./ModelsConfig";
-import { SkillsConfig } from "./SkillsConfig";
-import { BranchNavigator } from "./BranchNavigator";
+import { ModelsConfig } from "../modals/ModelsConfig";
+import { SkillsConfig } from "../modals/SkillsConfig";
+import { BranchNavigator } from "../chat/BranchNavigator";
 import { useTheme } from "@/hooks/useTheme";
+import { ErrorBoundary } from "./ErrorBoundary";
 import type { SessionInfo, SessionTreeNode } from "@/lib/types";
-import type { ChatInputHandle } from "./ChatInput";
+import type { ChatInputHandle } from "../chat/ChatInput";
 
 export function AppShell() {
   const router = useRouter();
@@ -232,7 +233,7 @@ export function AppShell() {
   const activeFileTab = fileTabs.find((t) => t.id === activeFileTabId) ?? null;
 
   const sidebarContent = (
-    <>
+    <ErrorBoundary>
       <SessionSidebar
         selectedSessionId={selectedSession?.id ?? null}
         onSelectSession={handleSelectSession}
@@ -296,7 +297,7 @@ export function AppShell() {
           </button>
         ))}
       </div>
-    </>
+    </ErrorBoundary>
   );
 
   return (

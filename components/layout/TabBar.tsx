@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getFileIcon } from "./FileIcons";
+import { getFileIcon } from "../sidebar/FileIcons";
 
 export interface Tab {
   id: string;

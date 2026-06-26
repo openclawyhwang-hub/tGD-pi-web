@@ -522,7 +522,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                       textareaRef.current?.focus();
                     }}
                     onMouseEnter={() => setSlashSelectedIndex(i)}
-                    onMouseLeave={(e) => { if (i === slashSelectedIndex) setSlashSelectedIndex(-1); }}
+                    onMouseLeave={() => { if (i === slashSelectedIndex) setSlashSelectedIndex(-1); }}
                     style={{
                       display: "flex",
                       alignItems: "center",
