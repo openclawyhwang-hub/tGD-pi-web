@@ -246,7 +246,7 @@ export function CwdPicker({
                     background: "var(--accent)",
                     border: "none",
                     borderRadius: 5,
-                    color: "#fff",
+                    color: "var(--color-white)",
                     fontSize: 11,
                     fontWeight: 600,
                     cursor: customPathValidating || !customPathValue.trim() ? "not-allowed" : "pointer",

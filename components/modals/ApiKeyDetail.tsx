@@ -97,7 +97,7 @@ export function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider
               padding: "6px 12px",
               background: savedOk ? "var(--color-success)" : apiKey.trim() ? "var(--accent)" : "var(--bg-panel)",
               border: "none", borderRadius: 5,
-              color: (apiKey.trim() || savedOk) ? "#fff" : "var(--text-dim)",
+              color: (apiKey.trim() || savedOk) ? "var(--color-white)" : "var(--text-dim)",
               cursor: (saving || !apiKey.trim() || savedOk) ? "not-allowed" : "pointer",
               fontSize: 12, fontWeight: 600, flexShrink: 0,
               display: "flex", alignItems: "center", gap: 5,

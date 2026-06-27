@@ -121,7 +121,7 @@ export function SessionItem({
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                 height: 30, padding: "0 11px",
                 background: "var(--color-error)", border: "none",
-                borderRadius: 6, color: "#fff",
+                borderRadius: 6, color: "var(--color-white)",
                 cursor: "pointer", fontSize: 12, fontWeight: 600,
                 whiteSpace: "nowrap",
               }}
