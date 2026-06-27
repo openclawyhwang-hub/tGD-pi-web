@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useCallback, useEffect, useImperativeHandle, forwardRef, KeyboardEvent } from "react";
 import { TOOL_PRESETS, TOOL_PRESET_MAP, COMPOSITION_END_ENTER_GRACE_MS, THINKING_LEVELS, THINKING_LEVEL_DESC, TGD_COMMANDS } from "./chat-input-constants";
+import { SlashMenu } from "./SlashMenu";
 
 export interface AttachedImage {
   data: string;   // base64, no prefix
@@ -464,67 +465,21 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
           />
 
           {/* Slash command menu */}
-          {showSlashMenu && (() => {
-            const filtered = TGD_COMMANDS.filter((cmd) =>
-              cmd.name.toLowerCase().includes(slashFilter.toLowerCase())
-            );
-            if (filtered.length === 0) return null;
-            return (
-              <div
-                ref={slashMenuRef}
-                style={{
-                  position: "absolute",
-                  bottom: "100%",
-                  left: 0,
-                  right: 0,
-                  marginBottom: 8,
-                  background: "var(--bg)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius-md)",
-                  boxShadow: "var(--color-shadow-popup)",
-                  overflow: "hidden",
-                  zIndex: 100,
-                  maxHeight: 240,
-                  overflowY: "auto",
-                }}
-              >
-                {filtered.map((cmd, i) => (
-                  <button
-                    key={cmd.name}
-                    onClick={() => {
-                      setValue(cmd.name + " ");
-                      setShowSlashMenu(false);
-                      setSlashFilter("");
-                      setSlashSelectedIndex(0);
-                      textareaRef.current?.focus();
-                    }}
-                    onMouseEnter={() => setSlashSelectedIndex(i)}
-                    onMouseLeave={() => { if (i === slashSelectedIndex) setSlashSelectedIndex(-1); }}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      width: "100%",
-                      padding: "8px 12px",
-                      background: i === slashSelectedIndex ? "var(--bg-selected)" : "none",
-                      border: "none",
-                      color: i === slashSelectedIndex ? "var(--text)" : "var(--text-muted)",
-                      cursor: "pointer",
-                      fontSize: "var(--text-sm)",
-                      textAlign: "left",
-                    }}
-                  >
-                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, minWidth: 100, fontSize: "var(--text-sm)" }}>
-                      {cmd.name}
-                    </span>
-                    <span style={{ color: "var(--text-dim)", fontSize: "var(--text-sm)", fontFamily: "inherit", whiteSpace: "nowrap" }}>
-                      {cmd.description}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            );
-          })()}
+          <SlashMenu
+            show={showSlashMenu}
+            filter={slashFilter}
+            selectedIndex={slashSelectedIndex}
+            onSelect={(cmd) => {
+              setValue(cmd);
+              setShowSlashMenu(false);
+              setSlashFilter("");
+              setSlashSelectedIndex(0);
+              textareaRef.current?.focus();
+            }}
+            onHover={setSlashSelectedIndex}
+            onLeave={() => setSlashSelectedIndex(-1)}
+            onClose={() => setShowSlashMenu(false)}
+          />
 
           {isStreaming ? (
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, alignSelf: "flex-end" }}>
