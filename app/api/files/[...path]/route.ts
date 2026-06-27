@@ -285,6 +285,9 @@ function escapeHtml(text: string): string {
 }
 
 function wrapDocxPreviewHtml(bodyHtml: string, fileName: string): string {
+  // All colors below are hardcoded equivalents of the project's light-theme
+  // design tokens (see app/globals.css :root block). This HTML is served as a
+  // standalone page so it cannot reference CSS custom properties.
   return `<!doctype html>
 <html>
 <head>
@@ -292,7 +295,7 @@ function wrapDocxPreviewHtml(bodyHtml: string, fileName: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   :root { color-scheme: light; }
-  html, body { margin: 0; min-height: 100%; background: #eef1f5; color: #171717; }
+  html, body { margin: 0; min-height: 100%; background: #f5f5f5; color: #1a1a1a; } /* --bg-panel, --text */
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 28px; }
   main {
     box-sizing: border-box;
@@ -300,26 +303,26 @@ function wrapDocxPreviewHtml(bodyHtml: string, fileName: string): string {
     min-height: calc(100vh - 56px);
     margin: 0 auto;
     padding: 56px 64px;
-    background: #fff;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14);
+    background: #ffffff; /* --bg */
+    box-shadow: 0 8px 28px rgba(15,23,42,0.14);
   }
   .file-title {
     margin: 0 0 28px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #6b7280;
+    border-bottom: 1px solid #e0e0e0; /* --border */
+    color: #6b7280; /* --text-muted */
     font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     word-break: break-word;
   }
-  h1, h2, h3, h4, h5, h6 { line-height: 1.3; margin: 1.1em 0 0.45em; color: #111827; }
+  h1, h2, h3, h4, h5, h6 { line-height: 1.3; margin: 1.1em 0 0.45em; color: #1a1a1a; } /* --text */
   p { margin: 0.65em 0; line-height: 1.7; }
   table { border-collapse: collapse; max-width: 100%; margin: 1em 0; }
-  th, td { border: 1px solid #d1d5db; padding: 6px 9px; vertical-align: top; }
+  th, td { border: 1px solid #e0e0e0; padding: 6px 9px; vertical-align: top; } /* --border */
   img { max-width: 100%; height: auto; }
   pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-  a { color: #2563eb; }
+  a { color: #2563eb; } /* --accent */
   @media (max-width: 720px) {
-    body { padding: 0; background: #fff; }
+    body { padding: 0; background: #ffffff; }
     main { min-height: 100vh; padding: 28px 22px; box-shadow: none; }
   }
 </style>

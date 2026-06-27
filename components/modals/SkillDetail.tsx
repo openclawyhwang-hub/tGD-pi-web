@@ -44,7 +44,7 @@ export function Toggle({
           height: 16,
           borderRadius: "50%",
           background: "var(--bg)",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.22)",
+          boxShadow: "var(--color-shadow-dropdown)",
           transition: "left 0.18s cubic-bezier(.4,0,.2,1)",
         }}
       />
@@ -89,7 +89,7 @@ export function SkillDetail({
             background:
               label === "project"
                 ? "var(--color-project-bg)"
-                : "rgba(120,120,120,0.12)",
+                : "var(--bg-subtle)",
             color:
               label === "project" ? "var(--color-project-text)" : "var(--text-dim)",
           }}

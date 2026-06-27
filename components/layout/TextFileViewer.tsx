@@ -1,0 +1,319 @@
+"use client";
+
+import { useEffect, useState, useRef, useCallback } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useTheme } from "@/hooks/useTheme";
+import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
+import { formatSize, type FileData } from "./file-viewer-utils";
+import { DiffView } from "./DiffView";
+
+interface Props {
+  filePath: string;
+  cwd?: string;
+}
+
+export function TextFileViewer({ filePath, cwd }: Props) {
+  const { isDark } = useTheme();
+  const [data, setData] = useState<FileData | null>(null);
+  const [prevContent, setPrevContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"source" | "diff">("source");
+  const [wrapLines, setWrapLines] = useState(false);
+  const [watching, setWatching] = useState(false);
+  const [changeCount, setChangeCount] = useState(0);
+  const esRef = useRef<EventSource | null>(null);
+
+  const fetchContent = useCallback((filePath: string, isRefresh = false) => {
+    const encoded = encodeFilePathForApi(filePath);
+    return fetch(`/api/files/${encoded}?type=read`)
+      .then((r) => r.json())
+      .then((d: FileData & { error?: string }) => {
+        if (d.error) {
+          setError(d.error);
+          return null;
+        }
+        if (isRefresh) {
+          setData((prev) => {
+            if (prev) setPrevContent(prev.content);
+            return d;
+          });
+          setChangeCount((c) => c + 1);
+        } else {
+          setData(d);
+        }
+        return d;
+      })
+      .catch((e) => {
+        setError(String(e));
+        return null;
+      });
+  }, []);
+
+  // Initial load + SSE watch setup
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setData(null);
+    setPrevContent(null);
+    setPreviewMode(false);
+    setViewMode("source");
+    setWrapLines(false);
+    setChangeCount(0);
+    setWatching(false);
+
+    if (esRef.current) {
+      esRef.current.close();
+      esRef.current = null;
+    }
+
+    fetchContent(filePath).then((d) => {
+      if (d?.language === "markdown") setPreviewMode(true);
+    }).finally(() => setLoading(false));
+
+    // Set up SSE watch
+    const encoded = encodeFilePathForApi(filePath);
+    const es = new EventSource(`/api/files/${encoded}?type=watch`);
+    esRef.current = es;
+
+    es.addEventListener("connected", () => {
+      setWatching(true);
+    });
+
+    es.addEventListener("change", () => {
+      fetchContent(filePath, true);
+    });
+
+    es.addEventListener("error", () => {
+      setWatching(false);
+    });
+
+    es.onerror = () => {
+      setWatching(false);
+    };
+
+    return () => {
+      es.close();
+      esRef.current = null;
+    };
+  }, [filePath, fetchContent]);
+
+  if (loading) {
+    return (
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-error-text)", fontSize: 13 }}>
+        {error}
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const isHtml = data.language === "html";
+  const isMarkdown = data.language === "markdown";
+  const lines = data.content.split("\n");
+  const hasDiff = prevContent !== null && prevContent !== data.content;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {/* Status bar */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          padding: "4px 16px",
+          borderBottom: "1px solid var(--border)",
+          fontSize: 11,
+          color: "var(--text-dim)",
+          background: "var(--bg)",
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ fontFamily: "var(--font-mono)" }} title={filePath}>
+          {getRelativeFilePath(filePath, cwd)}
+        </span>
+        <span style={{ marginLeft: "auto" }}>{data.language}</span>
+        {viewMode === "source" && <span>{lines.length} lines</span>}
+        <span>{formatSize(data.size)}</span>
+
+        {/* Live watch indicator */}
+        <span
+          title={watching ? "Live sync active" : "Not watching"}
+          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: watching ? "var(--color-success)" : "var(--border)",
+              display: "inline-block",
+              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
+            }}
+          />
+          {watching ? "live" : "static"}
+        </span>
+
+        {/* Diff / Source toggle — shown only when there are changes */}
+        {hasDiff && (
+          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+            <button
+              onClick={() => setViewMode("source")}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
+                background: viewMode === "source" ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: viewMode === "source" ? "var(--text)" : "var(--text-muted)",
+                fontWeight: viewMode === "source" ? 600 : 400,
+              }}
+            >
+              Source
+            </button>
+            <button
+              onClick={() => setViewMode("diff")}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
+                background: viewMode === "diff" ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: viewMode === "diff" ? "var(--text)" : "var(--text-muted)",
+                fontWeight: viewMode === "diff" ? 600 : 400,
+              }}
+            >
+              Diff {changeCount > 0 && <span style={{ color: "var(--color-diff-add)", marginLeft: 2 }}>+{changeCount}</span>}
+            </button>
+          </div>
+        )}
+
+        {/* Word wrap toggle */}
+        {viewMode === "source" && !previewMode && (
+          <button
+            onClick={() => setWrapLines((v) => !v)}
+            title={wrapLines ? "Disable word wrap" : "Enable word wrap"}
+            style={{
+              padding: "2px 8px", fontSize: 11, cursor: "pointer",
+              background: wrapLines ? "var(--bg-selected)" : "var(--bg-hover)",
+              color: wrapLines ? "var(--text)" : "var(--text-muted)",
+              border: "1px solid var(--border)", borderRadius: 5,
+              fontWeight: wrapLines ? 600 : 400,
+            }}
+          >
+            wrap
+          </button>
+        )}
+
+        {/* HTML source/preview toggle */}
+        {isHtml && viewMode === "source" && (
+          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+            <button
+              onClick={() => setPreviewMode(false)}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
+                background: !previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: !previewMode ? "var(--text)" : "var(--text-muted)",
+                fontWeight: !previewMode ? 600 : 400,
+              }}
+            >
+              Code
+            </button>
+            <button
+              onClick={() => setPreviewMode(true)}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
+                background: previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: previewMode ? "var(--text)" : "var(--text-muted)",
+                fontWeight: previewMode ? 600 : 400,
+              }}
+            >
+              Preview
+            </button>
+          </div>
+        )}
+
+        {/* Markdown preview/raw toggle */}
+        {isMarkdown && viewMode === "source" && (
+          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+            <button
+              onClick={() => setPreviewMode(true)}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
+                background: previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: previewMode ? "var(--text)" : "var(--text-muted)",
+                fontWeight: previewMode ? 600 : 400,
+              }}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setPreviewMode(false)}
+              style={{
+                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
+                background: !previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
+                color: !previewMode ? "var(--text)" : "var(--text-muted)",
+                fontWeight: !previewMode ? 600 : 400,
+              }}
+            >
+              Raw
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Content area */}
+      <div style={{ flex: 1, overflow: "auto", background: "var(--bg)" }}>
+        {viewMode === "diff" && hasDiff ? (
+          <DiffView oldContent={prevContent!} newContent={data.content} language={data.language} />
+        ) : isHtml && previewMode ? (
+          <iframe
+            srcDoc={data.content}
+            sandbox="allow-scripts"
+            style={{ width: "100%", height: "100%", border: "none", background: "var(--bg)" }}
+            title="HTML preview"
+          />
+        ) : isMarkdown && previewMode ? (
+          <div
+            className="markdown-body markdown-file-preview"
+            style={{ padding: "24px 32px", maxWidth: 800 }}
+          >
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.content}</ReactMarkdown>
+          </div>
+        ) : (
+          <SyntaxHighlighter
+            language={data.language === "text" ? "plaintext" : data.language}
+            style={isDark ? vscDarkPlus : vs}
+            showLineNumbers
+            lineNumberStyle={{
+              color: "var(--text-dim)",
+              fontStyle: "normal",
+              minWidth: "3em",
+              paddingRight: "1em",
+            }}
+            customStyle={{
+              margin: 0,
+              padding: "12px 0",
+              background: "var(--bg)",
+              fontSize: 13,
+              lineHeight: 1.6,
+              fontFamily: "var(--font-mono)",
+              minHeight: "100%",
+            }}
+            codeTagProps={{ style: { fontFamily: "var(--font-mono)" } }}
+            wrapLongLines={wrapLines}
+          >
+            {data.content}
+          </SyntaxHighlighter>
+        )}
+      </div>
+    </div>
+  );
+}

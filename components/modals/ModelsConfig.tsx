@@ -38,7 +38,7 @@ function ProviderDetail({ name, provider, onChange, onRename, onDelete }: {
         <TextInput value={editingName} onChange={setEditingName} placeholder="provider-name" mono />
         {editingName !== name && editingName.trim() && (
           <button onClick={() => onRename(editingName.trim())}
-            style={{ marginTop: 4, padding: "3px 10px", background: "var(--accent)", border: "none", borderRadius: 4, color: "#fff", cursor: "pointer", fontSize: 11, alignSelf: "flex-start" }}>
+            style={{ marginTop: 4, padding: "3px 10px", background: "var(--accent)", border: "none", borderRadius: 4, color: "var(--color-white)", cursor: "pointer", fontSize: 11, alignSelf: "flex-start" }}>
             Rename
           </button>
         )}
@@ -120,12 +120,12 @@ function ThinkingLevelMapEditor({
         };
         const btnActive: React.CSSProperties = {
           background: "var(--accent)",
-          color: "#fff",
+          color: "var(--color-white)",
           fontWeight: 600,
         };
         const btnActiveDisabled: React.CSSProperties = {
           background: "var(--color-error)",
-          color: "#fff",
+          color: "var(--color-white)",
           fontWeight: 600,
         };
 

@@ -497,7 +497,7 @@ export function AppShell() {
             if (contextUsage?.contextWindow) {
               const pct = contextUsage.percent;
               if (pct !== null && pct > 90) ctxColor = "var(--color-error)";
-              else if (pct !== null && pct > 70) ctxColor = "rgba(234,179,8,0.95)";
+              else if (pct !== null && pct > 70) ctxColor = "var(--color-warning-text-strong)";
               ctxStr = pct !== null ? `${pct.toFixed(0)}% / ${fmt(contextUsage.contextWindow)}` : `? / ${fmt(contextUsage.contextWindow)}`;
             }
 

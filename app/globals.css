@@ -123,6 +123,14 @@
   --color-shadow-modal: 0 8px 32px rgba(0,0,0,0.18);
   --color-shadow-popup: 0 -4px 16px rgba(0,0,0,0.10);
   --color-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.2);
+  --color-shadow-input: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
+  --color-accent-border-focus: rgba(37,99,235,0.35);
+  --color-accent-border-focus-strong: rgba(37,99,235,0.4);
+  --color-success-bg-strong: rgba(74,222,128,0.18);
+  --color-success-border-strong: rgba(74,222,128,0.4);
+  --color-diff-add-bg: rgba(0,200,80,0.12);
+  --color-diff-remove-bg: rgba(240,60,60,0.14);
+  --color-white: #fff;
 }
 
 html.dark {
@@ -177,6 +185,14 @@ html.dark {
   --color-shadow-modal: 0 8px 32px rgba(0,0,0,0.35);
   --color-shadow-popup: 0 -4px 16px rgba(0,0,0,0.2);
   --color-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.4);
+  --color-shadow-input: 0 1px 2px rgba(0,0,0,0.2), 0 8px 24px -12px rgba(0,0,0,0.3);
+  --color-accent-border-focus: rgba(96,165,250,0.4);
+  --color-accent-border-focus-strong: rgba(96,165,250,0.5);
+  --color-success-bg-strong: rgba(74,222,128,0.22);
+  --color-success-border-strong: rgba(74,222,128,0.5);
+  --color-diff-add-bg: rgba(0,200,80,0.15);
+  --color-diff-remove-bg: rgba(240,60,60,0.18);
+  --color-white: #fff;
 }
 
 /* Theme toggle: circular wipe via View Transitions API.

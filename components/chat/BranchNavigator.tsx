@@ -363,7 +363,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
           right: 0,
           background: "var(--bg)",
           borderBottom: "1px solid var(--border)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          boxShadow: "var(--color-shadow-dropdown)",
           zIndex: 100,
         }}>
           {hasContent && firstNode ? (

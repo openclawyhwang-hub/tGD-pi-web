@@ -327,7 +327,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
             outline: "none",
             transition: "border-color 0.15s",
           }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.4)"; }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent-border-focus-strong)"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         />
       </div>
