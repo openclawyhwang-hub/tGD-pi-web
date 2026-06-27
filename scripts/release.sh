@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # tGD-pi-web release script
-# Usage: bash scripts/release.sh [patch|minor|major]
-# Default: patch
+# Usage: bash scripts/release.sh [YYYY.MM.DD]
+# Default: today's date (Asia/Taipei)
 #
 # What it does:
 #   1. Run typecheck + build (fail-fast)
-#   2. Bump npm version (patch/minor/major)
+#   2. Bump npm version to date-based format
 #   3. Commit version bump + create git tag
 #   4. Push to origin
 #   5. GitHub Actions auto-creates Release with changelog
@@ -19,7 +19,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$REPO_ROOT"
 
-BUMP="${1:-patch}"
+# ── Version argument ───────────────────────────
+if [ -n "$1" ]; then
+  NEW_VERSION="$1"
+else
+  NEW_VERSION=$(TZ=Asia/Taipei date "+%Y.%m.%d")
+fi
+TAG="v$NEW_VERSION"
 
 # ── Preflight ──────────────────────────────────
 echo "🔍 Preflight check..."
@@ -53,11 +59,15 @@ echo "  ✅ Build passed"
 
 # ── Version bump ───────────────────────────────
 CURRENT_VERSION=$(node -p "require('./package.json').version")
-echo "📝 Current version: $CURRENT_VERSION"
+echo "📝 Current version: $CURRENT_VERSION → $NEW_VERSION"
 
-npm version "$BUMP" --no-git-tag-version
-NEW_VERSION=$(node -p "require('./package.json').version")
-TAG="v$NEW_VERSION"
+node -e "
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+pkg.version = '$NEW_VERSION';
+fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+"
+npm install --package-lock-only 2>/dev/null
 echo "  ✅ Bumped to: $NEW_VERSION (tag: $TAG)"
 
 # ── Commit + tag + push ────────────────────────
