@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef } from "react";
 import { TGD_COMMANDS } from "./chat-input-constants";
 
 interface SlashMenuProps {
@@ -13,7 +13,7 @@ interface SlashMenuProps {
   onClose: () => void;
 }
 
-export function SlashMenu({ show, filter, selectedIndex, onSelect, onHover, onLeave, onClose }: SlashMenuProps) {
+export function SlashMenu({ show, filter, selectedIndex, onSelect, onHover, onLeave }: SlashMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const filtered = TGD_COMMANDS.filter((cmd) =>

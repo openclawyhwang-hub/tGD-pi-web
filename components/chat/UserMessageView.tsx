@@ -135,18 +135,17 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
             <button
               onClick={copyContent}
               title="Copy message"
+              className={copied ? "text-accent" : "text-dim hover-accent"}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
                 padding: "3px 8px", height: 22,
                 background: "none", border: "none",
                 borderRadius: 5,
-                color: copied ? "var(--accent)" : "var(--text-dim)",
                 cursor: "pointer",
                 fontSize: 11, fontWeight: 400,
                 whiteSpace: "nowrap",
                 transition: "color 0.12s",
-                }}
-                className={copied ? "text-accent" : "text-dim hover-accent"}
+              }}
             >
               {copied ? (
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -167,18 +166,17 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                 <button
                   onClick={() => { onNavigate!(prevAssistantEntryId!); onEditContent?.(content); }}
                   title="Edit from here — branches within this session"
+                  className="text-dim hover-accent"
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
                     background: "none", border: "none",
                     borderRadius: 5,
-                    color: "var(--text-dim)",
                     cursor: "pointer",
                     fontSize: 11, fontWeight: 400,
                     whiteSpace: "nowrap",
                     transition: "color 0.12s",
-                    }}
-                    className="text-dim hover-accent"
+                  }}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 10 20 15 15 20" />
@@ -192,18 +190,17 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                   onClick={() => { onFork!(entryId!); }}
                   disabled={forking}
                   title={forking ? "Creating new session…" : "New session — creates an independent copy from here"}
+                  className={forking ? "text-accent" : "text-dim hover-accent"}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
                     background: "none", border: "none",
                     borderRadius: 5,
-                    color: forking ? "var(--accent)" : "var(--text-dim)",
                     cursor: forking ? "not-allowed" : "pointer",
                     fontSize: 11, fontWeight: 400,
                     whiteSpace: "nowrap",
                     transition: "color 0.12s",
-                    }}
-                    className={forking ? "text-accent" : "text-dim hover-accent"}
+                  }}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="6" y1="3" x2="6" y2="15" />

@@ -27,7 +27,6 @@ export function SessionItem({
   collapsed = false,
   onToggleCollapse,
 }: SessionItemProps) {
-  const [hovered, setHovered] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -87,8 +86,7 @@ export function SessionItem({
   return (
     <div
       onClick={confirmDelete || renaming ? undefined : onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); }}
+      className={["hover-group", !confirmDelete && !isSelected ? "hover-bg" : ""].filter(Boolean).join(" ")}
       style={{
         height: ITEM_HEIGHT,
         display: "flex",
@@ -98,7 +96,7 @@ export function SessionItem({
         cursor: confirmDelete || renaming ? "default" : "pointer",
         background: confirmDelete
           ? "var(--color-error-bg)"
-          : isSelected ? "var(--bg-selected)" : hovered ? "var(--bg-hover)" : "transparent",
+          : isSelected ? "var(--bg-selected)" : undefined,
         borderLeft: confirmDelete
           ? "2px solid var(--color-error)"
           : isSelected ? "2px solid var(--accent)" : "2px solid transparent",
@@ -229,8 +227,7 @@ export function SessionItem({
           )}
 
           {/* Action buttons — shown on hover */}
-          {hovered && (
-            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+            <div className="hover-reveal" style={{ display: "flex", gap: 4, flexShrink: 0 }}>
               <button
                 onClick={startRename}
                 title="Rename"
@@ -269,7 +266,6 @@ export function SessionItem({
                 </svg>
               </button>
             </div>
-          )}
         </>
       )}
     </div>

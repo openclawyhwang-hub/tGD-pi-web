@@ -60,7 +60,6 @@ export function AssistantMessageView({
 }) {
   const time = showTimestamp ? formatTime(message.timestamp) : null;
   const blocks = message.content ?? [];
-  const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
   const streamStartRef = useRef<number | null>(null);
   const [tps, setTps] = useState<number | null>(null);
@@ -163,8 +162,7 @@ export function AssistantMessageView({
   return (
     <div
       style={{ marginBottom: 16 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="hover-group"
     >
       {/* Model label */}
       <div
@@ -232,21 +230,17 @@ export function AssistantMessageView({
           <button
             onClick={copyContent}
             title="Copy message"
+            className={["hover-reveal", copied ? "text-accent" : "text-dim hover-accent"].join(" ")}
             style={{
               display: "flex", alignItems: "center", gap: 4,
               padding: "3px 8px", height: 22,
               background: "none", border: "none",
               borderRadius: 5,
-              color: copied ? "var(--accent)" : "var(--text-dim)",
               cursor: "pointer",
               fontSize: 11, fontWeight: 400,
               whiteSpace: "nowrap",
-              opacity: hovered ? 1 : 0,
-              pointerEvents: hovered ? "auto" : "none",
               transition: "opacity 0.12s, color 0.12s",
             }}
-            onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = "var(--accent)"; }}
-            onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = "var(--text-dim)"; }}
           >
             {copied ? (
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
