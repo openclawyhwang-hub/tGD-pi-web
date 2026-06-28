@@ -23,7 +23,8 @@
     "lint": "eslint .",
     "release": "npm version patch --no-git-tag-version && npm run build && npm publish --access public",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "analyze": "ANALYZE=true next build --webpack"
   },
   "dependencies": {
     "@earendil-works/pi-ai": "^0.80.2",
