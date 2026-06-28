@@ -236,6 +236,7 @@ export function SkillsConfig({
                                 setSelected(skill.filePath);
                                 setAddMode(false);
                               }}
+                              className={isSelected ? "" : "hover-bg"}
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -246,15 +247,6 @@ export function SkillsConfig({
                                 background: isSelected
                                   ? "var(--bg-selected)"
                                   : "none",
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!isSelected)
-                                  e.currentTarget.style.background =
-                                    "var(--bg-hover)";
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!isSelected)
-                                  e.currentTarget.style.background = "none";
                               }}
                             >
                               <span
@@ -319,13 +311,7 @@ export function SkillsConfig({
                   color: addMode ? "var(--accent)" : "var(--text-dim)",
                   fontSize: 12,
                 }}
-                onMouseEnter={(e) => {
-                  if (!addMode)
-                    e.currentTarget.style.background = "var(--bg-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!addMode) e.currentTarget.style.background = "none";
-                }}
+                className={addMode ? "" : "hover-bg"}
               >
                 <svg
                   width="13"

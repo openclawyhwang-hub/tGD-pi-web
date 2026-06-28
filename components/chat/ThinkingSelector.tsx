@@ -39,24 +39,15 @@ export function ThinkingSelector({
         onClick={() => !isStreaming && setOpen((v) => !v)}
         disabled={isStreaming}
         title="切换推理强度"
+        className={open ? "hover-text" : "bg-none hover-bg-text"}
         style={{
           display: "flex", alignItems: "center", gap: 5,
           padding: "8px 12px", height: 32,
-          background: open ? "var(--bg-hover)" : "none",
           border: "none", borderRadius: 9,
           color: "var(--text-muted)",
           cursor: isStreaming ? "not-allowed" : "pointer",
           fontSize: 12, opacity: isStreaming ? 0.5 : 1,
           transition: "background 0.12s, color 0.12s",
-        }}
-        onMouseEnter={(e) => {
-          if (isStreaming) return;
-          e.currentTarget.style.background = "var(--bg-hover)";
-          e.currentTarget.style.color = "var(--text)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = open ? "var(--bg-hover)" : "none";
-          e.currentTarget.style.color = "var(--text-muted)";
         }}
       >
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -92,17 +83,15 @@ export function ThinkingSelector({
               <button
                 key={lvl}
                 onClick={() => { setOpen(false); if (!isActive) onThinkingLevelChange(lvl); }}
+                className={isActive ? "bg-selected" : "bg-none hover-bg"}
                 style={{
                   display: "flex", alignItems: "center", gap: 8,
                   width: "100%", padding: "7px 12px",
-                  background: isActive ? "var(--bg-selected)" : "none",
                   border: "none",
                   color: isActive ? "var(--text)" : "var(--text-muted)",
                   cursor: "pointer", fontSize: 12, textAlign: "left",
                   fontWeight: isActive ? 600 : 400, whiteSpace: "nowrap",
                 }}
-                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "var(--bg-hover)"; }}
-                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "none"; }}
               >
                 {isActive
                   ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="1.5 5 4 7.5 8.5 2.5" /></svg>

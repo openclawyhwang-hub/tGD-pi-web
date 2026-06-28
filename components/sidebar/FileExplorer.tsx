@@ -82,8 +82,6 @@ function TreeNode({
   const [children, setChildren] = useState<FileNode[]>(node.children ?? []);
   const [loaded, setLoaded] = useState(node.loaded ?? false);
   const [loading, setLoading] = useState(false);
-  const [hovered, setHovered] = useState(false);
-
   const loadChildren = useCallback(async (force = false) => {
     if (loaded && !force) return;
     setLoading(true);
@@ -126,8 +124,7 @@ function TreeNode({
     <div>
       <div
         onClick={handleClick}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        className="hover-bg hover-group"
         style={{
           position: "relative",
           display: "flex",
@@ -137,7 +134,7 @@ function TreeNode({
           paddingRight: 8,
           height: 28,
           cursor: "pointer",
-          background: hovered ? "var(--bg-hover)" : "transparent",
+          background: "transparent",
           borderRadius: 4,
           userSelect: "none",
         }}
@@ -173,8 +170,9 @@ function TreeNode({
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
           </svg>
         )}
-        {onAtMention && hovered && (
+        {onAtMention && (
           <button
+            className="hover-reveal"
             onClick={(e) => {
               e.stopPropagation();
               onAtMention(getRelativeFilePath(node.fullPath, cwd));

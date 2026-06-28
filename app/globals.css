@@ -582,6 +582,10 @@ span.linenumber {
   border-color: var(--accent);
   background: var(--bg-hover);
 }
+.hover-border-accent:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 .hover-bg-text-full:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--bg-hover);
   color: var(--text);
