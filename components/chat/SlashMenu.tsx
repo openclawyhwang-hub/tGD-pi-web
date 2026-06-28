@@ -47,18 +47,18 @@ export function SlashMenu({ show, filter, selectedIndex, onSelect, onHover, onLe
           onClick={() => onSelect(cmd.name + " ")}
           onMouseEnter={() => onHover(i)}
           onMouseLeave={() => { if (i === selectedIndex) onLeave(); }}
+          className={i === selectedIndex ? "bg-selected" : "bg-none hover-bg-text text-muted"}
           style={{
             display: "flex",
             alignItems: "center",
             gap: 10,
             width: "100%",
             padding: "8px 12px",
-            background: i === selectedIndex ? "var(--bg-selected)" : "none",
             border: "none",
-            color: i === selectedIndex ? "var(--text)" : "var(--text-muted)",
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             textAlign: "left",
+            ...(i === selectedIndex ? { color: "var(--text)" } : {}),
           }}
         >
           <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, minWidth: 100, fontSize: "var(--text-sm)" }}>

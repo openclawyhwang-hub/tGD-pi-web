@@ -591,6 +591,10 @@ span.linenumber {
   color: var(--text);
   opacity: 1;
 }
+/* Text color utility classes */
+.text-muted { color: var(--text-muted); }
+.text-dim { color: var(--text-dim); }
+.text-accent { color: var(--accent); }
 /* Base background utility classes for className switching */
 .bg-none { background: none; }
 .bg-selected { background: var(--bg-selected); }

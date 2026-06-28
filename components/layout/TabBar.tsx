@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { getFileIcon } from "../sidebar/FileIcons";
 
 export interface Tab {
@@ -17,8 +16,6 @@ interface Props {
 }
 
 export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
-  const [hoveredClose, setHoveredClose] = useState<string | null>(null);
-
   return (
     <div
       style={{
@@ -72,15 +69,12 @@ export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); onCloseTab(tab.id); }}
-              onMouseEnter={() => setHoveredClose(tab.id)}
-              onMouseLeave={() => setHoveredClose(null)}
+              className="bg-none text-dim hover-bg-text"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: 16, height: 16,
-                background: hoveredClose === tab.id ? "var(--bg-hover)" : "transparent",
                 border: "none",
                 borderRadius: 3,
-                color: hoveredClose === tab.id ? "var(--text)" : "var(--text-dim)",
                 cursor: "pointer",
                 padding: 0,
                 flexShrink: 0,

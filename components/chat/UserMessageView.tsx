@@ -49,7 +49,6 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
   prevAssistantEntryId?: string;
   onEditContent?: (content: string) => void;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const content =
@@ -79,8 +78,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
   return (
     <div
       style={{ marginBottom: 16, display: "flex", flexDirection: "column", alignItems: "flex-end" }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="hover-group"
     >
       <div style={{ display: "flex", alignItems: "flex-end", gap: 6, maxWidth: "85%" }}>
         <div
@@ -133,12 +131,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
           display: "flex", alignItems: "center", justifyContent: "flex-end",
           gap: 6, marginTop: 3,
         }}>
-          <div style={{
-            display: "flex", gap: 3,
-            opacity: hovered ? 1 : 0,
-            pointerEvents: hovered ? "auto" : "none",
-            transition: "opacity 0.12s",
-          }}>
+          <div className="hover-reveal" style={{ display: "flex", gap: 3 }}>
             <button
               onClick={copyContent}
               title="Copy message"
@@ -152,9 +145,8 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                 fontSize: 11, fontWeight: 400,
                 whiteSpace: "nowrap",
                 transition: "color 0.12s",
-              }}
-              onMouseEnter={(e) => { if (!copied) e.currentTarget.style.color = "var(--accent)"; }}
-              onMouseLeave={(e) => { if (!copied) e.currentTarget.style.color = "var(--text-dim)"; }}
+                }}
+                className={copied ? "text-accent" : "text-dim hover-accent"}
             >
               {copied ? (
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -170,12 +162,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
             </button>
           </div>
           {(canFork || canNavigate) && (
-            <div style={{
-              display: "flex", gap: 3,
-              opacity: (hovered || forking) ? 1 : 0,
-              pointerEvents: (hovered || forking) ? "auto" : "none",
-              transition: "opacity 0.12s",
-            }}>
+            <div className={forking ? "" : "hover-reveal"} style={{ display: "flex", gap: 3 }}>
               {canNavigate && (
                 <button
                   onClick={() => { onNavigate!(prevAssistantEntryId!); onEditContent?.(content); }}
@@ -190,9 +177,8 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                     fontSize: 11, fontWeight: 400,
                     whiteSpace: "nowrap",
                     transition: "color 0.12s",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-dim)"; }}
+                    }}
+                    className="text-dim hover-accent"
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 10 20 15 15 20" />
@@ -216,9 +202,8 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                     fontSize: 11, fontWeight: 400,
                     whiteSpace: "nowrap",
                     transition: "color 0.12s",
-                  }}
-                  onMouseEnter={(e) => { if (!forking) e.currentTarget.style.color = "var(--accent)"; }}
-                  onMouseLeave={(e) => { if (!forking) e.currentTarget.style.color = "var(--text-dim)"; }}
+                    }}
+                    className={forking ? "text-accent" : "text-dim hover-accent"}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="6" y1="3" x2="6" y2="15" />

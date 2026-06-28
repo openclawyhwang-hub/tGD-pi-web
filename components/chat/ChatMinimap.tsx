@@ -69,7 +69,6 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
   const [viewportRatio, setViewportRatio] = useState(1);
   const [visible, setVisible] = useState(false);
   const [nodes, setNodes] = useState<NodeInfo[]>([]);
-  const [minimapHovered, setMinimapHovered] = useState(false);
   const [mouseYRatio, setMouseYRatio] = useState<number | null>(null);
   const draggingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -196,7 +195,7 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
   const minimapHeightPx = containerRef.current?.clientHeight ?? 600;
 
   const tooltipPositions = useMemo(() => {
-    if (!minimapHovered || nodes.length === 0) return [];
+    if (nodes.length === 0) return [];
     // Initial positions: centered on the dot
     const positions = nodes.map((node) =>
       Math.round(node.topRatio * minimapHeightPx - TOOLTIP_HEIGHT / 2)
@@ -217,7 +216,7 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
       positions[i] = Math.max(0, Math.min(minimapHeightPx - TOOLTIP_HEIGHT, positions[i]));
     }
     return positions;
-  }, [minimapHovered, nodes, minimapHeightPx]);
+  }, [nodes, minimapHeightPx]);
 
   if (!visible) return null;
 
@@ -234,9 +233,9 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
   return (
     <div
       ref={containerRef}
+      className="hover-group"
       onMouseDown={handleMouseDown}
-      onMouseEnter={() => setMinimapHovered(true)}
-      onMouseLeave={() => { setMinimapHovered(false); setMouseYRatio(null); }}
+      onMouseLeave={() => { setMouseYRatio(null); }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         setMouseYRatio((e.clientY - rect.top) / rect.height);
@@ -271,7 +270,7 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
       {/* Message nodes */}
       {nodes.map((node) => {
         const color = getNodeColor(node.msg);
-        const isNearest = minimapHovered && nearestIndex === node.index;
+        const isNearest = nearestIndex === node.index;
         const isUser = node.msg.role === "user";
         const dotTop = node.topRatio * 100;
 
@@ -326,49 +325,51 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
         }}
       />
 
-      {/* Tooltips for all nodes, collision-free positions */}
-      {minimapHovered && nodes.map((node, i) => {
-        const preview = getMessagePreview(node.msg);
-        const color = getNodeColor(node.msg);
-        const isNearest = nearestIndex === node.index;
-        if (!preview || tooltipPositions.length === 0) return null;
-        return (
-          <div
-            key={node.index}
-            style={{
-              position: "absolute",
-              top: tooltipPositions[i],
-              right: "100%",
-              marginRight: 6,
-              background: "var(--bg)",
-              borderTop: `1px solid ${isNearest ? color.border : "var(--border)"}`,
-              borderRight: `1px solid ${isNearest ? color.border : "var(--border)"}`,
-              borderBottom: `1px solid ${isNearest ? color.border : "var(--border)"}`,
-              borderLeft: `2px solid ${color.border}`,
-              borderRadius: 4,
-              padding: "2px 7px",
-              width: 200,
-              zIndex: 100,
-              pointerEvents: "none",
-              opacity: isNearest ? 1 : 0.45,
-              transition: "top 0.1s, opacity 0.1s",
-            }}
-          >
+      {/* Tooltips for all nodes, collision-free positions — shown on hover via CSS */}
+      <div className="hover-reveal" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {nodes.map((node, i) => {
+          const preview = getMessagePreview(node.msg);
+          const color = getNodeColor(node.msg);
+          const isNearest = nearestIndex === node.index;
+          if (!preview || tooltipPositions.length === 0) return null;
+          return (
             <div
+              key={node.index}
               style={{
-                fontSize: 11,
-                color: isNearest ? "var(--text)" : "var(--text-muted)",
-                lineHeight: 1.4,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                position: "absolute",
+                top: tooltipPositions[i],
+                right: "100%",
+                marginRight: 6,
+                background: "var(--bg)",
+                borderTop: `1px solid ${isNearest ? color.border : "var(--border)"}`,
+                borderRight: `1px solid ${isNearest ? color.border : "var(--border)"}`,
+                borderBottom: `1px solid ${isNearest ? color.border : "var(--border)"}`,
+                borderLeft: `2px solid ${color.border}`,
+                borderRadius: 4,
+                padding: "2px 7px",
+                width: 200,
+                zIndex: 100,
+                pointerEvents: "none",
+                opacity: isNearest ? 1 : 0.45,
+                transition: "top 0.1s, opacity 0.1s",
               }}
             >
-              {preview}
+              <div
+                style={{
+                  fontSize: 11,
+                  color: isNearest ? "var(--text)" : "var(--text-muted)",
+                  lineHeight: 1.4,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {preview}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
