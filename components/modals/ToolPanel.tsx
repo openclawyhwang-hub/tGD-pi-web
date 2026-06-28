@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import styles from "./ToolPanel.module.css";
 
 export interface ToolEntry {
   name: string;
@@ -50,51 +51,16 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
   const currentIndex = PRESETS.findIndex(p => p.id === current);
 
   return (
-    <div
-      ref={panelRef}
-      style={{
-        position: "absolute",
-        bottom: "calc(100% + 8px)",
-        right: 0,
-        zIndex: 200,
-        background: "var(--bg)",
-        border: "1px solid var(--border)",
-        borderRadius: 10,
-        boxShadow: "var(--color-shadow-popup)",
-        width: 260,
-        padding: "12px 14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-      }}
-    >
+    <div ref={panelRef} className={styles.panel}>
       {/* Segmented control */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr 1fr",
-        background: "var(--bg-panel)",
-        borderRadius: 8,
-        padding: 3,
-        gap: 3,
-      }}>
+      <div className={styles.segmentedControl}>
         {PRESETS.map((preset) => {
           const isActive = current === preset.id;
           return (
             <button
               key={preset.id}
               onClick={() => { onPreset(preset.id, preset.tools); onClose(); }}
-              style={{
-                padding: "5px 0",
-                borderRadius: 6,
-                border: "none",
-                background: isActive ? "var(--bg)" : "transparent",
-                boxShadow: isActive ? "var(--color-shadow-dropdown)" : "none",
-                color: isActive ? "var(--accent)" : "var(--text-muted)",
-                fontWeight: isActive ? 600 : 400,
-                fontSize: 12,
-                cursor: "pointer",
-                transition: "all 0.12s",
-              }}
+              className={`${styles.presetBtn} ${isActive ? styles.presetBtnActive : ""}`}
             >
               {preset.label}
             </button>
@@ -103,26 +69,22 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
       </div>
 
       {/* Description of current selection */}
-      <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
+      <div className={styles.description}>
         {currentIndex >= 0 ? PRESETS[currentIndex].desc || "No tools enabled" : ""}
         {current === "none" && <span> — agent will not use any tools</span>}
       </div>
 
       {/* Track bar */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <div className={styles.trackBar}>
         {PRESETS.map((_, i) => (
           <div
             key={i}
-            style={{
-              flex: 1, height: 3, borderRadius: 2,
-              background: i <= currentIndex ? "var(--accent)" : "var(--border)",
-              transition: "background 0.15s",
-            }}
+            className={`${styles.trackSegment} ${i <= currentIndex ? styles.trackSegmentActive : ""}`}
           />
         ))}
       </div>
 
-      <div style={{ fontSize: 10, color: "var(--text-dim)" }}>
+      <div className={styles.note}>
         takes effect on next turn
       </div>
     </div>

@@ -1,0 +1,73 @@
+.panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 200;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--color-shadow-popup);
+  width: 260px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.segmentedControl {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--bg-panel);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.presetBtn {
+  padding: 5px 0;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.presetBtnActive {
+  background: var(--bg);
+  box-shadow: var(--color-shadow-dropdown);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.description {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.trackBar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trackSegment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.trackSegmentActive {
+  background: var(--accent);
+}
+
+.note {
+  font-size: 10px;
+  color: var(--text-dim);
+}

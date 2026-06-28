@@ -6,6 +6,7 @@ import { SlashMenu } from "./SlashMenu";
 import { ModelSelector } from "./ModelSelector";
 import { ThinkingSelector } from "./ThinkingSelector";
 import { ToolPresetSelector } from "./ToolPresetSelector";
+import styles from "./ChatInput.module.css";
 
 export interface AttachedImage {
   data: string;   // base64, no prefix
@@ -324,14 +325,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
 
 
   return (
-    <div
-      style={{
-        flexShrink: 0,
-        background: "transparent",
-        padding: "0 16px 8px",
-        paddingRight: 52, // 16px base + 36px for ChatMinimap alignment
-      }}
-    >
+    <div className={styles.container}>
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -345,42 +339,31 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
           e.target.value = "";
         }}
       />
-      <div style={{ maxWidth: 820, margin: "0 auto" }}>
+      <div className={styles.innerWrapper}>
         {/* Retry banner */}
         {retryInfo && (
-          <div style={{
-            marginBottom: 8, padding: "5px 10px",
-            background: "var(--color-warning-bg)", border: "1px solid var(--color-warning-border)",
-            borderRadius: 6, fontSize: 12, color: "var(--color-warning-text)",
-            display: "flex", alignItems: "center", gap: 6,
-          }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <div className={styles.retryBanner}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.retryIcon}>
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
               <path d="M3 3v5h5" />
             </svg>
-            Retrying ({retryInfo.attempt}/{retryInfo.maxAttempts})…{retryInfo.errorMessage && <span style={{ opacity: 0.7, marginLeft: 4 }}>— {retryInfo.errorMessage}</span>}
+            Retrying ({retryInfo.attempt}/{retryInfo.maxAttempts})…{retryInfo.errorMessage && <span className={styles.retryErrorText}>— {retryInfo.errorMessage}</span>}
           </div>
         )}
         {/* Image previews */}
         {attachedImages.length > 0 && (
-          <div style={{ display: "flex", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+          <div className={styles.imagePreviewRow}>
             {attachedImages.map((img, i) => (
-              <div key={i} style={{ position: "relative", flexShrink: 0 }}>
+              <div key={i} className={styles.imagePreviewItem}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.previewUrl}
                   alt=""
-                  style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: "1px solid var(--border)", display: "block" }}
+                  className={styles.imagePreviewImg}
                 />
                 <button
                   onClick={() => removeImage(i)}
-                  style={{
-                    position: "absolute", top: -4, right: -4,
-                    width: 16, height: 16, borderRadius: "50%",
-                    background: "var(--bg-panel)", border: "1px solid var(--border)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    cursor: "pointer", padding: 0, color: "var(--text-muted)",
-                  }}
+                  className={styles.imageRemoveButton}
                 >
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <line x1="1" y1="1" x2="7" y2="7" /><line x1="7" y1="1" x2="1" y2="7" />
@@ -393,20 +376,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
 
         {/* Main input */}
         <div
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            position: "relative",
-            background: "var(--bg)",
-            border: `1px solid ${isStreaming && (onSteer || onFollowUp)
-              ? "var(--color-warning-border-strong)"
-              : "color-mix(in srgb, var(--border) 70%, transparent)"}`,
-            borderRadius: "var(--radius-lg)",
-            padding: "10px 10px 10px 14px",
-            boxShadow: "var(--color-shadow-input)",
-            transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
-          } as React.CSSProperties}
+          className={isStreaming && (onSteer || onFollowUp) ? styles.inputWrapperStreaming : styles.inputWrapperNormal}
         >
           <textarea
             ref={textareaRef}
@@ -429,22 +399,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 : "Message…"
             }
             rows={1}
-            style={{
-              flex: 1,
-              background: "none",
-              border: "none",
-              outline: "none",
-              resize: "none",
-              color: "var(--text)",
-              fontSize: "var(--text-base)",
-              lineHeight: 1.6,
-              fontFamily: "inherit",
-              minHeight: 24,
-              maxHeight: 200,
-              overflow: "auto",
-              position: "relative",
-              zIndex: 1,
-            }}
+            className={styles.textarea}
           />
 
           {/* Slash command menu */}
@@ -465,23 +420,13 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
           />
 
           {isStreaming ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, alignSelf: "flex-end" }}>
+            <div className={styles.streamingActions}>
               {onSteer && (
                 <button
                   onClick={() => sendQueued("steer")}
                   disabled={!value.trim() && !attachedImages.length}
                   title="打断 Agent 当前运行，立即注入消息"
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    padding: "7px 12px",
-                    background: (value.trim() || attachedImages.length) ? "var(--color-warning-bg-strong)" : "none",
-                    border: "1px solid var(--color-warning-border-strong)",
-                    borderRadius: 8,
-                    color: (value.trim() || attachedImages.length) ? "var(--color-warning-text-strong)" : "var(--text-dim)",
-                    cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
-                    fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
-                    transition: "background 0.12s",
-                  }}
+                  className={(value.trim() || attachedImages.length) ? styles.steerButtonActive : styles.steerButtonDisabled}
                 >
                   <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 1 L9 5 L5 9" /><line x1="1" y1="5" x2="9" y2="5" />
@@ -494,17 +439,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   onClick={() => sendQueued("followup")}
                   disabled={!value.trim() && !attachedImages.length}
                   title="在 Agent 完成后排队发送"
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    padding: "7px 12px",
-                    background: (value.trim() || attachedImages.length) ? "var(--color-accent-bg-strong)" : "none",
-                    border: "1px solid var(--color-accent-border)",
-                    borderRadius: 8,
-                    color: (value.trim() || attachedImages.length) ? "var(--accent)" : "var(--text-dim)",
-                    cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
-                    fontSize: 13, fontWeight: 600, letterSpacing: "-0.01em",
-                    transition: "background 0.12s",
-                  }}
+                  className={(value.trim() || attachedImages.length) ? styles.followUpButtonActive : styles.followUpButtonDisabled}
                 >
                   <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="5" y1="1" x2="5" y2="6" /><polyline points="2.5 3.5 5 1 7.5 3.5" />
@@ -518,23 +453,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             <button
               onClick={handleSend}
               disabled={!value.trim() && !attachedImages.length}
-              style={{
-                flexShrink: 0,
-                alignSelf: "flex-end",
-                display: "flex", alignItems: "center", gap: 6,
-                padding: "7px 14px",
-                background: (value.trim() || attachedImages.length) ? "var(--accent)" : "var(--bg-panel)",
-                border: "none",
-                borderRadius: "var(--radius-md)",
-                color: (value.trim() || attachedImages.length) ? "#fff" : "var(--text-dim)",
-                cursor: (value.trim() || attachedImages.length) ? "pointer" : "not-allowed",
-                fontSize: "var(--text-sm)",
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-                boxShadow: (value.trim() || attachedImages.length) ? "0 1px 3px var(--color-accent-glow)" : "none",
-                transition: "background 0.15s, box-shadow 0.15s, transform 0.1s",
-                minHeight: 36,
-              }}
+              className={(value.trim() || attachedImages.length) ? styles.sendButtonActive : styles.sendButtonDisabled}
               onMouseDown={(e) => { if (value.trim() || attachedImages.length) e.currentTarget.style.transform = "scale(0.97)"; }}
               onMouseUp={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
@@ -549,24 +468,16 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
         </div>
 
         {/* Bottom bar: left | center (context) | right */}
-        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+        <div className={styles.bottomBar}>
 
           {/* LEFT: attach + model selector (idle) or steer/followup toggle (streaming) */}
-          <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: 2 }}>
+          <div className={styles.bottomBarLeft}>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isStreaming}
               title="Attach image"
-              style={{
-                flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                width: 32, height: 32, padding: 0,
-                background: "none", border: "none",
-                borderRadius: "var(--radius-md)",
-                color: attachedImages.length ? "var(--accent)" : "var(--text-muted)",
-                cursor: isStreaming ? "not-allowed" : "pointer",
-                opacity: isStreaming ? 0.5 : 1,
-                transition: "background 0.12s, color 0.12s",
-              }}
+              className={isStreaming ? styles.attachButtonDisabled : styles.attachButtonEnabled}
+              style={{ color: attachedImages.length ? "var(--accent)" : "var(--text-muted)" }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -589,7 +500,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
           <div style={{ flex: 1 }} />
 
           {/* RIGHT: thinking + tools preset + compact + sound (idle) | Stop + sound (streaming) */}
-          <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: 2, marginLeft: "auto" }}>
+          <div className={styles.bottomBarRight}>
             <ThinkingSelector
               thinkingLevel={thinkingLevel}
               thinkingLevelMap={thinkingLevelMap}
@@ -604,33 +515,16 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             />
 
             {!isStreaming && onCompact && (
-              <div style={{ position: "relative" }}>
+              <div className={styles.compactWrapper}>
                 {compactError && (
-                  <div style={{
-                    position: "absolute", bottom: "calc(100% + 6px)", right: 0,
-                    background: "var(--tool-bg)", color: "var(--color-error-text)",
-                    fontSize: 11, padding: "4px 8px", borderRadius: 5,
-                    whiteSpace: "nowrap", pointerEvents: "none",
-                    boxShadow: "var(--color-shadow-dropdown)", zIndex: 50,
-                  }}>
+                  <div className={styles.compactErrorTooltip}>
                     {compactError}
                   </div>
                 )}
                 <button
                   onClick={isCompacting ? onAbortCompaction : onCompact}
                   disabled={isStreaming && !isCompacting}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 5,
-                    padding: "8px 12px",
-                    height: 32,
-                    background: isCompacting ? "var(--color-error-bg)" : "none",
-                    border: "none",
-                    borderRadius: 9,
-                    color: isCompacting ? "var(--color-error)" : "var(--text-muted)",
-                    cursor: (isStreaming && !isCompacting) ? "not-allowed" : "pointer",
-                    fontSize: 12, opacity: (isStreaming && !isCompacting) ? 0.5 : 1,
-                    transition: "background 0.12s, color 0.12s",
-                  }}
+                  className={isCompacting ? styles.compactButtonCompacting : (isStreaming && !isCompacting) ? styles.compactButtonDisabled : styles.compactButtonIdle}
                   title={isCompacting ? "停止压缩" : "压缩上下文"}
                 >
                   {isCompacting ? (
@@ -649,19 +543,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               <button
                 onClick={onAbort}
                 title="停止 Agent"
-                style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "8px 14px",
-                  height: 32,
-                  background: "var(--color-error-bg)",
-                  border: "1px solid var(--color-error-border)",
-                  borderRadius: 9,
-                  color: "var(--color-error)",
-                  cursor: "pointer",
-                  fontSize: 12, fontWeight: 600,
-                  whiteSpace: "nowrap", letterSpacing: "-0.01em",
-                  transition: "background 0.12s",
-                }}
+                className={styles.stopButton}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <rect x="1.5" y="1.5" width="7" height="7" rx="1.5" fill="currentColor" />
@@ -674,17 +556,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               <button
                 onClick={onSoundToggle}
                 title={soundEnabled ? "关闭完成提示音" : "开启完成提示音"}
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 32, height: 32, padding: 0,
-                  background: "none",
-                  border: "none",
-                  borderRadius: 9,
-                  color: soundEnabled ? "var(--text-muted)" : "var(--text-dim)",
-                  cursor: "pointer",
-                  opacity: soundEnabled ? 1 : 0.55,
-                  transition: "background 0.12s, color 0.12s, opacity 0.12s",
-                }}
+                className={soundEnabled ? styles.soundButtonEnabled : styles.soundButtonDisabled}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "var(--bg-hover)";
                   e.currentTarget.style.color = "var(--text)";

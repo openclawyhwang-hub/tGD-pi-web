@@ -8,6 +8,7 @@ import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
 import { useAgentSession, type AgentPhase } from "@/hooks/useAgentSession";
 import { useAudio } from "@/hooks/useAudio";
 import { useDragDrop } from "@/hooks/useDragDrop";
+import styles from "./ChatWindow.module.css";
 
 interface Props {
   session: SessionInfo | null;
@@ -84,9 +85,9 @@ function Typewriter({ phrases }: { phrases: string[] }) {
   }, [text, deleting, phraseIdx, phrases]);
 
   return (
-    <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>
+    <span className={styles.typewriterText}>
       {text}
-      <span style={{ opacity: caretOn ? 1 : 0, color: "var(--accent)", marginLeft: 1 }}>▍</span>
+      <span style={{ opacity: caretOn ? 1 : 0 }} className={styles.typewriterCaret}>▍</span>
     </span>
   );
 }
@@ -199,7 +200,7 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div style={{ width: 320 }}>
+        <div className={styles.skeletonWrapper}>
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="skeleton-line" style={{ width: `${40 + (i % 3) * 20}%`, marginBottom: 10, marginLeft: i % 2 === 0 ? 0 : 60 }} />
           ))}
@@ -230,8 +231,8 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
             {[0, 0.8, 1.6].map((delay) => (
               <div
                 key={delay}
-                className="absolute h-[720px] w-[720px] rounded-full border-[1.5px] border-solid border-[var(--color-accent-border)] animate-[drop-ripple_2.4s_ease-out_infinite_backwards]"
-                style={{ transformOrigin: "center", animationDelay: `${delay}s` }}
+                className={`absolute h-[720px] w-[720px] rounded-full border-[1.5px] border-solid border-[var(--color-accent-border)] animate-[drop-ripple_2.4s_ease-out_infinite_backwards] ${styles.dropRipple}`}
+                style={{ animationDelay: `${delay}s` }}
               />
             ))}
           </div>
@@ -260,38 +261,26 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
         <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-8">
           <div className="w-full max-w-[820px]">
             <div
-              className="mb-3"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-                marginLeft: 16,
-                marginRight: 52,
-                fontFamily: "var(--font-mono)",
-              }}
+              className={styles.welcomeHeader}
             >
-              <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0, flex: 1, lineHeight: 1.4 }}>
-                <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text)" }}>π</span>
-                <span style={{ fontSize: 22, color: "var(--text)", fontWeight: 700, letterSpacing: "-0.01em" }}>Pi with tGD</span>
-                <span style={{ fontSize: 14, minWidth: 0, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+              <div className={styles.welcomeTitleRow}>
+                <span className={styles.piSymbol}>π</span>
+                <span className={styles.titleText}>Pi with tGD</span>
+                <span className={styles.typewriterContainer}>
                   <Typewriter phrases={TYPEWRITER_PHRASES} />
                 </span>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, flexShrink: 0 }}>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  web <span style={{ color: "var(--text)" }}>v{process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}</span>
+              <div className={styles.versionColumn}>
+                <span className={styles.versionLabel}>
+                  web <span className={styles.versionValue}>v{process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}</span>
                 </span>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  pi <span style={{ color: "var(--text)" }}>v{process.env.NEXT_PUBLIC_PI_VERSION ?? "0.0.0"}</span>
+                <span className={styles.versionLabel}>
+                  pi <span className={styles.versionValue}>v{process.env.NEXT_PUBLIC_PI_VERSION ?? "0.0.0"}</span>
                 </span>
               </div>
             </div>
             {/* tGD Phase Quick Actions */}
-            <div style={{
-              display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16,
-              marginLeft: 16, marginRight: 52,
-            }}>
+            <div className={styles.quickActionsRow}>
               {[
                 { cmd: "/tgd-map", label: "Map", icon: "🗺️", desc: "Understand codebase" },
                 { cmd: "/tgd-define", label: "Define", icon: "📝", desc: "Write PRD" },
@@ -304,18 +293,11 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
                 <button
                   key={phase.cmd}
                   onClick={() => chatInputRef?.current?.insertIfEmpty(phase.cmd + " ")}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 12px", background: "var(--bg-panel)",
-                    border: "1px solid var(--border)", borderRadius: "var(--radius-md)",
-                    cursor: "pointer", fontSize: 12, color: "var(--text)",
-                    transition: "border-color 0.15s, background 0.15s",
-                    minHeight: 36,
-                  }}
+                  className={styles.phaseButton}
                   title={`${phase.cmd} — ${phase.desc}`}
                 >
                   <span>{phase.icon}</span>
-                  <span style={{ fontWeight: 500 }}>{phase.label}</span>
+                  <span className={styles.phaseLabel}>{phase.label}</span>
                 </button>
               ))}
             </div>

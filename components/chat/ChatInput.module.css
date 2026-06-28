@@ -1,0 +1,367 @@
+/* ChatInput container */
+.container {
+  flex-shrink: 0;
+  background: transparent;
+  padding: 0 16px 8px;
+  padding-right: 52px; /* 16px base + 36px for ChatMinimap alignment */
+}
+
+/* Max-width wrapper */
+.innerWrapper {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* Retry banner */
+.retryBanner {
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--color-warning-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.retryIcon {
+  flex-shrink: 0;
+}
+
+.retryErrorText {
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+/* Image previews */
+.imagePreviewRow {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.imagePreviewItem {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.imagePreviewImg {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.imageRemoveButton {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-muted);
+}
+
+/* Main input wrapper */
+.inputWrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  padding: 10px 10px 10px 14px;
+  box-shadow: var(--color-shadow-input);
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.inputWrapperNormal {
+  composes: inputWrapper;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.inputWrapperStreaming {
+  composes: inputWrapper;
+  border: 1px solid var(--color-warning-border-strong);
+}
+
+/* Textarea */
+.textarea {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--text);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  font-family: inherit;
+  min-height: 24px;
+  max-height: 200px;
+  overflow: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Streaming action buttons wrapper */
+.streamingActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+/* Steer button base */
+.steerButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-warning-border-strong);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background 0.12s;
+}
+
+.steerButtonActive {
+  composes: steerButton;
+  background: var(--color-warning-bg-strong);
+  color: var(--color-warning-text-strong);
+  cursor: pointer;
+}
+
+.steerButtonDisabled {
+  composes: steerButton;
+  background: none;
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+/* Follow-up button base */
+.followUpButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-accent-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background 0.12s;
+}
+
+.followUpButtonActive {
+  composes: followUpButton;
+  background: var(--color-accent-bg-strong);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.followUpButtonDisabled {
+  composes: followUpButton;
+  background: none;
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+/* Send button base */
+.sendButton {
+  flex-shrink: 0;
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  min-height: 36px;
+}
+
+.sendButtonActive {
+  composes: sendButton;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px var(--color-accent-glow);
+}
+
+.sendButtonDisabled {
+  composes: sendButton;
+  background: var(--bg-panel);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Bottom bar */
+.bottomBar {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bottomBarLeft {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.bottomBarRight {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+/* Attach button */
+.attachButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: background 0.12s, color 0.12s;
+}
+
+.attachButtonEnabled {
+  composes: attachButton;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.attachButtonDisabled {
+  composes: attachButton;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Compact section */
+.compactWrapper {
+  position: relative;
+}
+
+.compactErrorTooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: var(--tool-bg);
+  color: var(--color-error-text);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--color-shadow-dropdown);
+  z-index: 50;
+}
+
+/* Compact button base */
+.compactButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  height: 32px;
+  border: none;
+  border-radius: 9px;
+  font-size: 12px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.compactButtonIdle {
+  composes: compactButton;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 1;
+}
+
+.compactButtonCompacting {
+  composes: compactButton;
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  cursor: pointer;
+  opacity: 1;
+}
+
+.compactButtonDisabled {
+  composes: compactButton;
+  background: none;
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Stop button */
+.stopButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  height: 32px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: 9px;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  transition: background 0.12s;
+}
+
+/* Sound button */
+.soundButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, opacity 0.12s;
+}
+
+.soundButtonEnabled {
+  composes: soundButton;
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.soundButtonDisabled {
+  composes: soundButton;
+  color: var(--text-dim);
+  opacity: 0.55;
+}

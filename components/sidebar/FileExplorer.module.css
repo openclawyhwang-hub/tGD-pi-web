@@ -1,0 +1,111 @@
+/* ── Tree node ── */
+.treeNode {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+  height: 28px;
+  cursor: pointer;
+  background: transparent;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.treeChevron {
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+
+.fileSpacer {
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.fileName {
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ── Mention button ── */
+.mentionButton {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Empty directory ── */
+.emptyDirMessage {
+  font-size: 11px;
+  color: var(--text-dim);
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Loading state ── */
+.loadingWrapper {
+  padding: 8px 12px;
+}
+
+.skeletonLine {
+  margin-bottom: 6px;
+}
+
+.errorMessage {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--color-error-text);
+}
+
+/* ── Filter ── */
+.filterWrapper {
+  padding: 4px 6px;
+}
+
+.filterInput {
+  width: 100%;
+  padding: 4px 8px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.filterResults {
+  padding: 0 4px 2px;
+}
+
+.noResults {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--text-dim);
+}

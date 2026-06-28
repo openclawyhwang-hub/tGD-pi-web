@@ -1,0 +1,212 @@
+/* ── Main container ── */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  padding: 12px 10px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.headerButtons {
+  display: flex;
+  gap: 6px;
+}
+
+/* ── New session button ── */
+.newSessionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  height: 32px;
+  padding-left: 10px;
+  padding-right: 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.newSessionButtonEnabled {
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.newSessionButtonDisabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+/* ── Refresh button ── */
+.refreshButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+.refreshButtonDefault {
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.refreshButtonDone {
+  background: var(--color-success-bg-strong);
+  border: 1px solid var(--color-success-border-strong);
+  color: var(--color-success);
+}
+
+/* ── Search ── */
+.searchWrapper {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 5px 8px 5px 26px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+/* ── Session list ── */
+.sessionList {
+  overflow-y: auto;
+  padding: 0;
+  min-height: 80px;
+}
+
+.loadingWrapper {
+  padding: 12px 14px;
+}
+
+.skeletonLine {
+  margin-bottom: 8px;
+}
+
+.errorMessage {
+  padding: 12px 14px;
+  color: var(--color-error-text);
+  font-size: 12px;
+}
+
+.emptyMessage {
+  padding: 16px 14px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ── Group header ── */
+.groupHeader {
+  padding: 8px 14px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* ── File explorer section ── */
+.explorerSection {
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.explorerHeader {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.explorerToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.explorerChevron {
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.explorerRefreshButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  margin-right: 6px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  flex-shrink: 0;
+  transition: color 0.3s, background 0.3s;
+}
+.explorerRefreshButtonDefault {
+  background: none;
+  color: var(--text-dim);
+}
+.explorerRefreshButtonDone {
+  background: var(--color-success-bg-strong);
+  color: var(--color-success);
+}
+
+.explorerContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

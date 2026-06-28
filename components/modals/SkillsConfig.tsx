@@ -5,6 +5,7 @@ import type { Skill } from "./skills-config-types";
 import { shortenPath, sourceLabel } from "./skills-config-types";
 import { SkillDetail } from "./SkillDetail";
 import { AddSkillPanel } from "./AddSkillPanel";
+import styles from "./SkillsConfig.module.css";
 
 export function SkillsConfig({
   cwd,
@@ -83,121 +84,45 @@ export function SkillsConfig({
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: "var(--color-overlay)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      className={styles.overlay}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div
-        style={{
-          width: 860,
-          height: "78vh",
-          background: "var(--bg)",
-          border: "1px solid var(--border)",
-          borderRadius: 10,
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "var(--color-shadow-modal)",
-          overflow: "hidden",
-        }}
-      >
+      <div className={styles.modal}>
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 18px",
-            borderBottom: "1px solid var(--border)",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <span
-              style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}
-            >
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <span className={styles.title}>
               Skills
             </span>
-            <code
-              style={{
-                fontSize: 11,
-                color: "var(--text-muted)",
-                fontFamily: "var(--font-mono)",
-                maxWidth: 320,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <code className={styles.cwdCode}>
               {shortenPath(cwd)}
             </code>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              fontSize: 20,
-              lineHeight: 1,
-              padding: "2px 6px",
-            }}
+            className={styles.closeButton}
           >
             ×
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        <div className={styles.body}>
           {/* Left: skill list */}
-          <div
-            style={{
-              width: 210,
-              borderRight: "1px solid var(--border)",
-              display: "flex",
-              flexDirection: "column",
-              flexShrink: 0,
-              background: "var(--bg-panel)",
-            }}
-          >
-            <div style={{ flex: 1, overflowY: "auto", padding: "8px 6px" }}>
+          <div className={styles.sidebar}>
+            <div className={styles.sidebarScroll}>
               {loading ? (
-                <div
-                  style={{
-                    padding: "10px 8px",
-                    fontSize: 12,
-                    color: "var(--text-muted)",
-                  }}
-                >
+                <div className={styles.loadingText}>
                   Loading…
                 </div>
               ) : error ? (
-                <div
-                  style={{
-                    padding: "10px 8px",
-                    fontSize: 11,
-                    color: "var(--color-error-text)",
-                  }}
-                >
+                <div className={styles.errorText}>
                   {error}
                 </div>
               ) : skills.length === 0 ? (
-                <div
-                  style={{
-                    padding: "10px 8px",
-                    fontSize: 11,
-                    color: "var(--text-dim)",
-                  }}
-                >
+                <div className={styles.emptyText}>
                   No skills found
                 </div>
               ) : (
@@ -212,17 +137,8 @@ export function SkillsConfig({
                   }
                   return groups.map(
                     ({ label: grpLabel, skills: grpSkills }) => (
-                      <div key={grpLabel} style={{ marginBottom: 6 }}>
-                        <div
-                          style={{
-                            padding: "4px 8px 3px",
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: "var(--text-dim)",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.06em",
-                          }}
-                        >
+                      <div key={grpLabel} className={styles.groupContainer}>
+                        <div className={styles.groupLabel}>
                           {grpLabel}
                         </div>
                         {grpSkills.map((skill) => {
@@ -236,48 +152,13 @@ export function SkillsConfig({
                                 setSelected(skill.filePath);
                                 setAddMode(false);
                               }}
-                              className={isSelected ? "" : "hover-bg"}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 7,
-                                padding: "8px 8px",
-                                borderRadius: 5,
-                                cursor: "pointer",
-                                background: isSelected
-                                  ? "var(--bg-selected)"
-                                  : "none",
-                              }}
+                              className={`${styles.skillItem} ${isSelected ? styles.skillItemSelected : ""} ${!isSelected ? "hover-bg" : ""}`}
                             >
                               <span
-                                style={{
-                                  flexShrink: 0,
-                                  width: 7,
-                                  height: 7,
-                                  borderRadius: "50%",
-                                  background: disabled
-                                    ? "var(--border)"
-                                    : "var(--accent)",
-                                  boxShadow: disabled
-                                    ? "none"
-                                    : "0 0 4px var(--accent)",
-                                  transition:
-                                    "background 0.15s, box-shadow 0.15s",
-                                }}
+                                className={`${styles.statusDot} ${disabled ? styles.statusDotDisabled : ""}`}
                               />
                               <span
-                                style={{
-                                  fontSize: 12,
-                                  fontWeight: isSelected ? 600 : 400,
-                                  color: disabled
-                                    ? "var(--text-dim)"
-                                    : "var(--text)",
-                                  fontFamily: "var(--font-mono)",
-                                  flex: 1,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                }}
+                                className={`${styles.skillName} ${isSelected ? styles.skillNameSelected : ""} ${disabled ? styles.skillNameDisabled : ""}`}
                               >
                                 {skill.name}
                               </span>
@@ -291,27 +172,10 @@ export function SkillsConfig({
               )}
             </div>
             {/* Add skill button */}
-            <div
-              style={{
-                padding: "8px 6px",
-                borderTop: "1px solid var(--border)",
-                flexShrink: 0,
-              }}
-            >
+            <div className={styles.addButtonWrapper}>
               <div
                 onClick={() => setAddMode(true)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "7px 8px",
-                  borderRadius: 5,
-                  cursor: "pointer",
-                  background: addMode ? "var(--bg-selected)" : "none",
-                  color: addMode ? "var(--accent)" : "var(--text-dim)",
-                  fontSize: 12,
-                }}
-                className={addMode ? "" : "hover-bg"}
+                className={`${styles.addSkillButton} ${addMode ? styles.addSkillButtonActive : ""} ${!addMode ? "hover-bg" : ""}`}
               >
                 <svg
                   width="13"
@@ -332,7 +196,7 @@ export function SkillsConfig({
           </div>
 
           {/* Right: detail or add panel */}
-          <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+          <div className={styles.rightPanel}>
             {addMode ? (
               <AddSkillPanel
                 cwd={cwd}
@@ -350,16 +214,7 @@ export function SkillsConfig({
                 saveError={saveError}
               />
             ) : (
-              <div
-                style={{
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--text-dim)",
-                  fontSize: 13,
-                }}
-              >
+              <div className={styles.emptyState}>
                 Select a skill
               </div>
             )}
@@ -367,27 +222,10 @@ export function SkillsConfig({
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            padding: "10px 18px",
-            borderTop: "1px solid var(--border)",
-            flexShrink: 0,
-          }}
-        >
+        <div className={styles.footer}>
           <button
             onClick={onClose}
-            style={{
-              padding: "6px 14px",
-              background: "none",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              fontSize: 13,
-            }}
+            className={styles.closeButtonFooter}
           >
             Close
           </button>

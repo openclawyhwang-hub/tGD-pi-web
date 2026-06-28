@@ -11,6 +11,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { ErrorBoundary } from "./ErrorBoundary";
 import type { SessionInfo, SessionTreeNode } from "@/lib/types";
 import type { ChatInputHandle } from "../chat/ChatInput";
+import s from "./AppShell.module.css";
 
 // Lazy-load heavy modals — they're ~1000 lines each and rarely opened
 const ModelsConfig = lazy(() => import("../modals/ModelsConfig").then((m) => ({ default: m.ModelsConfig })));
@@ -250,7 +251,7 @@ export function AppShell() {
         explorerRefreshKey={explorerRefreshKey}
         onAtMention={handleAtMention}
       />
-      <div style={{ padding: "8px", flexShrink: 0, display: "flex", justifyContent: "space-between", gap: 4 }}>
+      <div className={s.sidebarFooter}>
         {([
           {
             label: "Models",
@@ -284,14 +285,8 @@ export function AppShell() {
             onClick={onClick}
             disabled={disabled}
             title={label}
-            style={{
-              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              height: 32, padding: 0, background: "none", border: "none",
-              borderRadius: 9, color: "var(--text-muted)", cursor: disabled ? "default" : "pointer",
-              fontSize: 12, opacity: disabled ? 0.35 : 1,
-              transition: "background 0.12s, color 0.12s",
-            }}
-                                  >
+            className={`${s.sidebarFooterButton} ${disabled ? s.sidebarFooterButtonDisabled : s.sidebarFooterButtonEnabled}`}
+          >
             {icon}
             {label}
           </button>
@@ -302,53 +297,35 @@ export function AppShell() {
 
   return (
     <>
-    <div style={{ display: "flex", height: "100dvh", overflow: "hidden", background: "var(--bg)" }}>
+    <div className={s.container}>
       {/* Mobile overlay backdrop */}
       <div
         className="sidebar-overlay-backdrop"
         onClick={() => setSidebarOpen(false)}
         style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 199,
-          background: "var(--color-overlay-heavy)",
           opacity: sidebarOpen ? 1 : 0,
           pointerEvents: sidebarOpen ? "auto" : "none",
-          transition: "opacity 0.25s ease",
         }}
       />
 
       {/* Left sidebar */}
       <div
-        className={`sidebar-container${sidebarOpen ? " sidebar-open" : " sidebar-closed"}`}
-        style={{
-          background: "var(--bg-panel)",
-          borderRight: "1px solid var(--border)",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          zIndex: 200,
-        }}
+        className={`sidebar-container${sidebarOpen ? " sidebar-open" : " sidebar-closed"} ${s.sidebarContainer}`}
       >
         {sidebarContent}
       </div>
 
       {/* Center: chat */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+      <div className={s.centerPanel}>
         {/* Top bar with sidebar toggle */}
-        <div ref={topBarRef} style={{ display: "flex", alignItems: "center", flexShrink: 0, borderBottom: "1px solid var(--border)", height: 36, background: "var(--bg-panel)" }}>
+        <div ref={topBarRef} className={s.topBar}>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             aria-expanded={sidebarOpen}
             aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 36, height: 36, padding: 0,
-              background: "none", border: "none", borderRight: "1px solid var(--border)",
-              color: "var(--text-muted)", cursor: "pointer", flexShrink: 0, transition: "color 0.12s",
-            }}
-                                  >
+            className={s.topBarButton}
+          >
             {sidebarOpen ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="3" x2="9" y2="21" />
@@ -367,13 +344,8 @@ export function AppShell() {
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             aria-pressed={isDark}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 36, height: 36, padding: 0,
-              background: "none", border: "none", borderRight: "1px solid var(--border)",
-              color: "var(--text-muted)", cursor: "pointer", flexShrink: 0, transition: "color 0.12s",
-            }}
-                                  >
+            className={s.topBarButton}
+          >
             {isDark ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="5" />
@@ -389,43 +361,18 @@ export function AppShell() {
             )}
           </button>
           {showChat && (
-            <div style={{ display: "flex", alignItems: "stretch", height: "100%" }}>
+            <div className={s.chatActions}>
               <button
                 onClick={handleExportSession}
                 disabled={!selectedSession}
                 title={selectedSession ? "Export HTML" : "Export is available after the session is saved"}
                 aria-label="Export HTML"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  height: "100%",
-                  padding: "0 12px",
-                  background: "none",
-                  border: "none",
-                  borderTop: "2px solid transparent",
-                  borderRight: "1px solid var(--border)",
-                  color: selectedSession ? "var(--text-muted)" : "var(--text-dim)",
-                  cursor: selectedSession ? "pointer" : "not-allowed",
-                  opacity: selectedSession ? 1 : 0.45,
-                  flexShrink: 0,
-                  fontSize: 11,
-                  whiteSpace: "nowrap",
-                  transition: "color 0.1s, background 0.1s, opacity 0.1s",
-                  }}
-                  className={selectedSession ? "hover-bg-text" : ""}
+                className={`${s.exportButton} ${selectedSession ? s.exportButtonEnabled : s.exportButtonDisabled}`}
               >
-                <span style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: 18,
-                  height: 18,
-                  borderRadius: 5,
-                  background: "transparent",
-                  color: selectedSession ? "var(--text-muted)" : "var(--text-dim)",
-                  flexShrink: 0,
-                }}>
+                <span
+                  className={s.exportIcon}
+                  style={{ color: selectedSession ? "var(--text-muted)" : "var(--text-dim)" }}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
@@ -447,18 +394,7 @@ export function AppShell() {
               <button
                 ref={systemBtnRef}
                 onClick={() => toggleTopPanel("system")}
-                style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  height: "100%", padding: "0 12px",
-                  background: activeTopPanel === "system" ? "var(--bg-selected)" : "none",
-                  border: "none",
-                  borderTop: activeTopPanel === "system" ? "2px solid var(--accent)" : "2px solid transparent",
-                  borderRight: "1px solid var(--border)",
-                  cursor: "pointer",
-                  color: activeTopPanel === "system" ? "var(--text)" : "var(--text-muted)",
-                  fontSize: 11, whiteSpace: "nowrap", transition: "color 0.1s, background 0.1s",
-                  }}
-                  className="hover-text"
+                className={`${s.systemButton} ${activeTopPanel === "system" ? s.systemButtonActive : s.systemButtonDefault} hover-text`}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: systemPrompt ? "var(--accent)" : "var(--text-dim)", flexShrink: 0 }}>
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -503,19 +439,11 @@ export function AppShell() {
             return (
               <div
                 title={tooltip}
-                style={{
-                  marginLeft: "auto",
-                  display: "flex", alignItems: "center", gap: 10,
-                  paddingLeft: 12,
-                  paddingRight: rightPanelOpen ? 12 : 48,
-                  height: "100%",
-                  fontSize: 11, color: "var(--text-muted)",
-                  whiteSpace: "nowrap", cursor: "default",
-                  fontVariantNumeric: "tabular-nums",
-                }}
+                className={s.sessionStats}
+                style={{ paddingRight: rightPanelOpen ? 12 : 48 }}
               >
                 {t && t.input > 0 && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span className={s.tokenStat}>
                     <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="8.5" x2="5" y2="1.5" /><polyline points="2 4 5 1.5 8 4" />
                     </svg>
@@ -523,7 +451,7 @@ export function AppShell() {
                   </span>
                 )}
                 {t && t.output > 0 && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span className={s.tokenStat}>
                     <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="1.5" x2="5" y2="8.5" /><polyline points="2 6 5 8.5 8 6" />
                     </svg>
@@ -531,7 +459,7 @@ export function AppShell() {
                   </span>
                 )}
                 {t && t.cacheRead > 0 && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span className={s.tokenStat}>
                     <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M8.5 5a3.5 3.5 0 1 1-1-2.45" /><polyline points="6.5 1.5 8.5 2.5 7.5 4.5" />
                     </svg>
@@ -539,12 +467,12 @@ export function AppShell() {
                   </span>
                 )}
                 {costStr && (
-                  <span style={{ display: "flex", alignItems: "center", color: "var(--text)", fontWeight: 500 }}>
+                  <span className={s.costStat}>
                     {costStr}
                   </span>
                 )}
                 {ctxStr && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4, color: ctxColor }}>
+                  <span className={s.contextStat} style={{ color: ctxColor }}>
                     <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M1 9 L1 5 Q1 1 5 1 Q9 1 9 5 L9 9" /><line x1="1" y1="9" x2="9" y2="9" />
                     </svg>
@@ -556,37 +484,26 @@ export function AppShell() {
           })()}
           {/* Top panel dropdown — shared, only one active at a time */}
           {activeTopPanel && topPanelPos && (
-            <div style={{
-              position: "fixed",
-              top: topPanelPos.top,
-              left: topPanelPos.left,
-              width: topPanelPos.width,
-              zIndex: 500,
-            }}>
+            <div
+              className={s.topPanelDropdown}
+              style={{
+                top: topPanelPos.top,
+                left: topPanelPos.left,
+                width: topPanelPos.width,
+              }}
+            >
               {activeTopPanel === "system" && (
-                <div style={{
-                  background: "var(--bg-panel)",
-                  borderBottom: "1px solid var(--border)",
-                }}>
+                <div className={s.systemPanel}>
                   {systemPrompt ? (
-                    <div style={{
-                      maxHeight: "min(600px, 75vh)",
-                      overflowY: "auto",
-                      padding: "12px 16px",
-                      color: "var(--text-muted)",
-                      fontSize: 12,
-                      lineHeight: 1.6,
-                      whiteSpace: "pre-wrap",
-                      fontFamily: "var(--font-mono)",
-                    }}>
+                    <div className={s.systemPromptContent}>
                       {systemPrompt}
                     </div>
                   ) : systemPrompt === "" ? (
-                    <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                    <div className={s.systemPromptPlaceholder}>
                       System prompt is empty (tools are disabled)
                     </div>
                   ) : (
-                    <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                    <div className={s.systemPromptPlaceholder}>
                       Send a message to load the system prompt
                     </div>
                   )}
@@ -598,7 +515,7 @@ export function AppShell() {
         </div>
 
         {/* Chat content */}
-        <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+        <div className={s.chatContent}>
           {showChat ? (
             <ChatWindow
               key={sessionKey}
@@ -617,45 +534,45 @@ export function AppShell() {
             />
           ) : showPlaceholder ? (
             activeCwd ? (
-              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 32 }}>
-                <div style={{ width: 56, height: 56, borderRadius: "var(--radius-lg)", background: "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
+              <div className={s.placeholderContainer}>
+                <div className={s.placeholderIconBg}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.placeholderIcon}>
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>Select a session</div>
-                  <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+                <div className={s.placeholderText}>
+                  <div className={s.placeholderTitle}>Select a session</div>
+                  <div className={s.placeholderSubtitle}>
                     Choose from the sidebar or start a new one
                   </div>
                 </div>
               </div>
             ) : (
-              <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: 40, maxWidth: 400 }}>
-                <div style={{ width: 72, height: 72, borderRadius: "var(--radius-full)", background: "linear-gradient(135deg, var(--color-accent-bg-strong), var(--color-accent-bg-subtle))", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--color-accent-border-subtle)" }}>
+              <div className={s.welcomeContainer}>
+                <div className={s.welcomeIconBg}>
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     <line x1="9" y1="10" x2="15" y2="10" />
                   </svg>
                 </div>
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>Pi with tGD</div>
-                  <div style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.7 }}>
+                <div className={s.placeholderText}>
+                  <div className={s.welcomeTitle}>Pi with tGD</div>
+                  <div className={s.welcomeSubtitle}>
                     Your AI coding assistant, powered by Pi
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>1</span>
-                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Select a project directory from the sidebar</span>
+                <div className={s.welcomeSteps}>
+                  <div className={s.welcomeStep}>
+                    <span className={s.welcomeStepNumber}>1</span>
+                    <span className={s.welcomeStepText}>Select a project directory from the sidebar</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>2</span>
-                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Click <strong style={{ color: "var(--text)" }}>+ New</strong> to start a session</span>
+                  <div className={s.welcomeStep}>
+                    <span className={s.welcomeStepNumber}>2</span>
+                    <span className={s.welcomeStepText}>Click <strong style={{ color: "var(--text)" }}>+ New</strong> to start a session</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>3</span>
-                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Configure models via <strong style={{ color: "var(--text)" }}>Models</strong> at the bottom</span>
+                  <div className={s.welcomeStep}>
+                    <span className={s.welcomeStepNumber}>3</span>
+                    <span className={s.welcomeStepText}>Configure models via <strong style={{ color: "var(--text)" }}>Models</strong> at the bottom</span>
                   </div>
                 </div>
               </div>
@@ -666,17 +583,11 @@ export function AppShell() {
 
       {/* Right panel: file viewer — always mounted, width animated via CSS */}
       <div
-        className={`right-panel-container${rightPanelOpen ? " right-panel-open" : " right-panel-closed"}`}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid var(--border)",
-          background: "var(--bg)",
-        }}
+        className={`right-panel-container${rightPanelOpen ? " right-panel-open" : " right-panel-closed"} ${s.rightPanelContainer}`}
       >
         {/* Right panel tab bar */}
-        <div style={{ display: "flex", alignItems: "center", flexShrink: 0, background: "var(--bg-panel)", borderBottom: "1px solid var(--border)", height: 36 }}>
-          <div style={{ flex: 1, overflow: "hidden" }}>
+        <div className={s.rightPanelTabBar}>
+          <div className={s.rightPanelTabBarInner}>
             <TabBar
               tabs={fileTabs}
               activeTabId={activeFileTabId ?? ""}
@@ -688,11 +599,11 @@ export function AppShell() {
         </div>
 
         {/* File content */}
-        <div style={{ flex: 1, overflow: "hidden" }}>
+        <div className={s.rightPanelContent}>
           {activeFileTab?.filePath ? (
             <FileViewer filePath={activeFileTab.filePath} cwd={activeCwd ?? undefined} />
           ) : (
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: 12 }}>
+            <div className={s.rightPanelEmpty}>
               No file open
             </div>
           )}
@@ -703,15 +614,8 @@ export function AppShell() {
     <button
       onClick={() => setRightPanelOpen((v) => !v)}
       title={rightPanelOpen ? "Hide file panel" : "Show file panel"}
-      style={{
-        position: "fixed", top: 0, right: 0, zIndex: 300,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        width: 36, height: 36, padding: 0,
-        background: "var(--bg-panel)", border: "none", borderLeft: "1px solid var(--border)", borderBottom: "1px solid var(--border)",
-        color: rightPanelOpen ? "var(--text)" : "var(--text-muted)",
-        cursor: "pointer",
-      }}
-      className="hover-text"
+      className={`${s.filePanelToggle} hover-text`}
+      style={{ color: rightPanelOpen ? "var(--text)" : "var(--text-muted)" }}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="15" y1="3" x2="15" y2="21" />

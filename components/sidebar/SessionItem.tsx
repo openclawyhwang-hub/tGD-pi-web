@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import type { SessionInfo } from "@/lib/types";
 import { formatRelativeTime } from "./session-utils";
+import styles from "./SessionItem.module.css";
 
 interface SessionItemProps {
   session: SessionInfo;
@@ -86,13 +87,10 @@ export function SessionItem({
   return (
     <div
       onClick={confirmDelete || renaming ? undefined : onClick}
-      className={["hover-group", !confirmDelete && !isSelected ? "hover-bg" : ""].filter(Boolean).join(" ")}
+      className={["hover-group", !confirmDelete && !isSelected ? "hover-bg" : "", styles.item].filter(Boolean).join(" ")}
       style={{
         height: ITEM_HEIGHT,
-        display: "flex",
-        alignItems: "center",
         paddingLeft: depth > 0 ? depth * 12 + 14 : 14,
-        paddingRight: 8,
         cursor: confirmDelete || renaming ? "default" : "pointer",
         background: confirmDelete
           ? "var(--color-error-bg)"
@@ -100,29 +98,19 @@ export function SessionItem({
         borderLeft: confirmDelete
           ? "2px solid var(--color-error)"
           : isSelected ? "2px solid var(--accent)" : "2px solid transparent",
-        transition: "background 0.1s",
         opacity: deleting ? 0.5 : 1,
-        gap: 6,
-        overflow: "hidden",
       }}
     >
       {confirmDelete ? (
         /* ── Delete confirmation: same height, two flat buttons ── */
         <>
-          <div style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            Delete <span style={{ fontWeight: 600 }}>&ldquo;{title.slice(0, 22)}{title.length > 22 ? "…" : ""}&rdquo;</span>?
+          <div className={styles.deleteText}>
+            Delete <span className={styles.deleteTextBold}>&ldquo;{title.slice(0, 22)}{title.length > 22 ? "…" : ""}&rdquo;</span>?
           </div>
-          <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+          <div className={styles.deleteActions}>
             <button
               onClick={handleDeleteConfirm}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-                height: 30, padding: "0 11px",
-                background: "var(--color-error)", border: "none",
-                borderRadius: 6, color: "var(--color-white)",
-                cursor: "pointer", fontSize: 12, fontWeight: 600,
-                whiteSpace: "nowrap",
-              }}
+              className={styles.deleteConfirmButton}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6" />
@@ -134,14 +122,7 @@ export function SessionItem({
             </button>
             <button
               onClick={handleDeleteCancel}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                height: 30, padding: "0 11px",
-                background: "var(--bg)", border: "1px solid var(--border)",
-                borderRadius: 6, color: "var(--text-muted)",
-                cursor: "pointer", fontSize: 12, fontWeight: 500,
-                whiteSpace: "nowrap",
-              }}
+              className={styles.cancelButton}
             >
               Cancel
             </button>
@@ -159,46 +140,28 @@ export function SessionItem({
             if (e.key === "Escape") setRenaming(false);
           }}
           autoFocus
-          style={{
-            flex: 1,
-            fontSize: 12,
-            padding: "5px 8px",
-            border: "1px solid var(--accent)",
-            borderRadius: 5,
-            outline: "none",
-            background: "var(--bg)",
-            color: "var(--text)",
-            height: 30,
-          }}
+          className={styles.renameInput}
         />
       ) : (
         /* ── Normal view ── */
         <>
           {/* Fork indicator for child sessions */}
           {depth > 0 && (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.forkIndicator}>
               <line x1="6" y1="3" x2="6" y2="15" />
               <circle cx="18" cy="6" r="3" />
               <circle cx="6" cy="18" r="3" />
               <path d="M18 9a9 9 0 0 1-9 9" />
             </svg>
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className={styles.contentWrapper}>
             <div
-              style={{
-                fontSize: 12,
-                fontWeight: isSelected ? 500 : 400,
-                lineHeight: 1.4,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                color: "var(--text)",
-              }}
+              className={`${styles.sessionTitle} ${isSelected ? styles.sessionTitleSelected : styles.sessionTitleDefault}`}
               title={title}
             >
               {title}
             </div>
-            <div style={{ marginTop: 2, display: "flex", gap: 8, color: "var(--text-dim)", fontSize: 11 }}>
+            <div className={styles.sessionMeta}>
               <span title={session.modified}>{formatRelativeTime(session.modified)}</span>
               <span>{session.messageCount} msgs</span>
             </div>
@@ -211,14 +174,7 @@ export function SessionItem({
               title={collapsed ? "Expand forks" : "Collapse forks"}
               aria-expanded={!collapsed}
               aria-label={collapsed ? "Expand forks" : "Collapse forks"}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: 20, height: 20, padding: 0, flexShrink: 0,
-                background: "none", border: "none",
-                color: "var(--text-dim)", cursor: "pointer",
-                transform: collapsed ? "rotate(-90deg)" : "none",
-                transition: "transform 0.15s",
-              }}
+              className={`${styles.collapseToggle} ${collapsed ? styles.collapseToggleCollapsed : styles.collapseToggleExpanded}`}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="2 3.5 5 6.5 8 3.5" />
@@ -227,19 +183,11 @@ export function SessionItem({
           )}
 
           {/* Action buttons — shown on hover */}
-            <div className="hover-reveal" style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+            <div className={`hover-reveal ${styles.hoverActions}`}>
               <button
                 onClick={startRename}
                 title="Rename"
-                className="hover-bg-selected-accent"
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 32, height: 32, padding: 0,
-                  background: "var(--bg-hover)", border: "1px solid var(--border)",
-                  borderRadius: 7, color: "var(--text-muted)",
-                  cursor: "pointer", flexShrink: 0,
-                  transition: "background 0.12s, color 0.12s, border-color 0.12s",
-                }}
+                className={`hover-bg-selected-accent ${styles.actionButton}`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
@@ -248,15 +196,7 @@ export function SessionItem({
               <button
                 onClick={handleDeleteClick}
                 title="Delete"
-                className="hover-bg-error-border"
-                style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 32, height: 32, padding: 0,
-                  background: "var(--bg-hover)", border: "1px solid var(--border)",
-                  borderRadius: 7, color: "var(--text-muted)",
-                  cursor: "pointer", flexShrink: 0,
-                  transition: "background 0.12s, color 0.12s, border-color 0.12s",
-                }}
+                className={`hover-bg-error-border ${styles.actionButton}`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="3 6 5 6 21 6" />

@@ -8,6 +8,7 @@ import { ProviderIcon } from "./ProviderIcon";
 import { OAuthDetail } from "./OAuthDetail";
 import { ApiKeyDetail } from "./ApiKeyDetail";
 import { AddProviderPicker } from "./AddProviderPicker";
+import styles from "./ModelsConfig.module.css";
 
 // ── Provider detail ───────────────────────────────────────────────────────────
 
@@ -25,11 +26,10 @@ function ProviderDetail({ name, provider, onChange, onRename, onDelete }: {
   }, [provider.api]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className={styles.detailSection}>
+      <div className={styles.detailHeader}>
         <SectionTitle>Provider</SectionTitle>
-        <button onClick={onDelete}
-          style={{ padding: "3px 8px", background: "none", border: "1px solid var(--color-error-border)", borderRadius: 4, color: "var(--color-error)", cursor: "pointer", fontSize: 11 }}>
+        <button onClick={onDelete} className={styles.deleteButton}>
           Delete
         </button>
       </div>
@@ -37,8 +37,7 @@ function ProviderDetail({ name, provider, onChange, onRename, onDelete }: {
       <Field label="Provider name">
         <TextInput value={editingName} onChange={setEditingName} placeholder="provider-name" mono />
         {editingName !== name && editingName.trim() && (
-          <button onClick={() => onRename(editingName.trim())}
-            style={{ marginTop: 4, padding: "3px 10px", background: "var(--accent)", border: "none", borderRadius: 4, color: "var(--color-white)", cursor: "pointer", fontSize: 11, alignSelf: "flex-start" }}>
+          <button onClick={() => onRename(editingName.trim())} className={styles.renameButton}>
             Rename
           </button>
         )}
@@ -52,8 +51,8 @@ function ProviderDetail({ name, provider, onChange, onRename, onDelete }: {
       <Field label="API Key">
         <SecretTextInput value={provider.apiKey ?? ""} onChange={(v) => set("apiKey", v || undefined)}
           placeholder="ENV_VAR_NAME, !shell-command, or literal key" mono />
-        <span style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>
-          Prefix with <code style={{ fontFamily: "var(--font-mono)" }}>!</code> to run a shell command, or use an env var name
+        <span className={styles.helperText}>
+          Prefix with <code className={styles.helperCode}>!</code> to run a shell command, or use an env var name
         </span>
       </Field>
 
@@ -99,7 +98,7 @@ function ThinkingLevelMapEditor({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <div className={styles.thinkingLevelMap}>
       {THINKING_LEVELS.map((level) => {
         const raw = map[level];
         const state: "omit" | "null" | "string" =
@@ -107,75 +106,42 @@ function ThinkingLevelMapEditor({
         const strVal = typeof raw === "string" ? raw : "";
         const color = LEVEL_COLORS[level];
 
-        const btnBase: React.CSSProperties = {
-          padding: "4px 10px",
-          fontSize: 10,
-          border: "none",
-          cursor: "pointer",
-          fontWeight: 400,
-          transition: "background 0.1s, color 0.1s",
-          whiteSpace: "nowrap",
-          background: "var(--bg-panel)",
-          color: "var(--text-dim)",
-        };
-        const btnActive: React.CSSProperties = {
-          background: "var(--accent)",
-          color: "var(--color-white)",
-          fontWeight: 600,
-        };
-        const btnActiveDisabled: React.CSSProperties = {
-          background: "var(--color-error)",
-          color: "var(--color-white)",
-          fontWeight: 600,
-        };
-
         return (
-          <div
-            key={level}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "5px 4px",
-              borderRadius: 6,
-              background: "transparent",
-              border: "1px solid transparent",
-            }}
-          >
+          <div key={level} className={styles.levelRow}>
             {/* Level badge */}
-            <div style={{ display: "flex", alignItems: "center", gap: 5, width: 68, flexShrink: 0 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0, opacity: state === "null" ? 0.3 : 1 }} />
-              <span style={{
-                fontSize: 11,
-                fontFamily: "var(--font-mono)",
-                color: state === "null" ? "var(--text-dim)" : "var(--text-muted)",
-                textDecoration: state === "null" ? "line-through" : "none",
-              }}>
+            <div className={styles.levelBadge}>
+              <span
+                className={styles.levelDot}
+                style={{ background: color, opacity: state === "null" ? 0.3 : 1 }}
+              />
+              <span
+                className={`${styles.levelLabel} ${state === "null" ? styles.levelLabelDisabled : styles.levelLabelOmit}`}
+              >
                 {level}
               </span>
             </div>
 
             {/* Default + Disabled buttons */}
-            <div style={{ display: "flex", borderRadius: 5, border: "1px solid var(--border)", overflow: "hidden", flexShrink: 0 }}>
+            <div className={styles.thinkingBtnGroup}>
               <button
                 onClick={() => setLevel(level, "omit")}
-                style={{ ...btnBase, ...(state === "omit" ? btnActive : {}) }}
+                className={`${styles.thinkingBtn} ${state === "omit" ? styles.thinkingBtnActive : ""}`}
               >
                 Default
               </button>
               <button
                 onClick={() => setLevel(level, null)}
-                style={{ ...btnBase, borderLeft: "1px solid var(--border)", ...(state === "null" ? btnActiveDisabled : {}) }}
+                className={`${styles.thinkingBtn} ${styles.thinkingBtnBorderLeft} ${state === "null" ? styles.thinkingBtnDisabled : ""}`}
               >
                 Disabled
               </button>
             </div>
 
             {/* Custom button + input fused */}
-            <div style={{ display: "flex", borderRadius: 5, border: `1px solid ${state === "string" ? "var(--accent)" : "var(--border)"}`, overflow: "hidden", transition: "border-color 0.1s" }}>
+            <div className={`${styles.customInputGroup} ${state === "string" ? styles.customInputGroupActive : styles.customInputGroupInactive}`}>
               <button
                 onClick={() => setLevel(level, strVal || level)}
-                style={{ ...btnBase, ...(state === "string" ? btnActive : {}), borderRight: "1px solid var(--border)", flexShrink: 0 }}
+                className={`${styles.thinkingBtn} ${styles.thinkingBtnBorderRight} ${state === "string" ? styles.thinkingBtnActive : ""}`}
               >
                 Custom
               </button>
@@ -185,17 +151,7 @@ function ThinkingLevelMapEditor({
                 onFocus={() => { if (state !== "string") setLevel(level, strVal || level); }}
                 placeholder={level}
                 maxLength={10}
-                style={{
-                  width: "12ch",
-                  background: state === "string" ? "var(--bg)" : "var(--bg-panel)",
-                  border: "none",
-                  outline: "none",
-                  color: state === "string" ? "var(--text)" : "var(--text-dim)",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 11,
-                  padding: "4px 7px",
-                  transition: "background 0.1s, color 0.1s",
-                }}
+                className={`${styles.customInput} ${state === "string" ? styles.customInputActive : styles.customInputInactive}`}
               />
             </div>
           </div>
@@ -301,53 +257,30 @@ function ModelDetail({
     }
   }, [model, provider, providerName, testState.phase]);
 
+  const isTestDisabled = !model.id.trim() || testState.phase === "testing";
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className={styles.detailSection}>
+      <div className={styles.detailHeader}>
         <SectionTitle>Model</SectionTitle>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className={styles.testButtonGroup}>
           {testSummary && (
             <span
               title={testSummary}
-              style={{
-                maxWidth: 260,
-                height: 28,
-                padding: "0 8px",
-                border: `1px solid ${testState.phase === "error" ? "var(--color-error-border)" : testState.phase === "success" ? "var(--color-success-border)" : "var(--border)"}`,
-                borderRadius: 4,
-                background: testState.phase === "error" ? "var(--color-error-bg)" : testState.phase === "success" ? "var(--color-success-bg)" : "var(--bg-hover)",
-                color: "var(--text)",
-                fontSize: 11,
-                display: "inline-flex",
-                alignItems: "center",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                boxSizing: "border-box",
-              }}
+              className={`${styles.testSummary} ${
+                testState.phase === "error" ? styles.testSummaryError :
+                testState.phase === "success" ? styles.testSummarySuccess :
+                styles.testSummaryIdle
+              }`}
             >
               {testSummary}
             </span>
           )}
           <button
             onClick={handleTest}
-            disabled={!model.id.trim() || testState.phase === "testing"}
+            disabled={isTestDisabled}
             title="Test model connection"
-            style={{
-              height: 28,
-              padding: "0 8px",
-              background: testState.phase === "success" ? "var(--color-success)" : "none",
-              border: `1px solid ${testState.phase === "success" ? "var(--color-success)" : "var(--border)"}`,
-              borderRadius: 4,
-              color: testState.phase === "success" ? "var(--color-white)" : (!model.id.trim() || testState.phase === "testing") ? "var(--text-dim)" : "var(--text-muted)",
-              cursor: (!model.id.trim() || testState.phase === "testing") ? "not-allowed" : "pointer",
-              fontSize: 11,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxSizing: "border-box",
-              gap: 5,
-            }}
+            className={`${styles.testButton} ${isTestDisabled ? styles.testButtonDisabled : ""} ${testState.phase === "success" ? styles.testButtonSuccess : ""}`}
           >
             {testState.phase === "success" && (
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -356,14 +289,13 @@ function ModelDetail({
             )}
             {testState.phase === "testing" ? "Testing…" : testState.phase === "success" ? "OK" : "Test"}
           </button>
-          <button onClick={onDelete}
-            style={{ height: 28, padding: "0 8px", background: "none", border: "1px solid var(--color-error-border)", borderRadius: 4, color: "var(--color-error)", cursor: "pointer", fontSize: 11, boxSizing: "border-box" }}>
+          <button onClick={onDelete} className={styles.removeButton}>
             Remove
           </button>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div className={styles.twoColGrid}>
         <Field label="ID *"><TextInput value={model.id} onChange={(v) => set("id", v)} placeholder="model-id" mono /></Field>
         <Field label="Name"><TextInput value={model.name ?? ""} onChange={(v) => set("name", v || undefined)} placeholder="Display name" /></Field>
       </div>
@@ -372,7 +304,7 @@ function ModelDetail({
         <Select value={model.api ?? ""} onChange={(v) => set("api", v || undefined)} options={API_OPTIONS} />
       </Field>
 
-      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+      <div className={styles.checkRow}>
         <Check label="Reasoning / thinking" checked={model.reasoning ?? false} onChange={(v) => set("reasoning", v || undefined)} />
         <Check label="Image input" checked={model.input?.includes("image") ?? false}
           onChange={(v) => set("input", v ? ["text", "image"] : undefined)} />
@@ -386,12 +318,12 @@ function ModelDetail({
             onChange={(v) => onChange(setDeepseekCompat(model, v))}
           />
           <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <div className={styles.thinkingLevelHeader}>
               <SectionTitle>Thinking level map</SectionTitle>
               {model.thinkingLevelMap && (
                 <button
                   onClick={() => set("thinkingLevelMap", undefined)}
-                  style={{ fontSize: 10, padding: "2px 7px", background: "none", border: "1px solid var(--border)", borderRadius: 4, color: "var(--text-dim)", cursor: "pointer" }}
+                  className={styles.clearAllButton}
                 >
                   clear all
                 </button>
@@ -405,7 +337,7 @@ function ModelDetail({
         </>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div className={styles.twoColGrid}>
         <Field label="Context window (tokens)">
           <NumInput value={model.contextWindow !== undefined ? String(model.contextWindow) : ""}
             onChange={(v) => set("contextWindow", v ? parseInt(v) : undefined)} placeholder="128000" />
@@ -418,7 +350,7 @@ function ModelDetail({
 
       <div>
         <SectionTitle>Cost (per million tokens)</SectionTitle>
-        <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
+        <div className={styles.costGrid}>
           {(["input", "output", "cacheRead", "cacheWrite"] as const).map((k) => (
             <Field key={k} label={k}>
               <NumInput value={costVal(k)} onChange={(v) => setCost(k, v)} placeholder="0" />
@@ -614,25 +546,25 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-    <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "var(--color-overlay)", display: "flex", alignItems: "center", justifyContent: "center" }}
+    <div className={styles.overlay}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ width: 860, height: "78vh", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, display: "flex", flexDirection: "column", boxShadow: "var(--color-shadow-modal)", overflow: "hidden" }}>
+      <div className={styles.modal}>
 
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 18px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>Models</span>
-            <code style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>~/.pi/agent/models.json</code>
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
+            <span className={styles.title}>Models</span>
+            <code className={styles.configPath}>~/.pi/agent/models.json</code>
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 20, lineHeight: 1, padding: "2px 6px" }}>×</button>
+          <button onClick={onClose} className={styles.closeButton}>×</button>
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        <div className={styles.body}>
 
           {/* Left: tree */}
-          <div style={{ width: 210, borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", flexShrink: 0, background: "var(--bg-panel)" }}>
-            <div style={{ flex: 1, overflowY: "auto", padding: "8px 6px" }}>
+          <div className={styles.sidebar}>
+            <div className={styles.sidebarScroll}>
               {/* Active OAuth subscriptions */}
               {activeOAuth.map((p) => {
                 const isSelected = selection?.type === "oauth" && selection.providerId === p.id;
@@ -640,11 +572,10 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
                   <div
                     key={p.id}
                     onClick={() => setSelection({ type: "oauth", providerId: p.id })}
-                    className={isSelected ? "" : "hover-bg"}
-                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 8px", borderRadius: 5, cursor: "pointer", background: isSelected ? "var(--bg-selected)" : "none" }}
+                    className={`${styles.treeItem} ${isSelected ? styles.treeItemSelected : ""} ${!isSelected ? "hover-bg" : ""}`}
                   >
                     <ProviderIcon id={p.id} size={16} />
-                    <span style={{ fontSize: 12, color: "var(--text)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                    <span className={styles.treeItemText}>{p.name}</span>
                   </div>
                 );
               })}
@@ -656,42 +587,40 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
                   <div
                     key={p.id}
                     onClick={() => setSelection({ type: "apikey", providerId: p.id })}
-                    className={isSelected ? "" : "hover-bg"}
-                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 8px", borderRadius: 5, cursor: "pointer", background: isSelected ? "var(--bg-selected)" : "none" }}
+                    className={`${styles.treeItem} ${isSelected ? styles.treeItemSelected : ""} ${!isSelected ? "hover-bg" : ""}`}
                   >
                     <ProviderIcon id={p.id} size={16} />
-                    <span style={{ fontSize: 12, color: "var(--text)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.displayName}</span>
+                    <span className={styles.treeItemText}>{p.displayName}</span>
                   </div>
                 );
               })}
 
               {/* Divider before custom providers, only when there are active managed providers */}
               {(activeOAuth.length > 0 || activeApiKey.length > 0) && providers.length > 0 && (
-                <div style={{ margin: "4px 8px", borderTop: "1px solid var(--border)" }} />
+                <div className={styles.divider} />
               )}
 
               {/* Custom providers */}
               {loading ? (
-                <div style={{ padding: "10px 8px", fontSize: 12, color: "var(--text-muted)" }}>Loading…</div>
+                <div className={styles.loadingText}>Loading…</div>
               ) : providers.map(([pName, pData]) => {
                 const isProviderSelected = selection?.type === "provider" && selection.name === pName;
                 const models = pData.models ?? [];
                 return (
-                  <div key={pName} style={{ marginBottom: 2 }}>
+                  <div key={pName} className={styles.providerGroup}>
                     {/* Provider row */}
                     <div
                       onClick={() => setSelection({ type: "provider", name: pName })}
-                      className={isProviderSelected ? "" : "hover-bg"}
-                      style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 8px", borderRadius: 5, cursor: "pointer", background: isProviderSelected ? "var(--bg-selected)" : "none" }}
+                      className={`${styles.providerRow} ${isProviderSelected ? styles.providerRowSelected : ""} ${!isProviderSelected ? "hover-bg" : ""}`}
                     >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)", flexShrink: 0 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.providerIcon}>
                         <rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" />
                         <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
                         <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
                         <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
                         <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
                       </svg>
-                      <span style={{ fontSize: 12, fontWeight: isProviderSelected ? 600 : 400, color: "var(--text)", fontFamily: "var(--font-mono)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <span className={`${styles.providerName} ${isProviderSelected ? styles.providerNameSelected : ""}`}>
                         {pName}
                       </span>
                     </div>
@@ -703,14 +632,13 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
                         <div
                           key={i}
                           onClick={() => setSelection({ type: "model", providerName: pName, index: i })}
-                          className={isModelSelected ? "" : "hover-bg"}
-                          style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px 5px 26px", borderRadius: 5, cursor: "pointer", background: isModelSelected ? "var(--bg-selected)" : "none" }}
+                          className={`${styles.modelRow} ${isModelSelected ? styles.modelRowSelected : ""} ${!isModelSelected ? "hover-bg" : ""}`}
                         >
-                          <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: m.id ? "var(--text-muted)" : "var(--text-dim)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <span className={`${styles.modelName} ${!m.id ? styles.modelNameEmpty : ""}`}>
                             {m.id || "new model"}
                           </span>
                           {m.reasoning && (
-                            <span style={{ fontSize: 9, padding: "1px 4px", background: "var(--color-project-bg)", color: "var(--color-project-text)", borderRadius: 3, flexShrink: 0 }}>T</span>
+                            <span className={styles.reasoningBadge}>T</span>
                           )}
                         </div>
                       );
@@ -719,10 +647,9 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
                     {/* Add model button */}
                     <div
                       onClick={(e) => { e.stopPropagation(); addModel(pName); }}
-                      className="hover-bg-text"
-                      style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px 4px 26px", borderRadius: 5, cursor: "pointer", color: "var(--text-dim)" }}
+                      className={`${styles.addModelButton} hover-bg-text`}
                     >
-                      <span style={{ fontSize: 11 }}>+ model</span>
+                      <span className={styles.addModelText}>+ model</span>
                     </div>
                   </div>
                 );
@@ -730,13 +657,9 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
             </div>
 
             {/* Add provider */}
-            <div style={{ borderTop: "1px solid var(--border)", padding: "8px 6px" }}>
-              <button onClick={() => setPickerOpen(true)} style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
-                width: "100%", padding: "6px 0", background: "none", border: "1px dashed var(--border)", borderRadius: 5,
-                color: "var(--text-muted)", cursor: "pointer", fontSize: 12, transition: "border-color 0.12s, color 0.12s",
-              }}
-                className="hover-border-accent"
+            <div className={styles.addProviderWrapper}>
+              <button onClick={() => setPickerOpen(true)}
+                className={`${styles.addProviderButton} hover-border-accent`}
               >
                 + Add provider
               </button>
@@ -744,9 +667,9 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Right: detail */}
-          <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+          <div className={styles.rightPanel}>
             {loading ? null : detailContent ?? (
-              <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: 13 }}>
+              <div className={styles.emptyState}>
                 Select a provider or model
               </div>
             )}
@@ -754,26 +677,16 @@ export function ModelsConfig({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, padding: "10px 18px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
-          {saveError && <span style={{ fontSize: 12, color: "var(--color-error-text)", flex: 1 }}>{saveError}</span>}
-          <button onClick={onClose} style={{ padding: "6px 14px", background: "none", border: "1px solid var(--border)", borderRadius: 6, color: "var(--text-muted)", cursor: "pointer", fontSize: 13 }}>
+        <div className={styles.footer}>
+          {saveError && <span className={styles.saveErrorText}>{saveError}</span>}
+          <button onClick={onClose} className={styles.cancelButton}>
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving || savedOk} style={{
-            position: "relative",
-            padding: "6px 16px",
-            minWidth: 92,
-            background: savedOk ? "var(--color-success)" : saving ? "var(--bg-panel)" : "var(--accent)",
-            border: "none", borderRadius: 6,
-            color: savedOk ? "var(--color-white)" : saving ? "var(--text-muted)" : "var(--color-white)",
-            cursor: (saving || savedOk) ? "default" : "pointer", fontSize: 13, fontWeight: 600,
-            display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-            transition: "background-color 0.2s ease, color 0.2s ease",
-            animation: savedOk ? "saved-pop 0.45s ease" : undefined,
-          }}>
+          <button onClick={handleSave} disabled={saving || savedOk}
+            className={`${styles.saveButton} ${savedOk ? styles.saveButtonSaved : saving ? styles.saveButtonSaving : styles.saveButtonReady}`}>
             {savedOk && (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                style={{ strokeDasharray: 18, animation: "saved-check-draw 0.35s ease forwards", flexShrink: 0 }}>
+                className={styles.saveCheckIcon}>
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}

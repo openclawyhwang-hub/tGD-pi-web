@@ -7,6 +7,7 @@ import { getRecentCwds, getSessionDateGroup, buildSessionTree } from "./session-
 import { PiAgentTitle } from "./PiAgentTitle";
 import { SessionTreeItem } from "./SessionTreeItem";
 import { CwdPicker } from "./CwdPicker";
+import styles from "./SessionSidebar.module.css";
 
 interface Props {
   selectedSessionId: string | null;
@@ -198,38 +199,16 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const sessionTree = buildSessionTree(searchFilteredSessions);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div className={styles.container}>
       {/* Header */}
-      <div
-        style={{
-          padding: "12px 10px 10px",
-          borderBottom: "1px solid var(--border)",
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+      <div className={styles.header}>
+        <div className={styles.headerRow}>
           <PiAgentTitle />
-          <div style={{ display: "flex", gap: 6 }}>
+          <div className={styles.headerButtons}>
             <button
               onClick={handleNewSession}
               disabled={!selectedCwd}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
-                background: "var(--bg-hover)",
-                border: "1px solid var(--border)",
-                color: selectedCwd ? "var(--text-muted)" : "var(--text-dim)",
-                cursor: selectedCwd ? "pointer" : "not-allowed",
-                height: 32,
-                paddingLeft: 10,
-                paddingRight: 12,
-                borderRadius: "var(--radius-md)",
-                fontSize: "var(--text-sm)",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-                flexShrink: 0,
-                transition: "background 0.12s, color 0.12s, border-color 0.12s",
-              }}
-              className="hover-bg-selected-accent"
+              className={`${styles.newSessionButton} ${selectedCwd ? styles.newSessionButtonEnabled : styles.newSessionButtonDisabled} hover-bg-selected-accent`}
               title={selectedCwd ? `New session in ${selectedCwd}` : "Select a project first"}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -240,19 +219,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             </button>
             <button
               onClick={() => loadSessions(false)}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: sessionRefreshDone ? "var(--color-success-bg-strong)" : "var(--bg-hover)",
-                border: `1px solid ${sessionRefreshDone ? "var(--color-success-border-strong)" : "var(--border)"}`,
-                color: sessionRefreshDone ? "var(--color-success)" : "var(--text-muted)",
-                cursor: "pointer",
-                width: 32, height: 32,
-                borderRadius: "var(--radius-md)",
-                padding: 0,
-                flexShrink: 0,
-                transition: "background 0.3s, color 0.3s, border-color 0.3s",
-              }}
-              className={sessionRefreshDone ? "" : "hover-bg-selected-accent"}
+              className={`${styles.refreshButton} ${sessionRefreshDone ? styles.refreshButtonDone : styles.refreshButtonDefault} ${sessionRefreshDone ? "" : "hover-bg-selected-accent"}`}
               title="Refresh"
             >
               {sessionRefreshDone ? (
@@ -295,9 +262,9 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
       {/* Search — always visible when a search is active, otherwise only when >3 sessions */}
       {(filteredSessions.length > 3 || searchQuery.trim()) && (
-        <div style={{ padding: "6px 10px", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-          <div style={{ position: "relative" }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+        <div className={styles.searchWrapper}>
+          <div className={styles.searchContainer}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.searchIcon}>
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
@@ -308,17 +275,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Escape") { setSearchQuery(""); searchInputRef.current?.blur(); } }}
-              style={{
-                width: "100%",
-                padding: "5px 8px 5px 26px",
-                background: "var(--bg-hover)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-md)",
-                color: "var(--text)",
-                fontSize: 11,
-                outline: "none",
-                transition: "border-color 0.15s",
-              }}
+              className={styles.searchInput}
               onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent-border-focus-strong)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
             />
@@ -327,26 +284,31 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       )}
 
       {/* Session list */}
-      <div role="listbox" aria-label="Sessions" style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto", overflowY: "auto", padding: "0", minHeight: 80 }}>
+      <div
+        role="listbox"
+        aria-label="Sessions"
+        className={styles.sessionList}
+        style={{ flex: explorerOpen && (selectedCwdProp || selectedCwd) ? "1 1 0" : "1 1 auto" }}
+      >
         {loading && (
-          <div style={{ padding: "12px 14px" }}>
+          <div className={styles.loadingWrapper}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="skeleton-line" style={{ width: `${55 + (i % 4) * 12}%`, marginBottom: 8 }} />
+              <div key={i} className={`skeleton-line ${styles.skeletonLine}`} style={{ width: `${55 + (i % 4) * 12}%` }} />
             ))}
           </div>
         )}
         {error && (
-          <div style={{ padding: "12px 14px", color: "var(--color-error-text)", fontSize: 12 }}>
+          <div className={styles.errorMessage}>
             {error}
           </div>
         )}
         {!loading && !error && filteredSessions.length === 0 && (
-          <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
+          <div className={styles.emptyMessage}>
             No sessions found
           </div>
         )}
         {!loading && !error && filteredSessions.length > 0 && searchFilteredSessions.length === 0 && searchQuery.trim() && (
-          <div style={{ padding: "16px 14px", color: "var(--text-muted)", fontSize: 12 }}>
+          <div className={styles.emptyMessage}>
             No matches for &ldquo;{searchQuery}&rdquo;
           </div>
         )}
@@ -357,15 +319,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           return (
             <div key={node.session.id}>
               {showHeader && (
-                <div style={{
-                  padding: "8px 14px 4px",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: "var(--text-dim)",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  userSelect: "none",
-                }}>
+                <div className={styles.groupHeader}>
                   {group}
                 </div>
               )}
@@ -388,39 +342,19 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {/* File Explorer section */}
       {(selectedCwdProp || selectedCwd) && (
         <div
-          style={{
-            borderTop: "1px solid var(--border)",
-            display: "flex",
-            flexDirection: "column",
-            flex: explorerOpen ? "1 1 0" : "0 0 auto",
-            minHeight: 0,
-            overflow: "hidden",
-          }}
+          className={styles.explorerSection}
+          style={{ flex: explorerOpen ? "1 1 0" : "0 0 auto" }}
         >
-          <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <div className={styles.explorerHeader}>
             <button
               onClick={() => setExplorerOpen((v) => !v)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                flex: 1,
-                padding: "6px 10px",
-                background: "none",
-                border: "none",
-                color: "var(--text-muted)",
-                cursor: "pointer",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                textAlign: "left",
-              }}
+              className={styles.explorerToggle}
             >
               <svg
                 width="9" height="9" viewBox="0 0 10 10" fill="none"
                 stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-                style={{ transform: explorerOpen ? "rotate(90deg)" : "none", transition: "transform 0.15s", flexShrink: 0 }}
+                className={styles.explorerChevron}
+                style={{ transform: explorerOpen ? "rotate(90deg)" : "none" }}
               >
                 <polyline points="3 2 7 5 3 8" />
               </svg>
@@ -434,18 +368,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 explorerRefreshTimerRef.current = setTimeout(() => setExplorerRefreshDone(false), 2000);
               }}
               title="Refresh explorer"
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: 26, height: 26, padding: 0, marginRight: 6,
-                background: explorerRefreshDone ? "var(--color-success-bg-strong)" : "none",
-                border: "none",
-                color: explorerRefreshDone ? "var(--color-success)" : "var(--text-dim)",
-                cursor: "pointer",
-                borderRadius: 5,
-                flexShrink: 0,
-                transition: "color 0.3s, background 0.3s",
-              }}
-              className={explorerRefreshDone ? "" : "hover-bg-selected-accent"}
+              className={`${styles.explorerRefreshButton} ${explorerRefreshDone ? styles.explorerRefreshButtonDone : styles.explorerRefreshButtonDefault} ${explorerRefreshDone ? "" : "hover-bg-selected-accent"}`}
             >
               {explorerRefreshDone ? (
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -460,7 +383,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             </button>
           </div>
           {explorerOpen && (
-            <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+            <div className={styles.explorerContent}>
               <FileExplorer
                 cwd={selectedCwdProp ?? selectedCwd!}
                 onOpenFile={onOpenFile ?? (() => {})}

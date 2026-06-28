@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { getFileIcon, FolderIcon } from "./FileIcons";
 import { encodeFilePathForApi, getRelativeFilePath, joinFilePath } from "@/lib/file-paths";
+import styles from "./FileExplorer.module.css";
 
 const JUNK_DIRS = new Set([
   ".git", ".next", ".nuxt", "node_modules", "__pycache__", ".venv", "venv",
@@ -124,43 +125,25 @@ function TreeNode({
     <div>
       <div
         onClick={handleClick}
-        className="hover-bg hover-group"
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          paddingLeft: 8 + depth * 14,
-          paddingRight: 8,
-          height: 28,
-          cursor: "pointer",
-          background: "transparent",
-          borderRadius: 4,
-          userSelect: "none",
-        }}
+        className={`hover-bg hover-group ${styles.treeNode}`}
+        style={{ paddingLeft: 8 + depth * 14 }}
       >
         {node.isDir && (
           <svg
             width="10" height="10" viewBox="0 0 10 10" fill="none"
             stroke="var(--text-dim)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-            style={{ flexShrink: 0, transform: open ? "rotate(90deg)" : "none", transition: "transform 0.1s" }}
+            className={styles.treeChevron}
+            style={{ transform: open ? "rotate(90deg)" : "none" }}
           >
             <polyline points="3 2 7 5 3 8" />
           </svg>
         )}
-        {!node.isDir && <span style={{ width: 10, flexShrink: 0 }} />}
-        <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+        {!node.isDir && <span className={styles.fileSpacer} />}
+        <span className={styles.iconWrapper}>
           {node.isDir ? <FolderIcon size={14} open={open} /> : getFileIcon(node.name, 14)}
         </span>
         <span
-          style={{
-            fontSize: 12,
-            color: "var(--text)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            flex: 1,
-          }}
+          className={styles.fileName}
           title={node.fullPath}
         >
           {node.name}
@@ -172,32 +155,12 @@ function TreeNode({
         )}
         {onAtMention && (
           <button
-            className="hover-reveal"
+            className={`hover-reveal ${styles.mentionButton}`}
             onClick={(e) => {
               e.stopPropagation();
               onAtMention(getRelativeFilePath(node.fullPath, cwd));
             }}
             title="Insert path into chat"
-            style={{
-              position: "absolute",
-              right: 4,
-              top: "50%",
-              transform: "translateY(-50%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4,
-              padding: "0 8px",
-              height: 20,
-              background: "var(--bg-panel)",
-              border: "1px solid var(--border)",
-              borderRadius: 4,
-              color: "var(--accent)",
-              cursor: "pointer",
-              fontSize: 11,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
           >
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="4" />
@@ -215,7 +178,7 @@ function TreeNode({
             <TreeNode key={child.fullPath} node={child} depth={depth + 1} cwd={cwd} onOpenFile={onOpenFile} onAtMention={onAtMention} expandedPaths={expandedPaths} onToggleExpanded={onToggleExpanded} refreshKey={refreshKey} filterQuery={filterQuery} />
           ))}
           {children.length === 0 && loaded && (
-            <div style={{ paddingLeft: 8 + (depth + 1) * 14, fontSize: 11, color: "var(--text-dim)", height: 28, display: "flex", alignItems: "center" }}>
+            <div className={styles.emptyDirMessage} style={{ paddingLeft: 8 + (depth + 1) * 14 }}>
               empty
             </div>
           )}
@@ -282,9 +245,9 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
   if (loading) {
     return (
-      <div style={{ padding: "8px 12px" }}>
+      <div className={styles.loadingWrapper}>
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="skeleton-line" style={{ width: `${60 + (i % 3) * 15}%`, marginBottom: 6, marginLeft: i * 4 }} />
+          <div key={i} className={`skeleton-line ${styles.skeletonLine}`} style={{ width: `${60 + (i % 3) * 15}%`, marginLeft: i * 4 }} />
         ))}
       </div>
     );
@@ -292,7 +255,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
   if (error) {
     return (
-      <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--color-error-text)" }}>
+      <div className={styles.errorMessage}>
         {error}
       </div>
     );
@@ -305,7 +268,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
   return (
     <div>
       {/* Filter input */}
-      <div style={{ padding: "4px 6px" }}>
+      <div className={styles.filterWrapper}>
         <input
           ref={filterInputRef}
           type="text"
@@ -314,22 +277,12 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
           value={filterQuery}
           onChange={(e) => setFilterQuery(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Escape") { setFilterQuery(""); filterInputRef.current?.blur(); } }}
-          style={{
-            width: "100%",
-            padding: "4px 8px",
-            background: "var(--bg-hover)",
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-md)",
-            color: "var(--text)",
-            fontSize: 11,
-            outline: "none",
-            transition: "border-color 0.15s",
-          }}
+          className={styles.filterInput}
           onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent-border-focus-strong)"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
         />
       </div>
-      <div style={{ padding: "0 4px 2px" }}>
+      <div className={styles.filterResults}>
         {filteredRoots.map((node) => (
           <TreeNode
             key={node.fullPath}
@@ -345,7 +298,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
           />
         ))}
         {filteredRoots.length === 0 && (
-          <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
+          <div className={styles.noResults}>
             {filterQuery.trim() ? "No matches" : "No files found"}
           </div>
         )}
