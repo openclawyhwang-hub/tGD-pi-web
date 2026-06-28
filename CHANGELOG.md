@@ -20,15 +20,40 @@ Versioning: `YYYY.MM.DD` (date-based, aligned with upstream tGD).
 ### Known Bundle Bloat (investigate next)
 | Chunk | Size | Source |
 |---|---:|---|
-| `da12927c.00775c0e4542fd3e.js` | 1288.9 KB | **mermaid** — lazy-load target |
-| `90542734.b75ad0df50bf68f5.js` | 1246.9 KB | **mermaid diagram** variants |
-| `4bd1b696` | 598.5 KB | shared chunk |
-| `0d8bff65` / `628fdacb` | 587.1 KB | **katex** — only used by MarkdownBody |
-| `framework-594babcea68f40f6.js` | 523.5 KB | React + Next runtime (baseline) |
+| `da12927c.00775c0e4542fd3e.js` | 1288.9 KB | **mermaid** diagram types — require custom mermaid build to split |
+| `90542734.b75ad0df50bf68f5.js` | 1246.9 KB | **mermaid** diagram variants |
+| `4bd1b696` | 598.5 KB | react-markdown + micromark (rootMainFiles) |
+| `0d8bff65` / `628fdacb` | 587.1 KB | mermaid diagram layouts (block, c4, sequence) |
+| `framework-594babcea68f40f6.js` | 523.5 KB | React + Next runtime (baseline, can't reduce) |
 | `d2c09beb` | 300.0 KB | mermaid layout |
 | `28f0fb3b` | 260.6 KB | mermaid |
 
-**Estimated savings**: dynamic `import()` of `katex` and `mermaid` in `MarkdownBody` could shave ~2 MB from initial JS payload.
+**Estimated savings**: mermaid is now dynamic-imported but its **internal** diagram types (block, c4, sequence, etc.) are bundled eagerly. Replacing `import("mermaid")` with `import("mermaid/dist/mermaid.esm.min.mjs")` or building a custom mermaid build with only the diagram types actually used could shave ~2.4 MB from the mermaid chunk.
+
+---
+
+## [2026.06.28-2] — 621efa86 / TBD
+
+### Changed
+- **Lazy-load math plugins**: `remark-math` + `rehype-katex` are no longer in the initial bundle. `MarkdownBody` scans the markdown source with a `containsMath()` heuristic and dynamically imports both plugins only when `$...$` or `$$...$$` is detected. Falls back to plain rendering if plugin load fails.
+- `katex/dist/katex.min.css` remains globally imported via `app/layout.tsx` (CSS payload is small, and KaTeX styles must be available before math renders).
+- Added `npm run analyze` script.
+
+### Verified (before)
+- TypeScript: `tsc --noEmit` — 0 errors
+- ESLint: 0 errors (12 pre-existing warnings)
+- Vitest: 34/34 pass
+- `next build --webpack`: ✓ 7.7s compile, 9 static pages, 23 API routes
+
+### Bundle impact (client)
+- Before lazy fix: katex / rehype-katex = **601 KB** in client
+- After lazy fix: katex / rehype-katex = **0 KB** in client (now loaded only on demand)
+- The 587 KB katex chunk still appears in `nodejs.html` (server-side rendering of math is unaffected)
+
+### Code health
+- `MathPlugins` type alias local to `MarkdownBody.tsx` (`{ remarkMath, rehypeKatex }`).
+- `PluggableList` imported from `unified` for accurate react-markdown plugin prop typing.
+- New `containsMath()` helper is regex-based and conservative (matches `$$...$$` block + `$...$` inline, avoiding `\$` escapes).
 
 ---
 

@@ -1,10 +1,9 @@
 "use client";
 
+import type { Pluggable, PluggableList } from "unified";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
-import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
@@ -15,6 +14,24 @@ interface MarkdownBodyProps {
   children: string;
   className?: string;
   isStreaming?: boolean;
+}
+
+type MathPlugins = {
+  remarkMath: typeof import("remark-math").default;
+  rehypeKatex: typeof import("rehype-katex").default;
+};
+
+/**
+ * Heuristic: does this markdown contain LaTeX math?
+ * - Block: $$...$$ on its own line
+ * - Inline: $...$ (avoid matching $$ as the delimiter; require non-space inside)
+ * If no math is present, we skip the (large) remark-math + rehype-katex bundle entirely.
+ */
+function containsMath(markdown: string): boolean {
+  if (/^\s{0,3}\$\$.*\$\$\s*$/m.test(markdown)) return true;
+  if (/\$\$[\s\S]+?\$\$/.test(markdown)) return true;
+  if(/(^|[^\\$])\$[^$\n]+\$/.test(markdown)) return true;
+  return false;
 }
 
 function copyText(text: string): Promise<void> {
@@ -38,12 +55,49 @@ function copyText(text: string): Promise<void> {
 
 export function MarkdownBody({ children, className, isStreaming }: MarkdownBodyProps) {
   const normalizedMarkdown = useMemo(() => normalizeDisplayMath(children), [children]);
+  const needsMath = useMemo(() => containsMath(normalizedMarkdown), [normalizedMarkdown]);
+  const [mathPlugins, setMathPlugins] = useState<MathPlugins | null>(null);
+
+  useEffect(() => {
+    if (!needsMath) {
+      setMathPlugins(null);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([import("remark-math"), import("rehype-katex")])
+      .then(([remarkMathMod, rehypeKatexMod]) => {
+        if (cancelled) return;
+        setMathPlugins({
+          remarkMath: remarkMathMod.default,
+          rehypeKatex: rehypeKatexMod.default,
+        });
+      })
+      .catch(() => {
+        // If plugin load fails, fall back to no math (better than crashing the message)
+        if (!cancelled) setMathPlugins(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [needsMath]);
+
+  const remarkPlugins: PluggableList = useMemo(
+    () => (mathPlugins ? [remarkGfm, mathPlugins.remarkMath] : [remarkGfm]),
+    [mathPlugins],
+  );
+  const rehypePlugins: PluggableList = useMemo(
+    () =>
+      mathPlugins
+        ? [[mathPlugins.rehypeKatex, { throwOnError: false, strict: false }] as Pluggable]
+        : [],
+    [mathPlugins],
+  );
 
   return (
     <div className={["markdown-body", className].filter(Boolean).join(" ")}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
+        remarkPlugins={remarkPlugins}
+        rehypePlugins={rehypePlugins}
         components={{
           code({ className, children, ...props }) {
             const lang = className?.replace("language-", "").toLowerCase() ?? "";
