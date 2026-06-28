@@ -1,0 +1,195 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.statusDotConnected {
+  background: var(--color-success);
+}
+
+.statusDotDisconnected {
+  background: var(--border);
+}
+
+.statusText {
+  font-size: 11px;
+}
+
+.statusTextConnected {
+  color: var(--color-success);
+}
+
+.statusTextDisconnected {
+  color: var(--text-dim);
+}
+
+.statusArea {
+  min-height: 48px;
+}
+
+.messageText {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.messageTextSimple {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.columnGap10 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.optionButton {
+  padding: 6px 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+}
+
+.helpText {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.link {
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.inputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.textInput {
+  flex: 1;
+  padding: 6px 9px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+  font-family: var(--font-mono);
+  box-sizing: border-box;
+}
+
+.submitBtn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.submitBtnEnabled {
+  background: var(--accent);
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.submitBtnDisabled {
+  background: var(--bg-panel);
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.codeDisplay {
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+.successMessage {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-success);
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-error-text);
+}
+
+.actionsRow {
+  display: flex;
+  gap: 8px;
+}
+
+.cancelBtn {
+  padding: 5px 12px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.loginBtn {
+  padding: 5px 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.disconnectBtn {
+  padding: 5px 12px;
+  background: none;
+  border: 1px solid var(--color-error-border);
+  border-radius: 5px;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: 12px;
+}

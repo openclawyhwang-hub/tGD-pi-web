@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import type { OAuthProvider, ApiKeyProvider } from "./models-config-types";
 import { ProviderIcon } from "./ProviderIcon";
+import styles from "./AddProviderPicker.module.css";
 
 interface AddProviderPickerProps {
   oauthProviders: OAuthProvider[];
@@ -30,31 +31,15 @@ export function AddProviderPicker({
 
   const totalCount = availableOAuth.length + availableApiKey.length + (showCustom ? 1 : 0);
 
-  const cardStyle: React.CSSProperties = {
-    display: "flex", flexDirection: "row", alignItems: "center", gap: 8,
-    padding: "10px 12px",
-    background: "var(--bg-panel)",
-    border: "1px solid var(--border)",
-    borderRadius: 7,
-    boxSizing: "border-box",
-    cursor: "pointer",
-    minWidth: 0,
-    textAlign: "left",
-    transition: "border-color 0.12s, background 0.12s",
-    width: "100%",
-  };
-
-
-
   return (
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 1100, background: "var(--color-overlay-heavy)", display: "flex", alignItems: "center", justifyContent: "center" }}
+      className={styles.overlay}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div style={{ width: 820, maxWidth: "calc(100vw - 32px)", maxHeight: "min(72vh, calc(100vh - 32px))", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 10, display: "flex", flexDirection: "column", boxShadow: "var(--color-shadow-modal)", overflow: "hidden" }}>
+      <div className={styles.modal}>
         {/* Search */}
-        <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)", flexShrink: 0, display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)", flexShrink: 0 }}>
+        <div className={styles.searchBar}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.searchIcon}>
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
@@ -63,31 +48,30 @@ export function AddProviderPicker({
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
             placeholder="Search providers…"
-            style={{ flex: 1, background: "none", border: "none", outline: "none", color: "var(--text)", fontSize: 13, boxSizing: "border-box" }}
+            className={styles.searchInput}
           />
         </div>
 
         {/* Card grid */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 14 }}>
+        <div className={styles.cardGridArea}>
           {totalCount === 0 ? (
-            <div style={{ padding: "20px 0", fontSize: 12, color: "var(--text-dim)", textAlign: "center" }}>No providers match</div>
+            <div className={styles.emptyMessage}>No providers match</div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: 8 }}>
+            <div className={styles.cardGrid}>
               {showCustom && (
-                <div style={{ gridColumn: "1 / -1", fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Custom</div>
+                <div className={styles.sectionHeader}>Custom</div>
               )}
               {showCustom && (
                 <button
                   onClick={() => { onAddCustom(); onClose(); }}
-                  className="hover-border-accent-bg"
-                  style={{ ...cardStyle }}
+                  className={`hover-border-accent-bg ${styles.card}`}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>OpenAI / Anthropic compatible</div>
-                    <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>Custom endpoint format</div>
+                  <div className={styles.cardInfo}>
+                    <div className={styles.cardTitle}>OpenAI / Anthropic compatible</div>
+                    <div className={styles.cardSubtitle}>Custom endpoint format</div>
                   </div>
-                  <span style={{ width: 26, height: 26, borderRadius: 5, background: "var(--bg-hover)", border: "1px dashed var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
+                  <span className={styles.plusIconBox}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.plusIcon}>
                       <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                   </span>
@@ -95,32 +79,30 @@ export function AddProviderPicker({
               )}
 
               {availableOAuth.length > 0 && (
-                <div style={{ gridColumn: "1 / -1", paddingTop: showCustom ? 6 : 0, fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>Subscriptions</div>
+                <div className={`${styles.sectionHeader} ${showCustom ? styles.sectionHeaderPadding : ""}`}>Subscriptions</div>
               )}
               {availableOAuth.map((p) => (
                 <button key={p.id} onClick={() => { onSelectOAuth(p.id); onClose(); }}
-                  className="hover-border-accent-bg"
-                  style={cardStyle}
+                  className={`hover-border-accent-bg ${styles.card}`}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                    <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>OAuth</div>
+                  <div className={styles.cardInfo}>
+                    <div className={styles.cardTitle}>{p.name}</div>
+                    <div className={styles.cardSubtitle}>OAuth</div>
                   </div>
                   <ProviderIcon id={p.id} size={28} />
                 </button>
               ))}
 
               {availableApiKey.length > 0 && (
-                <div style={{ gridColumn: "1 / -1", paddingTop: availableOAuth.length > 0 ? 6 : 0, fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>API Key</div>
+                <div className={`${styles.sectionHeader} ${availableOAuth.length > 0 ? styles.sectionHeaderPadding : ""}`}>API Key</div>
               )}
               {availableApiKey.map((p) => (
                 <button key={p.id} onClick={() => { onSelectApiKey(p.id); onClose(); }}
-                  className="hover-border-accent-bg"
-                  style={cardStyle}
+                  className={`hover-border-accent-bg ${styles.card}`}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.displayName}</div>
-                    <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>{p.modelCount} models</div>
+                  <div className={styles.cardInfo}>
+                    <div className={styles.cardTitle}>{p.displayName}</div>
+                    <div className={styles.cardSubtitle}>{p.modelCount} models</div>
                   </div>
                   <ProviderIcon id={p.id} size={28} />
                 </button>

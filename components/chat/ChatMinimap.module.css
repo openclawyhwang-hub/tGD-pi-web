@@ -1,0 +1,112 @@
+.container {
+  flex-shrink: 0;
+  position: relative;
+  cursor: default;
+  user-select: none;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+  overflow: visible;
+}
+
+.viewportIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.node {
+  position: absolute;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.dot {
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+
+.dotUser {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.dotAssistant {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotNearest {
+  transform: scale(1.6);
+}
+
+.dotNormal {
+  transform: scale(1);
+}
+
+.centerLine {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.tooltipLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tooltip {
+  position: absolute;
+  right: 100%;
+  margin-right: 6px;
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 2px 7px;
+  width: 200px;
+  z-index: 100;
+  pointer-events: none;
+  transition: top 0.1s, opacity 0.1s;
+}
+
+.tooltipNearest {
+  opacity: 1;
+}
+
+.tooltipFar {
+  opacity: 0.45;
+}
+
+.tooltipText {
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tooltipTextNearest {
+  color: var(--text);
+}
+
+.tooltipTextFar {
+  color: var(--text-muted);
+}

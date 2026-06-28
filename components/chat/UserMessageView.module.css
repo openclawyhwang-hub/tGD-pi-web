@@ -1,0 +1,91 @@
+/* Root */
+.root {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Message row */
+.messageRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 85%;
+}
+
+/* Message bubble */
+.bubble {
+  flex: 1;
+  min-width: 0;
+  background: var(--user-bg);
+  border: 1px solid var(--color-accent-border);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* Image grid */
+.imageGrid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.imageGridNoMargin {
+  composes: imageGrid;
+  margin-bottom: 0;
+}
+
+.image {
+  max-width: 240px;
+  max-height: 240px;
+  border-radius: 6px;
+  object-fit: contain;
+  display: block;
+  border: 1px solid var(--color-accent-border);
+}
+
+/* Bottom row */
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+/* Action buttons */
+.actionButtons {
+  display: flex;
+  gap: 3px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  height: 22px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  transition: color 0.12s;
+}
+
+.actionButton:disabled {
+  cursor: not-allowed;
+}
+
+.timestamp {
+  font-size: 10px;
+  color: var(--text-dim);
+}

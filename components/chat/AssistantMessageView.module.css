@@ -1,0 +1,249 @@
+/* Root container */
+.messageContainer {
+  margin-bottom: 16px;
+}
+
+/* Model label */
+.modelLabel {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Token count */
+.tokenCount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text);
+}
+
+.tokenCountInner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* TPS badge — background is dynamic (depends on tps value), kept as inline style */
+.tpsBadge {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* Blocks container */
+.blocksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Footer row */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.usageText {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Copy button */
+.copyButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  height: 22px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.timestamp {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+/* Thinking block */
+.thinkingContainer {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.thinkingButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+}
+
+.thinkingDuration {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.thinkingExpanded {
+  padding: 8px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+}
+
+/* Tool call block */
+.toolCallContainer {
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.toolCallContainerError {
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+}
+
+.toolCallContainerSuccess {
+  border: 1px solid var(--color-success-border);
+  background: var(--color-success-bg);
+}
+
+.toolCallButton {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  min-width: 0;
+}
+
+.toolName {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.toolNameError {
+  color: var(--color-error);
+}
+
+.toolNameSuccess {
+  color: var(--color-success);
+}
+
+.toolPreview {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.toolDuration {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolChevron {
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.toolInputPre {
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+  background: var(--bg-subtle);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.toolInputPreError {
+  border-top: 1px solid var(--color-error-border);
+}
+
+.toolInputPreSuccess {
+  border-top: 1px solid var(--color-success-border);
+}
+
+/* Paired result */
+.pairedResult {
+  border-top: 1px solid var(--color-success-border);
+  background: var(--bg-subtle);
+}
+
+.pairedResultError {
+  border-top-color: var(--color-error-border);
+  background: var(--color-error-bg);
+}
+
+.pairedResultPre {
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 400px;
+  background: var(--bg);
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-style: normal;
+  opacity: 1;
+}
+
+.pairedResultPreEmpty {
+  color: var(--text-dim);
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Error comes after empty so it wins when both are applied */
+.pairedResultPreError {
+  color: var(--color-error-text);
+}

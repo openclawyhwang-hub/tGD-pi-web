@@ -10,6 +10,7 @@ import type {
   ToolCallContent,
   ThinkingContent,
 } from "@/lib/types";
+import styles from "./AssistantMessageView.module.css";
 
 function formatTime(ts?: number): string | null {
   if (!ts) return null;
@@ -160,21 +161,9 @@ export function AssistantMessageView({
   }, [isStreaming]);
 
   return (
-    <div
-      style={{ marginBottom: 16 }}
-      className="hover-group"
-    >
+    <div className={`hover-group ${styles.messageContainer}`}>
       {/* Model label */}
-      <div
-        style={{
-          fontSize: 11,
-          color: "var(--text-dim)",
-          marginBottom: 4,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
+      <div className={styles.modelLabel}>
         {message.provider && (
           <span>{modelNames?.[`${message.provider}:${message.model}`] ?? modelNames?.[message.model] ?? message.model}</span>
         )}
@@ -190,8 +179,8 @@ export function AssistantMessageView({
             <>
 
               {est > 0 && (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text)" }} title="预估 token 数（流式接收中）">
-                  <span style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 11, fontWeight: 400 }}>
+                <span className={styles.tokenCount} title="预估 token 数（流式接收中）">
+                  <span className={styles.tokenCountInner}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="1.5" x2="5" y2="8.5" /><polyline points="2 6 5 8.5 8 6" />
                     </svg>
@@ -200,7 +189,7 @@ export function AssistantMessageView({
                   {tps !== null && (() => {
                     const bg = tps >= 50 ? "var(--color-tps-fast)" : tps >= 30 ? "var(--color-tps-good)" : tps >= 15 ? "var(--color-tps-mid)" : "var(--color-tps-slow)";
                     return (
-                      <span style={{ marginLeft: 6, padding: "1px 6px", borderRadius: 4, background: bg, color: "var(--color-white)", fontSize: 11, fontWeight: 400 }}>
+                      <span className={styles.tpsBadge} style={{ background: bg }}>
                         {tps.toFixed(1)} t/s
                       </span>
                     );
@@ -212,17 +201,15 @@ export function AssistantMessageView({
         })()}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div className={styles.blocksContainer}>
         {blocks.map((block, i) => (
           <BlockView key={i} block={block} toolResults={toolResults} isStreaming={isStreaming} streamingDuration={streamingDurations.get(i) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)} toolCallDurations={toolCallDurations} />
         ))}
       </div>
 
-      <div style={{
-        display: "flex", alignItems: "center", gap: 8, marginTop: 4,
-      }}>
+      <div className={styles.footer}>
         {message.usage && !isStreaming && (
-          <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
+          <div className={styles.usageText}>
             {formatUsage(message.usage)}
           </div>
         )}
@@ -230,17 +217,7 @@ export function AssistantMessageView({
           <button
             onClick={copyContent}
             title="Copy message"
-            className={["hover-reveal", copied ? "text-accent" : "text-dim hover-accent"].join(" ")}
-            style={{
-              display: "flex", alignItems: "center", gap: 4,
-              padding: "3px 8px", height: 22,
-              background: "none", border: "none",
-              borderRadius: 5,
-              cursor: "pointer",
-              fontSize: 11, fontWeight: 400,
-              whiteSpace: "nowrap",
-              transition: "opacity 0.12s, color 0.12s",
-            }}
+            className={`${styles.copyButton} hover-reveal ${copied ? "text-accent" : "text-dim hover-accent"}`}
           >
             {copied ? (
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -256,7 +233,7 @@ export function AssistantMessageView({
           </button>
         )}
         {time && !isStreaming && (
-          <span style={{ fontSize: 10, color: "var(--text-dim)", marginLeft: "auto" }}>{time}</span>
+          <span className={styles.timestamp}>{time}</span>
         )}
       </div>
     </div>
@@ -285,47 +262,18 @@ function TextBlock({ block, isStreaming }: { block: TextContent; isStreaming?: b
 function ThinkingBlock({ block, duration }: { block: ThinkingContent; duration?: number }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div
-      style={{
-        border: "1px solid var(--border)",
-        borderRadius: 6,
-        overflow: "hidden",
-        fontSize: 13,
-      }}
-    >
+    <div className={styles.thinkingContainer}>
       <button
         onClick={() => setExpanded((v) => !v)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          width: "100%",
-          padding: "6px 10px",
-          background: "var(--bg-panel)",
-          border: "none",
-          color: "var(--text-muted)",
-          cursor: "pointer",
-          fontSize: 12,
-          textAlign: "left",
-        }}
+        className={styles.thinkingButton}
       >
         <span>Thinking</span>
         {duration !== undefined && (
-          <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
+          <span className={styles.thinkingDuration}>{duration}s</span>
         )}
       </button>
       {expanded && (
-        <div
-          style={{
-            padding: "8px 10px",
-            color: "var(--text-muted)",
-            fontSize: 12,
-            lineHeight: 1.6,
-            whiteSpace: "pre-wrap",
-            background: "var(--bg-panel)",
-            borderTop: "1px solid var(--border)",
-          }}
-        >
+        <div className={styles.thinkingExpanded}>
           {block.thinking}
         </div>
       )}
@@ -347,42 +295,23 @@ function ToolCallBlock({ block, result, duration }: { block: ToolCallContent; re
 
   return (
     <div
-      style={{
-        borderRadius: 7,
-        overflow: "hidden",
-        fontSize: 12,
-        border: isError ? "1px solid var(--color-error-border)" : "1px solid var(--color-success-border)",
-        background: isError ? "var(--color-error-bg)" : "var(--color-success-bg)",
-      }}
+      className={`${styles.toolCallContainer} ${isError ? styles.toolCallContainerError : styles.toolCallContainerSuccess}`}
     >
       {/* ── Tool call header ── */}
       <button
         onClick={() => setExpanded((v) => !v)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 7,
-          width: "100%",
-          padding: "6px 10px",
-          background: "none",
-          border: "none",
-          color: "var(--text-muted)",
-          cursor: "pointer",
-          fontSize: 12,
-          textAlign: "left",
-          minWidth: 0,
-        }}
+        className={styles.toolCallButton}
       >
-        <span style={{ color: isError ? "var(--color-error)" : "var(--color-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11, flexShrink: 0 }}>
+        <span className={`${styles.toolName} ${isError ? styles.toolNameError : styles.toolNameSuccess}`}>
           {block.toolName}
         </span>
-        <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
+        <span className={styles.toolPreview}>
           {getToolPreview(block)}
         </span>
         {duration !== undefined && (
-          <span style={{ fontSize: 11, color: "var(--text-dim)", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
+          <span className={styles.toolDuration}>{duration}s</span>
         )}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={styles.toolChevron} style={{ transform: expanded ? "rotate(180deg)" : "none" }}>
           <polyline points="2 3.5 5 6.5 8 3.5" />
         </svg>
       </button>
@@ -390,18 +319,7 @@ function ToolCallBlock({ block, result, duration }: { block: ToolCallContent; re
       {/* ── Expanded: input args ── */}
       {expanded && (
         <pre
-          style={{
-            margin: 0,
-            padding: "8px 10px",
-            color: "var(--text-muted)",
-            fontSize: 12,
-            lineHeight: 1.5,
-            overflow: "auto",
-            background: "var(--bg-subtle)",
-            borderTop: isError ? "1px solid var(--color-error-border)" : "1px solid var(--color-success-border)",
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-all",
-          }}
+          className={`${styles.toolInputPre} ${isError ? styles.toolInputPreError : styles.toolInputPreSuccess}`}
         >
           {inputStr}
         </pre>
@@ -426,26 +344,10 @@ function PairedResult({ text, isEmpty, isError }: {
 }) {
   return (
     <div
-      style={{
-        borderTop: `1px solid ${isError ? "var(--color-error-border)" : "var(--color-success-border)"}`,
-        background: isError ? "var(--color-error-bg)" : "var(--bg-subtle)",
-      }}
+      className={`${styles.pairedResult} ${isError ? styles.pairedResultError : ""}`}
     >
       <pre
-        style={{
-          margin: 0,
-          padding: "8px 10px",
-          color: isError ? "var(--color-error-text)" : (isEmpty ? "var(--text-dim)" : "var(--text-muted)"),
-          fontSize: 12,
-          lineHeight: 1.5,
-          overflow: "auto",
-          maxHeight: 400,
-          background: "var(--bg)",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-all",
-          fontStyle: isEmpty ? "italic" : "normal",
-          opacity: isEmpty ? 0.6 : 1,
-        }}
+        className={`${styles.pairedResultPre} ${isEmpty ? styles.pairedResultPreEmpty : ""} ${isError ? styles.pairedResultPreError : ""}`}
       >
         {isEmpty ? "(no output)" : text}
       </pre>

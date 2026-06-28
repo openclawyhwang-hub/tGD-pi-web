@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { TGD_COMMANDS } from "./chat-input-constants";
+import styles from "./SlashMenu.module.css";
 
 interface SlashMenuProps {
   show: boolean;
@@ -25,21 +26,7 @@ export function SlashMenu({ show, filter, selectedIndex, onSelect, onHover, onLe
   return (
     <div
       ref={menuRef}
-      style={{
-        position: "absolute",
-        bottom: "100%",
-        left: 0,
-        right: 0,
-        marginBottom: 8,
-        background: "var(--bg)",
-        border: "1px solid var(--border)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--color-shadow-popup)",
-        overflow: "hidden",
-        zIndex: 100,
-        maxHeight: 240,
-        overflowY: "auto",
-      }}
+      className={styles.menu}
     >
       {filtered.map((cmd, i) => (
         <button
@@ -47,24 +34,12 @@ export function SlashMenu({ show, filter, selectedIndex, onSelect, onHover, onLe
           onClick={() => onSelect(cmd.name + " ")}
           onMouseEnter={() => onHover(i)}
           onMouseLeave={() => { if (i === selectedIndex) onLeave(); }}
-          className={i === selectedIndex ? "bg-selected" : "bg-none hover-bg-text text-muted"}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            width: "100%",
-            padding: "8px 12px",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "var(--text-sm)",
-            textAlign: "left",
-            ...(i === selectedIndex ? { color: "var(--text)" } : {}),
-          }}
+          className={`${styles.item} ${i === selectedIndex ? "bg-selected" : "bg-none hover-bg-text text-muted"} ${i === selectedIndex ? styles.itemSelected : ""}`}
         >
-          <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, minWidth: 100, fontSize: "var(--text-sm)" }}>
+          <span className={styles.commandName}>
             {cmd.name}
           </span>
-          <span style={{ color: "var(--text-dim)", fontSize: "var(--text-sm)", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+          <span className={styles.description}>
             {cmd.description}
           </span>
         </button>

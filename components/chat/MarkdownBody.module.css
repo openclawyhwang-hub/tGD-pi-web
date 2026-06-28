@@ -1,0 +1,61 @@
+.inlineCode {
+  background: var(--bg-selected);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.blockContainer {
+  position: relative;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.blockHeader {
+  padding: 3px 10px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copyBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.previewBtn {
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: none;
+  color: var(--text-muted);
+}
+
+.previewBtnActive {
+  background: var(--bg-selected);
+  color: var(--text-muted);
+}
+
+.previewBtnStreaming {
+  cursor: not-allowed;
+  color: var(--text-dim);
+}

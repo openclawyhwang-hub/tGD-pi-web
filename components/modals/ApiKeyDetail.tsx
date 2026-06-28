@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { ApiKeyProvider } from "./models-config-types";
 import { Field, SecretTextInput, SectionTitle } from "./models-config-forms";
+import styles from "./ApiKeyDetail.module.css";
 
 export function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider; onRefresh: () => void }) {
   const [apiKey, setApiKey] = useState("");
@@ -60,26 +61,31 @@ export function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider
     }
   }, [provider.id, onRefresh]);
 
+  const saveBtnClass = [
+    styles.saveBtn,
+    savedOk ? styles.saveBtnSuccess : apiKey.trim() ? styles.saveBtnActive : "",
+  ].filter(Boolean).join(" ");
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className={styles.root}>
+      <div className={styles.header}>
         <SectionTitle>API Key</SectionTitle>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: provider.configured ? "var(--color-success)" : "var(--border)", display: "inline-block" }} />
-          <span style={{ fontSize: 11, color: provider.configured ? "var(--color-success)" : "var(--text-dim)" }}>
+        <div className={styles.statusDotContainer}>
+          <span className={`${styles.statusDot} ${provider.configured ? styles.statusDotConfigured : styles.statusDotUnconfigured}`} />
+          <span className={`${styles.statusText} ${provider.configured ? styles.statusTextConfigured : styles.statusTextUnconfigured}`}>
             {provider.configured ? "configured" : "not configured"}
           </span>
         </div>
       </div>
 
-      <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+      <p className={styles.description}>
         {provider.configured
           ? `API key is stored. Enter a new key below to replace it, or disconnect to remove it.`
           : `Enter your ${provider.displayName} API key to enable ${provider.modelCount} model${provider.modelCount !== 1 ? "s" : ""}.`}
       </p>
 
       <Field label="API Key">
-        <div style={{ display: "flex", gap: 6 }}>
+        <div className={styles.inputRow}>
           <SecretTextInput
             value={apiKey}
             onChange={setApiKey}
@@ -93,15 +99,7 @@ export function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider
           <button
             onClick={handleSave}
             disabled={saving || !apiKey.trim() || savedOk}
-            style={{
-              padding: "6px 12px",
-              background: savedOk ? "var(--color-success)" : apiKey.trim() ? "var(--accent)" : "var(--bg-panel)",
-              border: "none", borderRadius: 5,
-              color: (apiKey.trim() || savedOk) ? "var(--color-white)" : "var(--text-dim)",
-              cursor: (saving || !apiKey.trim() || savedOk) ? "not-allowed" : "pointer",
-              fontSize: 12, fontWeight: 600, flexShrink: 0,
-              display: "flex", alignItems: "center", gap: 5,
-            }}
+            className={saveBtnClass}
           >
             {savedOk && (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -113,18 +111,13 @@ export function ApiKeyDetail({ provider, onRefresh }: { provider: ApiKeyProvider
         </div>
       </Field>
 
-      {error && <p style={{ margin: 0, fontSize: 12, color: "var(--color-error-text)" }}>{error}</p>}
+      {error && <p className={styles.errorText}>{error}</p>}
 
       {provider.configured && (
         <button
           onClick={handleRemove}
           disabled={removing}
-          style={{
-            alignSelf: "flex-start", padding: "5px 12px",
-            background: "none", border: "1px solid var(--color-error-border)",
-            borderRadius: 5, color: "var(--color-error)",
-            cursor: removing ? "not-allowed" : "pointer", fontSize: 12,
-          }}
+          className={styles.disconnectBtn}
         >
           {removing ? "Removing…" : "Disconnect"}
         </button>

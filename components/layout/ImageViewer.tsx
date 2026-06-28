@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
 import { formatSize } from "./file-viewer-utils";
+import styles from "./ImageViewer.module.css";
 
 export function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
   const [watching, setWatching] = useState(false);
@@ -53,60 +54,27 @@ export function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string 
   const formatSizeStr = size != null ? formatSize(size) : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          padding: "4px 16px",
-          borderBottom: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-dim)",
-          background: "var(--bg)",
-          flexShrink: 0,
-        }}
-      >
-        <span style={{ fontFamily: "var(--font-mono)" }} title={filePath}>
+    <div className={styles.root}>
+      <div className={styles.toolbar}>
+        <span className={styles.filePath} title={filePath}>
           {getRelativeFilePath(filePath, cwd)}
         </span>
-        <span style={{ marginLeft: "auto" }}>{ext || "image"}</span>
+        <span className={styles.extension}>{ext || "image"}</span>
         {naturalSize && <span>{naturalSize.w} × {naturalSize.h}</span>}
         {formatSizeStr && <span>{formatSizeStr}</span>}
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
+          className={`${styles.watchStatus} ${watching ? styles.watchStatusLive : styles.watchStatusStatic}`}
         >
           <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: watching ? "var(--color-success)" : "var(--border)",
-              display: "inline-block",
-              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
-            }}
+            className={`${styles.watchDot} ${watching ? styles.watchDotLive : styles.watchDotStatic}`}
           />
           {watching ? "live" : "static"}
         </span>
       </div>
-      <div
-        style={{
-          flex: 1,
-          overflow: "auto",
-          background: "var(--bg-panel)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 16,
-          backgroundImage:
-            "linear-gradient(45deg, var(--bg) 25%, transparent 25%), linear-gradient(-45deg, var(--bg) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--bg) 75%), linear-gradient(-45deg, transparent 75%, var(--bg) 75%)",
-          backgroundSize: "16px 16px",
-          backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-        }}
-      >
+      <div className={styles.imageContainer}>
         {error ? (
-          <div style={{ color: "var(--color-error-text)", fontSize: 13 }}>{error}</div>
+          <div className={styles.error}>{error}</div>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -117,12 +85,7 @@ export function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string 
               setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
             }}
             onError={() => setError("Failed to load image")}
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-              boxShadow: "var(--color-shadow-dropdown)",
-            }}
+            className={styles.image}
           />
         )}
       </div>

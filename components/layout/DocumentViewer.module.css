@@ -1,0 +1,92 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.filePath {
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.extension {
+  margin-left: auto;
+}
+
+.watchStatus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.watchStatusLive {
+  color: var(--color-success);
+}
+
+.watchStatusStatic {
+  color: var(--text-dim);
+}
+
+.watchDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.watchDotLive {
+  background: var(--color-success);
+  box-shadow: 0 0 4px var(--color-success);
+}
+
+.watchDotStatic {
+  background: var(--border);
+  box-shadow: none;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-panel);
+}
+
+.errorContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--color-error-text);
+  font-size: 13px;
+  text-align: center;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.iframePdf {
+  background: var(--bg);
+}
+
+.iframeDocx {
+  background: var(--bg-panel);
+}

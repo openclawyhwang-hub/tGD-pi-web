@@ -1,0 +1,81 @@
+.noChanges {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.root {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.hiddenSegment {
+  padding: 2px 16px;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.diffLine {
+  display: flex;
+}
+
+.diffLineAdded {
+  background: var(--color-diff-add-bg);
+  border-left: 3px solid var(--color-diff-add);
+}
+
+.diffLineRemoved {
+  background: var(--color-diff-remove-bg);
+  border-left: 3px solid var(--color-diff-remove);
+}
+
+.diffLineUnchanged {
+  background: transparent;
+  border-left: 3px solid transparent;
+}
+
+.lineNumber {
+  min-width: 44px;
+  padding: 0 8px 0 16px;
+  text-align: right;
+  color: var(--text-dim);
+  user-select: none;
+  font-size: 11px;
+  line-height: 1.6;
+  border-right: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+}
+
+.prefix {
+  min-width: 16px;
+  padding: 0 6px;
+  user-select: none;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.prefixAdded {
+  color: var(--color-diff-add);
+}
+
+.prefixRemoved {
+  color: var(--color-diff-remove);
+}
+
+.prefixUnchanged {
+  color: var(--text-dim);
+}
+
+.lineText {
+  flex: 1;
+  padding: 0 8px 0 0;
+  white-space: pre;
+  color: var(--text);
+  overflow-x: auto;
+}

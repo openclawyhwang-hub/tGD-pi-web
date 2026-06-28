@@ -2,6 +2,7 @@
 
 import type { Skill } from "./skills-config-types";
 import { sourceLabel, shortenPath } from "./skills-config-types";
+import styles from "./SkillDetail.module.css";
 
 export function Toggle({
   enabled,
@@ -12,6 +13,10 @@ export function Toggle({
   loading: boolean;
   onToggle: () => void;
 }) {
+  const toggleClass = loading
+    ? (enabled ? styles.toggleLoading : styles.toggleLoadingDisabled)
+    : (enabled ? styles.toggleEnabled : styles.toggleDisabled);
+
   return (
     <button
       onClick={onToggle}
@@ -21,32 +26,10 @@ export function Toggle({
           ? "Visible in model prompt — click to disable"
           : "Hidden from model prompt — click to enable"
       }
-      style={{
-        flexShrink: 0,
-        width: 40,
-        height: 22,
-        borderRadius: 11,
-        border: "none",
-        padding: 0,
-        cursor: loading ? "wait" : "pointer",
-        background: enabled ? "var(--accent)" : "var(--border)",
-        position: "relative",
-        transition: "background 0.18s",
-        outline: "none",
-      }}
+      className={`${styles.toggle} ${toggleClass}`}
     >
       <span
-        style={{
-          position: "absolute",
-          top: 3,
-          left: enabled ? 21 : 3,
-          width: 16,
-          height: 16,
-          borderRadius: "50%",
-          background: "var(--bg)",
-          boxShadow: "var(--color-shadow-dropdown)",
-          transition: "left 0.18s cubic-bezier(.4,0,.2,1)",
-        }}
+        className={`${styles.toggleKnob} ${enabled ? styles.toggleKnobOn : styles.toggleKnobOff}`}
       />
     </button>
   );
@@ -77,36 +60,15 @@ export function SkillDetail({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className={styles.container}>
       {/* Path + tag + toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <div className={styles.pathRow}>
         <span
-          style={{
-            fontSize: 10,
-            padding: "1px 5px",
-            borderRadius: 3,
-            flexShrink: 0,
-            background:
-              label === "project"
-                ? "var(--color-project-bg)"
-                : "var(--bg-subtle)",
-            color:
-              label === "project" ? "var(--color-project-text)" : "var(--text-dim)",
-          }}
+          className={`${styles.tag} ${label === "project" ? styles.tagProject : styles.tagGlobal}`}
         >
           {label}
         </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 11,
-            color: "var(--text-dim)",
-            flex: 1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
+        <span className={styles.pathText}>
           {displayPath(skill.filePath)}
         </span>
         <Toggle
@@ -115,38 +77,26 @@ export function SkillDetail({
           onToggle={() => onToggle(skill)}
         />
         {saveError && (
-          <span style={{ fontSize: 12, color: "var(--color-error-text)", flexShrink: 0 }}>
+          <span className={styles.errorText}>
             {saveError}
           </span>
         )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-        <span
-          style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}
-        >
+      <div className={styles.fieldSection}>
+        <span className={styles.fieldLabel}>
           Name
         </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 14,
-            color: "var(--text)",
-          }}
-        >
+        <span className={styles.fieldValueMono}>
           {skill.name}
         </span>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-        <span
-          style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 500 }}
-        >
+      <div className={styles.fieldSection}>
+        <span className={styles.fieldLabel}>
           Description
         </span>
-        <span
-          style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6 }}
-        >
+        <span className={styles.fieldValueText}>
           {skill.description}
         </span>
       </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { OAuthProvider, OAuthLoginState } from "./models-config-types";
 import { SectionTitle } from "./models-config-forms";
+import styles from "./OAuthDetail.module.css";
 
 export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; onRefresh: () => void }) {
   const [loginState, setLoginState] = useState<OAuthLoginState>({ phase: "idle" });
@@ -127,39 +128,41 @@ export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; 
     loginState.phase === "auth" || loginState.phase === "device_code" ||
     loginState.phase === "prompt" || loginState.phase === "select";
 
+  const hasInput = !!inputValue.trim();
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className={styles.container}>
+      <div className={styles.headerRow}>
         <SectionTitle>Subscription</SectionTitle>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: provider.loggedIn ? "var(--color-success)" : "var(--border)", display: "inline-block" }} />
-          <span style={{ fontSize: 11, color: provider.loggedIn ? "var(--color-success)" : "var(--text-dim)" }}>
+        <div className={styles.statusBadge}>
+          <span className={`${styles.statusDot} ${provider.loggedIn ? styles.statusDotConnected : styles.statusDotDisconnected}`} />
+          <span className={`${styles.statusText} ${provider.loggedIn ? styles.statusTextConnected : styles.statusTextDisconnected}`}>
             {provider.loggedIn ? "connected" : "not connected"}
           </span>
         </div>
       </div>
 
       {/* Status */}
-      <div style={{ minHeight: 48 }}>
+      <div className={styles.statusArea}>
         {loginState.phase === "idle" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+          <p className={styles.messageText}>
             {provider.loggedIn ? "Already connected. You can re-login or disconnect." : `Connect your ${provider.name} account.`}
           </p>
         )}
         {loginState.phase === "connecting" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>Opening browser…</p>
+          <p className={styles.messageTextSimple}>Opening browser…</p>
         )}
         {loginState.phase === "select" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+          <div className={styles.columnGap10}>
+            <p className={styles.messageText}>
               {loginState.message}
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className={styles.optionsContainer}>
               {loginState.options.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => submitSelection(loginState.token, option.id)}
-                  style={{ padding: "6px 9px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 5, color: "var(--text)", cursor: "pointer", fontSize: 12, textAlign: "left" }}
+                  className={styles.optionButton}
                 >
                   {option.label}
                 </button>
@@ -168,34 +171,34 @@ export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; 
           </div>
         )}
         {(loginState.phase === "auth" || loginState.phase === "prompt") && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+          <div className={styles.columnGap10}>
+            <p className={styles.messageText}>
               {loginState.phase === "auth"
                 ? "Complete sign-in in the browser, then copy the redirect URL from the address bar and paste it below."
                 : loginState.message}
             </p>
             {loginState.phase === "auth" && (
-              <p style={{ margin: 0, fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
+              <p className={styles.helpText}>
                 If the browser window did not open,{" "}
-                <a href={loginState.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", wordBreak: "break-all" }}>
+                <a href={loginState.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
                   click here to open the login page
                 </a>
                 .
               </p>
             )}
-            <div style={{ display: "flex", gap: 6 }}>
+            <div className={styles.inputRow}>
               <input
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") submitCode(loginState.token, inputValue); }}
                 placeholder={loginState.phase === "auth" ? "http://localhost:1455/auth/callback?code=…" : (loginState.placeholder ?? "Enter value…")}
-                style={{ flex: 1, padding: "6px 9px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 5, color: "var(--text)", fontSize: 12, outline: "none", fontFamily: "var(--font-mono)", boxSizing: "border-box" }}
+                className={styles.textInput}
               />
               <button
                 onClick={() => submitCode(loginState.token, inputValue)}
-                disabled={!inputValue.trim()}
-                style={{ padding: "6px 12px", background: inputValue.trim() ? "var(--accent)" : "var(--bg-panel)", border: "none", borderRadius: 5, color: inputValue.trim() ? "var(--color-white)" : "var(--text-dim)", cursor: inputValue.trim() ? "pointer" : "not-allowed", fontSize: 12, fontWeight: 600, flexShrink: 0 }}
+                disabled={!hasInput}
+                className={`${styles.submitBtn} ${hasInput ? styles.submitBtnEnabled : styles.submitBtnDisabled}`}
               >
                 Submit
               </button>
@@ -203,15 +206,15 @@ export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; 
           </div>
         )}
         {loginState.phase === "device_code" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)", lineHeight: 1.5 }}>
+          <div className={styles.columnGap10}>
+            <p className={styles.messageText}>
               Open the verification page and enter this code:
             </p>
-            <div style={{ padding: "8px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 5, color: "var(--text)", fontSize: 16, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: 0 }}>
+            <div className={styles.codeDisplay}>
               {loginState.userCode}
             </div>
-            <p style={{ margin: 0, fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
-              <a href={loginState.verificationUri} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", wordBreak: "break-all" }}>
+            <p className={styles.helpText}>
+              <a href={loginState.verificationUri} target="_blank" rel="noopener noreferrer" className={styles.link}>
                 {loginState.verificationUri}
               </a>
               {loginState.expiresInSeconds ? ` Expires in ${Math.ceil(loginState.expiresInSeconds / 60)} minutes.` : ""}
@@ -219,22 +222,22 @@ export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; 
           </div>
         )}
         {loginState.phase === "progress" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>{loginState.message}</p>
+          <p className={styles.messageTextSimple}>{loginState.message}</p>
         )}
         {loginState.phase === "success" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-success)" }}>Connected successfully.</p>
+          <p className={styles.successMessage}>Connected successfully.</p>
         )}
         {loginState.phase === "error" && (
-          <p style={{ margin: 0, fontSize: 12, color: "var(--color-error-text)" }}>{loginState.message}</p>
+          <p className={styles.errorMessage}>{loginState.message}</p>
         )}
       </div>
 
       {/* Actions */}
-      <div style={{ display: "flex", gap: 8 }}>
+      <div className={styles.actionsRow}>
         {isWorking ? (
           <button
             onClick={() => { eventSourceRef.current?.close(); setLoginState({ phase: "idle" }); }}
-            style={{ padding: "5px 12px", background: "none", border: "1px solid var(--border)", borderRadius: 5, color: "var(--text-muted)", cursor: "pointer", fontSize: 12 }}
+            className={styles.cancelBtn}
           >
             Cancel
           </button>
@@ -242,14 +245,14 @@ export function OAuthDetail({ provider, onRefresh }: { provider: OAuthProvider; 
           <>
             <button
               onClick={handleLogin}
-              style={{ padding: "5px 14px", background: "var(--accent)", border: "none", borderRadius: 5, color: "var(--color-white)", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
+              className={styles.loginBtn}
             >
               {provider.loggedIn ? "Re-login" : "Login"}
             </button>
             {provider.loggedIn && (
               <button
                 onClick={handleLogout}
-                style={{ padding: "5px 12px", background: "none", border: "1px solid var(--color-error-border)", borderRadius: 5, color: "var(--color-error)", cursor: "pointer", fontSize: 12 }}
+                className={styles.disconnectBtn}
               >
                 Disconnect
               </button>

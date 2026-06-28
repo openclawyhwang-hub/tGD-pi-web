@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { SkillSearchResult } from "@/app/api/skills/search/route";
 import { shortenPath } from "./skills-config-types";
+import styles from "./AddSkillPanel.module.css";
 
 export function AddSkillPanel({
   cwd,
@@ -84,23 +85,18 @@ export function AddSkillPanel({
       ? "~/.pi/agent/skills/"
       : `${shortenPath(cwd)}/.pi/agent/skills/`;
 
+  const searchDisabled = searching || !query.trim();
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className={styles.container}>
       {/* ── Header area ── */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          marginBottom: 20,
-        }}
-      >
-        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+      <div className={styles.headerArea}>
+        <div className={styles.title}>
           Add Skill
         </div>
 
         {/* Search row */}
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.searchRow}>
           <input
             ref={inputRef}
             value={query}
@@ -109,89 +105,49 @@ export function AddSkillPanel({
               if (e.key === "Enter") search(query);
             }}
             placeholder="e.g. react, testing, deploy"
-            style={{
-              flex: 1,
-              padding: "7px 10px",
-              fontSize: 13,
-              background: "var(--bg-panel)",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              color: "var(--text)",
-              outline: "none",
-            }}
+            className={styles.searchInput}
           />
           <button
             onClick={() => search(query)}
-            disabled={searching || !query.trim()}
-            style={{
-              padding: "7px 16px",
-              fontSize: 13,
-              borderRadius: 6,
-              border: "none",
-              background: "var(--accent)",
-              color: "var(--color-white)",
-              cursor: searching || !query.trim() ? "not-allowed" : "pointer",
-              opacity: searching || !query.trim() ? 0.5 : 1,
-              flexShrink: 0,
-            }}
+            disabled={searchDisabled}
+            className={`${styles.searchBtn} ${searchDisabled ? styles.searchBtnDisabled : styles.searchBtnEnabled}`}
           >
             {searching ? "Searching…" : "Search"}
           </button>
         </div>
 
         {/* Scope + install path row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              display: "flex",
-              borderRadius: 5,
-              border: "1px solid var(--border)",
-              overflow: "hidden",
-              fontSize: 12,
-              flexShrink: 0,
-            }}
-          >
-            {(["global", "project"] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setScope(s)}
-                style={{
-                  padding: "3px 10px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: scope === s ? "var(--bg-selected)" : "none",
-                  color: scope === s ? "var(--text)" : "var(--text-dim)",
-                  fontWeight: scope === s ? 600 : 400,
-                  borderRight:
-                    s === "global" ? "1px solid var(--border)" : "none",
-                }}
-              >
-                {s}
-              </button>
-            ))}
+        <div className={styles.scopeRow}>
+          <div className={styles.scopeToggle}>
+            {(["global", "project"] as const).map((s) => {
+              const isActive = scope === s;
+              const scopeBtnClass = isActive
+                ? styles.scopeBtnActive
+                : s === "global"
+                  ? styles.scopeBtnInactiveFirst
+                  : styles.scopeBtnInactive;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setScope(s)}
+                  className={`${styles.scopeBtn} ${scopeBtnClass}`}
+                >
+                  {s}
+                </button>
+              );
+            })}
           </div>
-          <span
-            style={{
-              fontSize: 12,
-              color: "var(--text-dim)",
-              fontFamily: "var(--font-mono)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className={styles.installPath}>
             → {installPath}
           </span>
         </div>
 
         {/* Errors */}
         {searchError && (
-          <div style={{ fontSize: 12, color: "var(--color-error-text)" }}>{searchError}</div>
+          <div className={styles.errorText}>{searchError}</div>
         )}
         {installError && (
-          <div
-            style={{ fontSize: 12, color: "var(--color-error-text)", wordBreak: "break-word" }}
-          >
+          <div className={styles.errorTextBreak}>
             {installError}
           </div>
         )}
@@ -199,7 +155,7 @@ export function AddSkillPanel({
 
       {/* ── Results list ── */}
       {results.length > 0 ? (
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div className={styles.resultsList}>
           {results.map((r) => {
             const isInstalled = installedPkgs.has(r.package);
             const isInstalling = installing === r.package;
@@ -207,54 +163,34 @@ export function AddSkillPanel({
             const atIdx = r.package.indexOf("@");
             const repopart = atIdx > -1 ? r.package.slice(0, atIdx) : r.package;
             const skillpart = atIdx > -1 ? r.package.slice(atIdx + 1) : null;
+
+            let installBtnClass = styles.installBtn;
+            if (isInstalled) {
+              installBtnClass += ` ${styles.installBtnInstalled}`;
+            } else if (isInstalling) {
+              installBtnClass += ` ${styles.installBtnInstalling}`;
+            } else if (installing !== null) {
+              installBtnClass += ` ${styles.installBtnDisabled}`;
+            } else {
+              installBtnClass += ` ${styles.installBtnDefault}`;
+            }
+
             return (
               <div
                 key={r.package}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  padding: "12px 0",
-                  borderBottom: "1px solid var(--border)",
-                }}
+                className={styles.resultItem}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div className={styles.resultInfo}>
                   {/* skill name prominent */}
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "var(--text)",
-                      marginBottom: 3,
-                    }}
-                  >
+                  <div className={styles.skillName}>
                     {skillpart ?? repopart}
                   </div>
                   {/* repo + installs + link row */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 11,
-                        color: "var(--text-dim)",
-                      }}
-                    >
+                  <div className={styles.metaRow}>
+                    <span className={styles.repoText}>
                       {repopart}
                     </span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: "var(--text-muted)",
-                        fontWeight: 500,
-                      }}
-                    >
+                    <span className={styles.installsText}>
                       {r.installs}
                     </span>
                     {r.url && (
@@ -262,11 +198,7 @@ export function AddSkillPanel({
                         href={r.url}
                         target="_blank"
                         rel="noreferrer"
-                        style={{
-                          fontSize: 12,
-                          color: "var(--accent)",
-                          textDecoration: "none",
-                        }}
+                        className={styles.skillsLink}
                       >
                         skills.sh ↗
                       </a>
@@ -278,25 +210,7 @@ export function AddSkillPanel({
                     !isInstalled && !isInstalling && install(r.package)
                   }
                   disabled={isInstalled || isInstalling || installing !== null}
-                  style={{
-                    flexShrink: 0,
-                    padding: "5px 14px",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    borderRadius: 5,
-                    border: "1px solid var(--border)",
-                    cursor:
-                      isInstalled || isInstalling || installing !== null
-                        ? "not-allowed"
-                        : "pointer",
-                    background: isInstalled ? "var(--color-success-bg)" : "none",
-                    color: isInstalled
-                      ? "var(--color-success)"
-                      : isInstalling
-                        ? "var(--accent)"
-                        : "var(--text-muted)",
-                    transition: "color 0.12s",
-                  }}
+                  className={installBtnClass}
                 >
                   {isInstalled
                     ? "✓ Installed"
@@ -311,15 +225,13 @@ export function AddSkillPanel({
       ) : (
         !searchError &&
         !searching && (
-          <div
-            style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.8 }}
-          >
+          <div className={styles.emptyState}>
             Search{" "}
             <a
               href="https://skills.sh"
               target="_blank"
               rel="noreferrer"
-              style={{ color: "var(--accent)", textDecoration: "none" }}
+              className={styles.emptyStateLink}
             >
               skills.sh
             </a>{" "}

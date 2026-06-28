@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "./DiffView.module.css";
+
 type DiffLine =
   | { type: "unchanged"; text: string; lineNo: number }
   | { type: "removed"; text: string; lineNo: number }
@@ -87,7 +89,7 @@ export function DiffView({ oldContent, newContent, language }: { oldContent: str
   const hasChanges = diff.some((l) => l.type !== "unchanged");
   if (!hasChanges) {
     return (
-      <div style={{ padding: "12px 16px", fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+      <div className={styles.noChanges}>
         No changes
       </div>
     );
@@ -137,20 +139,13 @@ export function DiffView({ oldContent, newContent, language }: { oldContent: str
   let diffIdx = 0;
 
   return (
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, lineHeight: 1.6 }}>
+    <div className={styles.root}>
       {segments.map((seg, si) => {
         if (seg.hidden) {
           const result = (
             <div
               key={si}
-              style={{
-                padding: "2px 16px",
-                color: "var(--text-dim)",
-                background: "var(--bg-panel)",
-                fontSize: 11,
-                borderTop: "1px solid var(--border)",
-                borderBottom: "1px solid var(--border)",
-              }}
+              className={styles.hiddenSegment}
             >
               ... {seg.count} unchanged lines ...
             </div>
@@ -161,67 +156,33 @@ export function DiffView({ oldContent, newContent, language }: { oldContent: str
         const lines = seg.lines.map((line, li) => {
           const idx = diffIdx + li;
           const newLno = newLineNos[idx];
-          const bg =
-            line.type === "added"
-              ? "var(--color-diff-add-bg)"
-              : line.type === "removed"
-              ? "var(--color-diff-remove-bg)"
-              : "transparent";
+          const lineClass = [
+            styles.diffLine,
+            line.type === "added" ? styles.diffLineAdded
+              : line.type === "removed" ? styles.diffLineRemoved
+              : styles.diffLineUnchanged,
+          ].join(" ");
+          const prefixClass = [
+            styles.prefix,
+            line.type === "added" ? styles.prefixAdded
+              : line.type === "removed" ? styles.prefixRemoved
+              : styles.prefixUnchanged,
+          ].join(" ");
           const prefix =
             line.type === "added" ? "+" : line.type === "removed" ? "-" : " ";
-          const prefixColor =
-            line.type === "added" ? "var(--color-diff-add)" : line.type === "removed" ? "var(--color-diff-remove)" : "var(--text-dim)";
 
           return (
             <div
               key={li}
-              style={{
-                display: "flex",
-                background: bg,
-                borderLeft: line.type === "added"
-                  ? "3px solid var(--color-diff-add)"
-                  : line.type === "removed"
-                  ? "3px solid var(--color-diff-remove)"
-                  : "3px solid transparent",
-              }}
+              className={lineClass}
             >
-              <span
-                style={{
-                  minWidth: 44,
-                  padding: "0 8px 0 16px",
-                  textAlign: "right",
-                  color: "var(--text-dim)",
-                  userSelect: "none",
-                  fontSize: 11,
-                  lineHeight: 1.6,
-                  borderRight: "1px solid var(--border)",
-                  background: "var(--bg-panel)",
-                  flexShrink: 0,
-                }}
-              >
+              <span className={styles.lineNumber}>
                 {line.type === "removed" ? line.lineNo : newLno || ""}
               </span>
-              <span
-                style={{
-                  minWidth: 16,
-                  padding: "0 6px",
-                  color: prefixColor,
-                  userSelect: "none",
-                  flexShrink: 0,
-                  fontWeight: 600,
-                }}
-              >
+              <span className={prefixClass}>
                 {prefix}
               </span>
-              <span
-                style={{
-                  flex: 1,
-                  padding: "0 8px 0 0",
-                  whiteSpace: "pre",
-                  color: "var(--text)",
-                  overflowX: "auto",
-                }}
-              >
+              <span className={styles.lineText}>
                 {line.text || "\u00a0"}
               </span>
             </div>

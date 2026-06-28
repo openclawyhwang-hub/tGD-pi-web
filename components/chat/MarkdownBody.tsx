@@ -9,6 +9,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useTheme } from "@/hooks/useTheme";
+import styles from "./MarkdownBody.module.css";
 
 interface MarkdownBodyProps {
   children: string;
@@ -56,13 +57,7 @@ export function MarkdownBody({ children, className, isStreaming }: MarkdownBodyP
             }
             return (
               <code
-                style={{
-                  background: "var(--bg-selected)",
-                  padding: "1px 4px",
-                  borderRadius: 3,
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "0.9em",
-                }}
+                className={styles.inlineCode}
                 {...props}
               >
                 {children}
@@ -155,20 +150,18 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
     };
   }, [code, currentKey, isDark, isStreaming, showPreview]);
 
+  const previewBtnClass = [
+    styles.previewBtn,
+    showPreview ? styles.previewBtnActive : "",
+    isStreaming ? styles.previewBtnStreaming : "",
+  ].filter(Boolean).join(" ");
+
   const previewButton = (
     <button
       onClick={() => setShowPreview((v) => !v)}
       disabled={isStreaming}
       title={isStreaming ? "Preview available after streaming" : (showPreview ? "Show Mermaid source" : "Preview Mermaid diagram")}
-      style={{
-        background: showPreview ? "var(--bg-selected)" : "none",
-        border: "1px solid var(--border)",
-        color: isStreaming ? "var(--text-dim)" : "var(--text-muted)",
-        cursor: isStreaming ? "not-allowed" : "pointer",
-        fontSize: 11,
-        borderRadius: 4,
-        padding: "1px 6px",
-      }}
+      className={previewBtnClass}
     >
       {showPreview ? "Source" : "Preview"}
     </button>
@@ -191,28 +184,8 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
     );
 
   return (
-    <div
-      style={{
-        position: "relative",
-        marginTop: 4,
-        marginBottom: 4,
-        borderRadius: 6,
-        overflow: "hidden",
-        border: "1px solid var(--border)",
-      }}
-    >
-      <div
-        style={{
-          padding: "3px 10px",
-          background: "var(--bg-panel)",
-          borderBottom: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-dim)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div className={styles.blockContainer}>
+      <div className={styles.blockHeader}>
         <span>mermaid</span>
         {previewButton}
       </div>
@@ -233,40 +206,14 @@ function CodeBlock({ code, lang, headerAction }: { code: string; lang: string; h
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        marginTop: 4,
-        marginBottom: 4,
-        borderRadius: 6,
-        overflow: "hidden",
-        border: "1px solid var(--border)",
-      }}
-    >
-      <div
-        style={{
-          padding: "3px 10px",
-          background: "var(--bg-panel)",
-          borderBottom: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-dim)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div className={styles.blockContainer}>
+      <div className={styles.blockHeader}>
         <span>{lang}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div className={styles.headerActions}>
           {headerAction}
           <button
             onClick={copy}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              fontSize: 11,
-            }}
+            className={styles.copyBtn}
           >
             {copied ? "copied" : "copy"}
           </button>

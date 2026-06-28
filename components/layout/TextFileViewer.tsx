@@ -10,6 +10,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
 import { formatSize, type FileData } from "./file-viewer-utils";
 import { DiffView } from "./DiffView";
+import styles from "./TextFileViewer.module.css";
 
 interface Props {
   filePath: string;
@@ -105,7 +106,7 @@ export function TextFileViewer({ filePath, cwd }: Props) {
 
   if (loading) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>
+      <div className={styles.loadingState}>
         Loading...
       </div>
     );
@@ -113,7 +114,7 @@ export function TextFileViewer({ filePath, cwd }: Props) {
 
   if (error) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-error-text)", fontSize: 13 }}>
+      <div className={styles.errorState}>
         {error}
       </div>
     );
@@ -127,70 +128,41 @@ export function TextFileViewer({ filePath, cwd }: Props) {
   const hasDiff = prevContent !== null && prevContent !== data.content;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div className={styles.root}>
       {/* Status bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          padding: "4px 16px",
-          borderBottom: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-dim)",
-          background: "var(--bg)",
-          flexShrink: 0,
-        }}
-      >
-        <span style={{ fontFamily: "var(--font-mono)" }} title={filePath}>
+      <div className={styles.statusBar}>
+        <span className={styles.filePath} title={filePath}>
           {getRelativeFilePath(filePath, cwd)}
         </span>
-        <span style={{ marginLeft: "auto" }}>{data.language}</span>
+        <span className={styles.language}>{data.language}</span>
         {viewMode === "source" && <span>{lines.length} lines</span>}
         <span>{formatSize(data.size)}</span>
 
         {/* Live watch indicator */}
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)" }}
+          className={watching ? styles.watchIndicatorActive : styles.watchIndicatorInactive}
         >
           <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: watching ? "var(--color-success)" : "var(--border)",
-              display: "inline-block",
-              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
-            }}
+            className={watching ? styles.watchDotActive : styles.watchDotInactive}
           />
           {watching ? "live" : "static"}
         </span>
 
         {/* Diff / Source toggle — shown only when there are changes */}
         {hasDiff && (
-          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+          <div className={styles.toggleGroup}>
             <button
               onClick={() => setViewMode("source")}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
-                background: viewMode === "source" ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: viewMode === "source" ? "var(--text)" : "var(--text-muted)",
-                fontWeight: viewMode === "source" ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupFirst} ${viewMode === "source" ? styles.toggleActive : styles.toggleInactive}`}
             >
               Source
             </button>
             <button
               onClick={() => setViewMode("diff")}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
-                background: viewMode === "diff" ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: viewMode === "diff" ? "var(--text)" : "var(--text-muted)",
-                fontWeight: viewMode === "diff" ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupSecond} ${viewMode === "diff" ? styles.toggleActive : styles.toggleInactive}`}
             >
-              Diff {changeCount > 0 && <span style={{ color: "var(--color-diff-add)", marginLeft: 2 }}>+{changeCount}</span>}
+              Diff {changeCount > 0 && <span className={styles.changeCount}>+{changeCount}</span>}
             </button>
           </div>
         )}
@@ -200,13 +172,7 @@ export function TextFileViewer({ filePath, cwd }: Props) {
           <button
             onClick={() => setWrapLines((v) => !v)}
             title={wrapLines ? "Disable word wrap" : "Enable word wrap"}
-            style={{
-              padding: "2px 8px", fontSize: 11, cursor: "pointer",
-              background: wrapLines ? "var(--bg-selected)" : "var(--bg-hover)",
-              color: wrapLines ? "var(--text)" : "var(--text-muted)",
-              border: "1px solid var(--border)", borderRadius: 5,
-              fontWeight: wrapLines ? 600 : 400,
-            }}
+            className={`${styles.toggleStandalone} ${wrapLines ? styles.toggleActive : styles.toggleInactive}`}
           >
             wrap
           </button>
@@ -214,26 +180,16 @@ export function TextFileViewer({ filePath, cwd }: Props) {
 
         {/* HTML source/preview toggle */}
         {isHtml && viewMode === "source" && (
-          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+          <div className={styles.toggleGroup}>
             <button
               onClick={() => setPreviewMode(false)}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
-                background: !previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: !previewMode ? "var(--text)" : "var(--text-muted)",
-                fontWeight: !previewMode ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupFirst} ${!previewMode ? styles.toggleActive : styles.toggleInactive}`}
             >
               Code
             </button>
             <button
               onClick={() => setPreviewMode(true)}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
-                background: previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: previewMode ? "var(--text)" : "var(--text-muted)",
-                fontWeight: previewMode ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupSecond} ${previewMode ? styles.toggleActive : styles.toggleInactive}`}
             >
               Preview
             </button>
@@ -242,26 +198,16 @@ export function TextFileViewer({ filePath, cwd }: Props) {
 
         {/* Markdown preview/raw toggle */}
         {isMarkdown && viewMode === "source" && (
-          <div style={{ display: "flex", borderRadius: 5, overflow: "hidden", border: "1px solid var(--border)" }}>
+          <div className={styles.toggleGroup}>
             <button
               onClick={() => setPreviewMode(true)}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", cursor: "pointer",
-                background: previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: previewMode ? "var(--text)" : "var(--text-muted)",
-                fontWeight: previewMode ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupFirst} ${previewMode ? styles.toggleActive : styles.toggleInactive}`}
             >
               Preview
             </button>
             <button
               onClick={() => setPreviewMode(false)}
-              style={{
-                padding: "2px 8px", fontSize: 11, border: "none", borderLeft: "1px solid var(--border)", cursor: "pointer",
-                background: !previewMode ? "var(--bg-selected)" : "var(--bg-hover)",
-                color: !previewMode ? "var(--text)" : "var(--text-muted)",
-                fontWeight: !previewMode ? 600 : 400,
-              }}
+              className={`${styles.toggleGroupSecond} ${!previewMode ? styles.toggleActive : styles.toggleInactive}`}
             >
               Raw
             </button>
@@ -270,20 +216,19 @@ export function TextFileViewer({ filePath, cwd }: Props) {
       </div>
 
       {/* Content area */}
-      <div style={{ flex: 1, overflow: "auto", background: "var(--bg)" }}>
+      <div className={styles.contentArea}>
         {viewMode === "diff" && hasDiff ? (
           <DiffView oldContent={prevContent!} newContent={data.content} language={data.language} />
         ) : isHtml && previewMode ? (
           <iframe
             srcDoc={data.content}
             sandbox="allow-scripts"
-            style={{ width: "100%", height: "100%", border: "none", background: "var(--bg)" }}
+            className={styles.htmlPreview}
             title="HTML preview"
           />
         ) : isMarkdown && previewMode ? (
           <div
-            className="markdown-body markdown-file-preview"
-            style={{ padding: "24px 32px", maxWidth: 800 }}
+            className={`markdown-body markdown-file-preview ${styles.markdownPreview}`}
           >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.content}</ReactMarkdown>
           </div>

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
 import { formatSize, getFileExt, DOCX_PREVIEW_MAX_BYTES } from "./file-viewer-utils";
 import { DownloadLink } from "./FileViewer";
+import styles from "./DocumentViewer.module.css";
 
 export function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
   const [watching, setWatching] = useState(false);
@@ -70,47 +71,30 @@ export function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: stri
     };
   }, [encoded, isPdf]);
 
+  const iframeClass = `${styles.iframe} ${isPdf ? styles.iframePdf : styles.iframeDocx}`;
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          padding: "4px 16px",
-          borderBottom: "1px solid var(--border)",
-          fontSize: 11,
-          color: "var(--text-dim)",
-          background: "var(--bg)",
-          flexShrink: 0,
-        }}
-      >
-        <span style={{ fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={filePath}>
+    <div className={styles.root}>
+      <div className={styles.toolbar}>
+        <span className={styles.filePath} title={filePath}>
           {getRelativeFilePath(filePath, cwd)}
         </span>
-        <span style={{ marginLeft: "auto" }}>{ext === "docx" ? "docx preview" : "pdf"}</span>
+        <span className={styles.extension}>{ext === "docx" ? "docx preview" : "pdf"}</span>
         {size != null && <span>{formatSize(size)}</span>}
         <DownloadLink filePath={filePath} />
         <span
           title={watching ? "Live sync active" : "Not watching"}
-          style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "var(--color-success)" : "var(--text-dim)", flexShrink: 0 }}
+          className={`${styles.watchStatus} ${watching ? styles.watchStatusLive : styles.watchStatusStatic}`}
         >
           <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: watching ? "var(--color-success)" : "var(--border)",
-              display: "inline-block",
-              boxShadow: watching ? "0 0 4px var(--color-success)" : "none",
-            }}
+            className={`${styles.watchDot} ${watching ? styles.watchDotLive : styles.watchDotStatic}`}
           />
           {watching ? "live" : "static"}
         </span>
       </div>
-      <div style={{ flex: 1, minHeight: 0, background: "var(--bg-panel)" }}>
+      <div className={styles.content}>
         {error ? (
-          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "var(--color-error-text)", fontSize: 13, textAlign: "center" }}>
+          <div className={styles.errorContainer}>
             {error}
           </div>
         ) : (
@@ -119,7 +103,7 @@ export function DocumentViewer({ filePath, cwd }: { filePath: string; cwd?: stri
             src={previewUrl}
             sandbox={isPdf ? undefined : ""}
             title={`Preview ${getFileName(filePath)}`}
-            style={{ width: "100%", height: "100%", border: "none", background: isPdf ? "var(--bg)" : "var(--bg-panel)" }}
+            className={iframeClass}
           />
         )}
       </div>

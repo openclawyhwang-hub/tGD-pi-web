@@ -7,6 +7,7 @@ import type {
   ImageContent,
   TextContent,
 } from "@/lib/types";
+import styles from "./UserMessageView.module.css";
 
 function formatTime(ts?: number): string | null {
   if (!ts) return null;
@@ -77,26 +78,14 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
 
   return (
     <div
-      style={{ marginBottom: 16, display: "flex", flexDirection: "column", alignItems: "flex-end" }}
-      className="hover-group"
+      className={`hover-group ${styles.root}`}
     >
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, maxWidth: "85%" }}>
+      <div className={styles.messageRow}>
         <div
-          style={{
-            flex: 1,
-            minWidth: 0,
-            background: "var(--user-bg)",
-            border: "1px solid var(--color-accent-border)",
-            borderRadius: 12,
-            padding: "8px 12px",
-            fontSize: 14,
-            lineHeight: 1.6,
-            color: "var(--text)",
-            wordBreak: "break-word",
-          }}
+          className={styles.bubble}
         >
           {imageBlocks.length > 0 && (
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: content ? 8 : 0 }}>
+            <div className={content ? styles.imageGrid : styles.imageGridNoMargin}>
               {imageBlocks.map((img, i) => {
                 // lib/types.ts ImageContent uses {source:{type,data,media_type,url}}
                 // pi-ai on-disk format uses flat {data, mimeType} — handle both
@@ -114,7 +103,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                     key={i}
                     src={src}
                     alt=""
-                    style={{ maxWidth: 240, maxHeight: 240, borderRadius: 6, objectFit: "contain", display: "block", border: "1px solid var(--color-accent-border)" }}
+                    className={styles.image}
                   />
                 );
               })}
@@ -127,25 +116,12 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
 
       {/* Bottom row: action buttons + timestamp */}
       {(time || canFork || canNavigate || true) && (
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "flex-end",
-          gap: 6, marginTop: 3,
-        }}>
-          <div className="hover-reveal" style={{ display: "flex", gap: 3 }}>
+        <div className={styles.bottomRow}>
+          <div className={`hover-reveal ${styles.actionButtons}`}>
             <button
               onClick={copyContent}
               title="Copy message"
-              className={copied ? "text-accent" : "text-dim hover-accent"}
-              style={{
-                display: "flex", alignItems: "center", gap: 4,
-                padding: "3px 8px", height: 22,
-                background: "none", border: "none",
-                borderRadius: 5,
-                cursor: "pointer",
-                fontSize: 11, fontWeight: 400,
-                whiteSpace: "nowrap",
-                transition: "color 0.12s",
-              }}
+              className={`${styles.actionButton} ${copied ? "text-accent" : "text-dim hover-accent"}`}
             >
               {copied ? (
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -161,22 +137,12 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
             </button>
           </div>
           {(canFork || canNavigate) && (
-            <div className={forking ? "" : "hover-reveal"} style={{ display: "flex", gap: 3 }}>
+            <div className={`${forking ? "" : "hover-reveal"} ${styles.actionButtons}`}>
               {canNavigate && (
                 <button
                   onClick={() => { onNavigate!(prevAssistantEntryId!); onEditContent?.(content); }}
                   title="Edit from here — branches within this session"
-                  className="text-dim hover-accent"
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    padding: "3px 8px", height: 22,
-                    background: "none", border: "none",
-                    borderRadius: 5,
-                    cursor: "pointer",
-                    fontSize: 11, fontWeight: 400,
-                    whiteSpace: "nowrap",
-                    transition: "color 0.12s",
-                  }}
+                  className={`${styles.actionButton} text-dim hover-accent`}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 10 20 15 15 20" />
@@ -190,17 +156,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
                   onClick={() => { onFork!(entryId!); }}
                   disabled={forking}
                   title={forking ? "Creating new session…" : "New session — creates an independent copy from here"}
-                  className={forking ? "text-accent" : "text-dim hover-accent"}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    padding: "3px 8px", height: 22,
-                    background: "none", border: "none",
-                    borderRadius: 5,
-                    cursor: forking ? "not-allowed" : "pointer",
-                    fontSize: 11, fontWeight: 400,
-                    whiteSpace: "nowrap",
-                    transition: "color 0.12s",
-                  }}
+                  className={`${styles.actionButton} ${forking ? "text-accent" : "text-dim hover-accent"}`}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="6" y1="3" x2="6" y2="15" />
@@ -213,7 +169,7 @@ export function UserMessageView({ message, entryId, onFork, forking, onNavigate,
               )}
             </div>
           )}
-          {time && <span style={{ fontSize: 10, color: "var(--text-dim)" }}>{time}</span>}
+          {time && <span className={styles.timestamp}>{time}</span>}
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo, RefObject } from "react";
 import type { AgentMessage, AssistantMessage, TextContent } from "@/lib/types";
+import styles from "./ChatMinimap.module.css";
 
 interface Props {
   messages: AgentMessage[];
@@ -189,6 +190,7 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
 
 
 
+
   // Compute collision-free tooltip positions for all nodes
   const TOOLTIP_HEIGHT = 22;
   const TOOLTIP_GAP = 2;
@@ -233,37 +235,21 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
   return (
     <div
       ref={containerRef}
-      className="hover-group"
+      className={`hover-group ${styles.container}`}
       onMouseDown={handleMouseDown}
       onMouseLeave={() => { setMouseYRatio(null); }}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         setMouseYRatio((e.clientY - rect.top) / rect.height);
       }}
-      style={{
-        width: MINIMAP_WIDTH,
-        flexShrink: 0,
-        position: "relative",
-        cursor: "default",
-        userSelect: "none",
-        borderLeft: "1px solid var(--border)",
-        background: "var(--bg-panel)",
-        overflow: "visible",
-      }}
+      style={{ width: MINIMAP_WIDTH }}
     >
       {/* Viewport indicator */}
       <div
+        className={styles.viewportIndicator}
         style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
           top: `${viewportBoxTop}%`,
           height: `${viewportBoxHeight}%`,
-          background: "var(--bg-subtle)",
-          borderTop: "1px solid var(--border)",
-          borderBottom: "1px solid var(--border)",
-          pointerEvents: "none",
-          zIndex: 1,
         }}
       />
 
@@ -277,32 +263,19 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
         return (
           <div
             key={node.index}
-
-            style={{
-              position: "absolute",
-              top: `${dotTop}%`,
-              transform: "translateY(-50%)",
-              left: 0,
-              right: 0,
-              height: "12px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              zIndex: 2,
-            }}
+            className={styles.node}
+            style={{ top: `${dotTop}%` }}
           >
             {/* Dot */}
             <div
+              className={[
+                styles.dot,
+                isUser ? styles.dotUser : styles.dotAssistant,
+                isNearest ? styles.dotNearest : styles.dotNormal,
+              ].join(" ")}
               style={{
-                width: isUser ? 8 : 6,
-                height: isUser ? 8 : 6,
-                borderRadius: isUser ? 2 : "50%",
                 background: color.bg,
                 border: `1.5px solid ${color.border}`,
-                flexShrink: 0,
-                transition: "transform 0.1s",
-                transform: isNearest ? "scale(1.6)" : "scale(1)",
               }}
             />
 
@@ -312,21 +285,10 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
       })}
 
       {/* Center line */}
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: 0,
-          bottom: 0,
-          width: 1,
-          background: "var(--border)",
-          transform: "translateX(-50%)",
-          zIndex: 0,
-        }}
-      />
+      <div className={styles.centerLine} />
 
       {/* Tooltips for all nodes, collision-free positions — shown on hover via CSS */}
-      <div className="hover-reveal" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+      <div className={`hover-reveal ${styles.tooltipLayer}`}>
         {nodes.map((node, i) => {
           const preview = getMessagePreview(node.msg);
           const color = getNodeColor(node.msg);
@@ -335,34 +297,17 @@ export function ChatMinimap({ messages, streamingMessage, scrollContainer, messa
           return (
             <div
               key={node.index}
+              className={`${styles.tooltip} ${isNearest ? styles.tooltipNearest : styles.tooltipFar}`}
               style={{
-                position: "absolute",
                 top: tooltipPositions[i],
-                right: "100%",
-                marginRight: 6,
-                background: "var(--bg)",
                 borderTop: `1px solid ${isNearest ? color.border : "var(--border)"}`,
                 borderRight: `1px solid ${isNearest ? color.border : "var(--border)"}`,
                 borderBottom: `1px solid ${isNearest ? color.border : "var(--border)"}`,
                 borderLeft: `2px solid ${color.border}`,
-                borderRadius: 4,
-                padding: "2px 7px",
-                width: 200,
-                zIndex: 100,
-                pointerEvents: "none",
-                opacity: isNearest ? 1 : 0.45,
-                transition: "top 0.1s, opacity 0.1s",
               }}
             >
               <div
-                style={{
-                  fontSize: 11,
-                  color: isNearest ? "var(--text)" : "var(--text-muted)",
-                  lineHeight: 1.4,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
+                className={`${styles.tooltipText} ${isNearest ? styles.tooltipTextNearest : styles.tooltipTextFar}`}
               >
                 {preview}
               </div>
