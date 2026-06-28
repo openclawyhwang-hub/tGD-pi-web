@@ -1,27 +1,40 @@
 import { describe, it, expect } from "vitest";
 import { normalizeToolCalls } from "../normalize";
+import type { AgentMessage, AssistantMessage, AssistantContentBlock } from "../types";
+
+function asMsg(input: unknown): AgentMessage {
+  return input as AgentMessage;
+}
+
+function asAssistant(msg: AgentMessage): AssistantMessage {
+  return msg as AssistantMessage;
+}
+
+function asBlock(input: unknown): AssistantContentBlock {
+  return input as AssistantContentBlock;
+}
 
 describe("normalizeToolCalls", () => {
   it("passes through non-assistant messages unchanged", () => {
-    const msg = { role: "user", content: "hello" } as any;
+    const msg = asMsg({ role: "user", content: "hello" });
     expect(normalizeToolCalls(msg)).toBe(msg);
   });
 
   it("passes through assistant messages with string content", () => {
-    const msg = { role: "assistant", content: "hello" } as any;
+    const msg = asMsg({ role: "assistant", content: "hello" });
     expect(normalizeToolCalls(msg)).toBe(msg);
   });
 
   it("normalizes toolCall blocks with id/name/arguments", () => {
-    const msg = {
+    const msg = asMsg({
       role: "assistant",
       content: [
-        { type: "text", text: "let me check" },
-        { type: "toolCall", id: "abc123", name: "web_search", arguments: { query: "test" } },
+        asBlock({ type: "text", text: "let me check" }),
+        asBlock({ type: "toolCall", id: "abc123", name: "web_search", arguments: { query: "test" } }),
       ],
-    } as any;
+    });
     const result = normalizeToolCalls(msg);
-    const blocks = (result as any).content;
+    const blocks = asAssistant(result).content;
     expect(blocks[0].type).toBe("text");
     expect(blocks[1]).toEqual({
       type: "toolCall",
@@ -32,14 +45,14 @@ describe("normalizeToolCalls", () => {
   });
 
   it("normalizes toolCall blocks with toolCallId/toolName/input", () => {
-    const msg = {
+    const msg = asMsg({
       role: "assistant",
       content: [
-        { type: "toolCall", toolCallId: "def456", toolName: "read_file", input: { path: "/foo" } },
+        asBlock({ type: "toolCall", toolCallId: "def456", toolName: "read_file", input: { path: "/foo" } }),
       ],
-    } as any;
+    });
     const result = normalizeToolCalls(msg);
-    const blocks = (result as any).content;
+    const blocks = asAssistant(result).content;
     expect(blocks[0]).toEqual({
       type: "toolCall",
       toolCallId: "def456",
@@ -49,14 +62,14 @@ describe("normalizeToolCalls", () => {
   });
 
   it("handles missing fields gracefully", () => {
-    const msg = {
+    const msg = asMsg({
       role: "assistant",
       content: [
-        { type: "toolCall" },
+        asBlock({ type: "toolCall" }),
       ],
-    } as any;
+    });
     const result = normalizeToolCalls(msg);
-    const blocks = (result as any).content;
+    const blocks = asAssistant(result).content;
     expect(blocks[0]).toEqual({
       type: "toolCall",
       toolCallId: "",
@@ -66,19 +79,19 @@ describe("normalizeToolCalls", () => {
   });
 
   it("handles mixed content with text and toolCalls", () => {
-    const msg = {
+    const msg = asMsg({
       role: "assistant",
       content: [
-        { type: "text", text: "searching..." },
-        { type: "toolCall", id: "a", name: "search", arguments: { q: "hi" } },
-        { type: "text", text: "done" },
+        asBlock({ type: "text", text: "searching..." }),
+        asBlock({ type: "toolCall", id: "a", name: "search", arguments: { q: "hi" } }),
+        asBlock({ type: "text", text: "done" }),
       ],
-    } as any;
+    });
     const result = normalizeToolCalls(msg);
-    const blocks = (result as any).content;
+    const blocks = asAssistant(result).content;
     expect(blocks).toHaveLength(3);
     expect(blocks[0].type).toBe("text");
-    expect(blocks[1].toolCallId).toBe("a");
+    expect(blocks[1].type === "toolCall" && blocks[1].toolCallId).toBe("a");
     expect(blocks[2].type).toBe("text");
   });
 });
