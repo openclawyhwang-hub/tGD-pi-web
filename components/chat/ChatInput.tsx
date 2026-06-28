@@ -567,15 +567,6 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 opacity: isStreaming ? 0.5 : 1,
                 transition: "background 0.12s, color 0.12s",
               }}
-              onMouseEnter={(e) => {
-                if (isStreaming) return;
-                e.currentTarget.style.background = "var(--bg-hover)";
-                e.currentTarget.style.color = attachedImages.length ? "var(--accent)" : "var(--text)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "none";
-                e.currentTarget.style.color = attachedImages.length ? "var(--accent)" : "var(--text-muted)";
-              }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -640,15 +631,6 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                     fontSize: 12, opacity: (isStreaming && !isCompacting) ? 0.5 : 1,
                     transition: "background 0.12s, color 0.12s",
                   }}
-                  onMouseEnter={(e) => {
-                    if (isStreaming && !isCompacting) return;
-                    e.currentTarget.style.background = isCompacting ? "var(--color-error-bg-strong)" : "var(--bg-hover)";
-                    e.currentTarget.style.color = isCompacting ? "var(--color-error)" : "var(--text)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = isCompacting ? "var(--color-error-bg)" : "none";
-                    e.currentTarget.style.color = isCompacting ? "var(--color-error)" : "var(--text-muted)";
-                  }}
                   title={isCompacting ? "停止压缩" : "压缩上下文"}
                 >
                   {isCompacting ? (
@@ -680,8 +662,6 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   whiteSpace: "nowrap", letterSpacing: "-0.01em",
                   transition: "background 0.12s",
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = "var(--color-error-bg-strong)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-error-bg)"; }}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <rect x="1.5" y="1.5" width="7" height="7" rx="1.5" fill="currentColor" />

@@ -289,8 +289,6 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
             whiteSpace: "nowrap",
             transition: "color 0.1s, background 0.1s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = open ? "var(--text)" : "var(--text-muted)"; }}
         >
           {branchIcon}
           <span>Branches</span>

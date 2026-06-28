@@ -312,14 +312,6 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
                     transition: "border-color 0.15s, background 0.15s",
                     minHeight: 36,
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "var(--accent)";
-                    e.currentTarget.style.background = "var(--bg-hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--border)";
-                    e.currentTarget.style.background = "var(--bg-panel)";
-                  }}
                   title={`${phase.cmd} — ${phase.desc}`}
                 >
                   <span>{phase.icon}</span>
