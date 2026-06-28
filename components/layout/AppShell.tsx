@@ -647,7 +647,7 @@ export function AppShell() {
               </div>
             ) : (
               <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: 40, maxWidth: 400 }}>
-                <div style={{ width: 72, height: 72, borderRadius: "var(--radius-full)", background: "linear-gradient(135deg, rgba(37,99,235,0.12), rgba(37,99,235,0.04))", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(37,99,235,0.15)" }}>
+                <div style={{ width: 72, height: 72, borderRadius: "var(--radius-full)", background: "linear-gradient(135deg, var(--color-accent-bg-strong), var(--color-accent-bg-subtle))", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--color-accent-border-subtle)" }}>
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     <line x1="9" y1="10" x2="15" y2="10" />
@@ -661,15 +661,15 @@ export function AppShell() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>1</span>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>1</span>
                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Select a project directory from the sidebar</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>2</span>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>2</span>
                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Click <strong style={{ color: "var(--text)" }}>+ New</strong> to start a session</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--bg-hover)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(37,99,235,0.12)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>3</span>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--color-accent-bg-strong)", color: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600, flexShrink: 0 }}>3</span>
                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Configure models via <strong style={{ color: "var(--text)" }}>Models</strong> at the bottom</span>
                   </div>
                 </div>

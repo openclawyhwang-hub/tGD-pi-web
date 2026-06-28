@@ -126,6 +126,8 @@
   --color-shadow-input: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
   --color-accent-border-focus: rgba(37,99,235,0.35);
   --color-accent-border-focus-strong: rgba(37,99,235,0.4);
+  --color-accent-bg-subtle: rgba(37,99,235,0.04);
+  --color-accent-border-subtle: rgba(37,99,235,0.15);
   --color-success-bg-strong: rgba(74,222,128,0.18);
   --color-success-border-strong: rgba(74,222,128,0.4);
   --color-diff-add-bg: rgba(0,200,80,0.12);
@@ -188,6 +190,8 @@ html.dark {
   --color-shadow-input: 0 1px 2px rgba(0,0,0,0.2), 0 8px 24px -12px rgba(0,0,0,0.3);
   --color-accent-border-focus: rgba(96,165,250,0.4);
   --color-accent-border-focus-strong: rgba(96,165,250,0.5);
+  --color-accent-bg-subtle: rgba(96,165,250,0.06);
+  --color-accent-border-subtle: rgba(96,165,250,0.2);
   --color-success-bg-strong: rgba(74,222,128,0.22);
   --color-success-border-strong: rgba(74,222,128,0.5);
   --color-diff-add-bg: rgba(0,200,80,0.15);
@@ -542,3 +546,55 @@ span.linenumber {
     display: none !important;
   }
 }
+
+/* ═══ Interactive hover utility classes ═══ */
+.hover-bg:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--bg-hover);
+}
+.hover-text:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: var(--text);
+}
+.hover-bg-text:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.hover-accent:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: var(--accent);
+}
+.hover-error-bg:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--color-error-bg-strong);
+}
+.hover-error-bg-text:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--color-error-bg-strong);
+  color: var(--color-error);
+}
+.hover-bg-selected-accent:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--bg-selected);
+  color: var(--accent);
+  border-color: var(--color-accent-border-focus);
+}
+.hover-bg-error-border:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+}
+.hover-border-accent-bg:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+.hover-bg-text-full:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--bg-hover);
+  color: var(--text);
+  opacity: 1;
+}
+/* Base background utility classes for className switching */
+.bg-none { background: none; }
+.bg-selected { background: var(--bg-selected); }
+.bg-hover-base { background: var(--bg-hover); }
+.bg-panel { background: var(--bg-panel); }
+.bg-error { background: var(--color-error-bg); }
+.bg-error-strong { background: var(--color-error-bg-strong); }
+.bg-transparent { background: transparent; }
+/* Parent hover reveal pattern — replaces onMouseEnter/Leave state tracking */
+.hover-group .hover-reveal { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+.hover-group:hover .hover-reveal { opacity: 1; pointer-events: auto; }

@@ -55,8 +55,8 @@ export function CwdPicker({
           display: "flex",
           alignItems: "center",
           padding: "6px 10px",
-          background: selectedCwd ? "var(--bg-hover)" : "rgba(37,99,235,0.06)",
-          border: selectedCwd ? "1px solid var(--border)" : "1px solid rgba(37,99,235,0.4)",
+          background: selectedCwd ? "var(--bg-hover)" : "var(--color-accent-bg-subtle)",
+          border: selectedCwd ? "1px solid var(--border)" : "1px solid var(--color-accent-border-focus-strong)",
           borderRadius: "var(--radius-md)",
           cursor: "pointer",
           fontSize: "var(--text-sm)",
@@ -92,7 +92,7 @@ export function CwdPicker({
             background: "var(--bg)",
             border: "1px solid var(--border)",
             borderRadius: 8,
-            boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
+            boxShadow: "0 6px 20px var(--color-shadow-popup)",
             overflow: "hidden",
           }}
         >

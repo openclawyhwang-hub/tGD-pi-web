@@ -234,7 +234,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 if (!selectedCwd) return;
                 e.currentTarget.style.background = "var(--bg-selected)";
                 e.currentTarget.style.color = "var(--accent)";
-                e.currentTarget.style.borderColor = "rgba(37,99,235,0.35)";
+                e.currentTarget.style.borderColor = "var(--color-accent-border-focus)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "var(--bg-hover)";
@@ -252,8 +252,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onClick={() => loadSessions(false)}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                background: sessionRefreshDone ? "rgba(74,222,128,0.18)" : "var(--bg-hover)",
-                border: `1px solid ${sessionRefreshDone ? "rgba(74,222,128,0.4)" : "var(--border)"}`,
+                background: sessionRefreshDone ? "var(--color-success-bg-strong)" : "var(--bg-hover)",
+                border: `1px solid ${sessionRefreshDone ? "var(--color-success-border-strong)" : "var(--border)"}`,
                 color: sessionRefreshDone ? "var(--color-success)" : "var(--text-muted)",
                 cursor: "pointer",
                 width: 32, height: 32,
@@ -266,7 +266,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 if (sessionRefreshDone) return;
                 e.currentTarget.style.background = "var(--bg-selected)";
                 e.currentTarget.style.color = "var(--accent)";
-                e.currentTarget.style.borderColor = "rgba(37,99,235,0.35)";
+                e.currentTarget.style.borderColor = "var(--color-accent-border-focus)";
               }}
               onMouseLeave={(e) => {
                 if (sessionRefreshDone) return;
@@ -340,7 +340,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 outline: "none",
                 transition: "border-color 0.15s",
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(37,99,235,0.4)"; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent-border-focus-strong)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
             />
           </div>
@@ -458,7 +458,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: 26, height: 26, padding: 0, marginRight: 6,
-                background: explorerRefreshDone ? "rgba(74,222,128,0.18)" : "none",
+                background: explorerRefreshDone ? "var(--color-success-bg-strong)" : "none",
                 border: "none",
                 color: explorerRefreshDone ? "var(--color-success)" : "var(--text-dim)",
                 cursor: "pointer",
