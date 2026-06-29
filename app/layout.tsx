@@ -3,7 +3,7 @@ import "katex/dist/katex.min.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pi with tGD",
+  title: "π with tGD",
   description: "Pi Coding Agent Web Interface",
 };
 

@@ -556,7 +556,10 @@ export function AppShell() {
                   </svg>
                 </div>
                 <div className={s.placeholderText}>
-                  <div className={s.welcomeTitle}>Pi with tGD</div>
+                  <div className={s.welcomeTitle}>
+                    <span className={s.piSymbol}>π</span>
+                    <span className={s.titleText}>with tGD</span>
+                  </div>
                   <div className={s.welcomeSubtitle}>
                     Your AI coding assistant, powered by Pi
                   </div>

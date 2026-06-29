@@ -261,10 +261,26 @@
 }
 
 .welcomeTitle {
-  font-size: 20px;
-  font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.piSymbol {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text);
-  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.titleText {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .welcomeSubtitle {

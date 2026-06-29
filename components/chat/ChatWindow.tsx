@@ -265,7 +265,7 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
             >
               <div className={styles.welcomeTitleRow}>
                 <span className={styles.piSymbol}>π</span>
-                <span className={styles.titleText}>Pi with tGD</span>
+                <span className={styles.titleText}>with tGD</span>
                 <span className={styles.typewriterContainer}>
                   <Typewriter phrases={TYPEWRITER_PHRASES} />
                 </span>
@@ -288,11 +288,11 @@ export function ChatWindow({ session, newSessionCwd, onAgentEnd, onSessionCreate
                 { cmd: "/tgd-develop", label: "Develop", icon: "⚙️", desc: "Build features" },
                 { cmd: "/tgd-verify", label: "Verify", icon: "✅", desc: "Run tests" },
                 { cmd: "/tgd-review", label: "Review", icon: "🔍", desc: "Code review" },
-                { cmd: "/tgd-ship", label: "Ship", icon: "🚀", desc: "Deploy" },
+                { cmd: "/tgd-release", label: "Release", icon: "🚀", desc: "Deploy" },
               ].map((phase) => (
                 <button
                   key={phase.cmd}
-                  onClick={() => chatInputRef?.current?.insertIfEmpty(phase.cmd + " ")}
+                  onClick={() => chatInputRef?.current?.setText(phase.cmd + " ")}
                   className={styles.phaseButton}
                   title={`${phase.cmd} — ${phase.desc}`}
                 >
