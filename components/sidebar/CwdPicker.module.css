@@ -35,7 +35,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--font-mono);
+  font-family: inherit;
   font-size: 11px;
 }
 
@@ -75,7 +75,7 @@
   cursor: pointer;
   text-align: left;
   font-size: 11px;
-  font-family: var(--font-mono);
+  font-family: inherit;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -140,7 +140,7 @@
 .customPathInput {
   width: 100%;
   font-size: 11px;
-  font-family: var(--font-mono);
+  font-family: inherit;
   padding: 5px 8px;
   border: 1px solid var(--accent);
   border-radius: 5px;
