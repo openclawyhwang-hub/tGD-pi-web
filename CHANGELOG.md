@@ -6,29 +6,26 @@ Versioning: `YYYY.MM.DD` (date-based, aligned with upstream tGD).
 
 ## [Unreleased]
 
+---
+
+## [2026.06.30] — bf0eea29
+
+### Added
+- **Session pin/unpin**: new REST endpoint `GET/POST/DELETE /api/sessions/pins` persists to `~/.pi/agent/pins.json`. Pinned sessions float to the top of the sidebar under a "Pinned" group header; unpinned sessions keep the existing tree layout with date group headers. Third sidebar action button (pin → rename → delete order, with delete still last since it's destructive). Pinned state is shown via a filled star in a neutral tone (not the warning yellow — shape, not color, signals the toggle).
+- **Section dividers**: 1px `border-top` between Pinned and date groups; the first section has no divider so the layout doesn't start with a stray line.
+- **`ChatInput.setText()`**: imperative API that forcefully replaces the input value. Quick-action phase chips use it so clicking a different phase swaps the slash command rather than appending.
+
 ### Changed
-- Replaced `any` with typed `unknown` helpers in `lib/__tests__/normalize.test.ts` (10 lint errors fixed).
-- Added `npm run analyze` script (`@next/bundle-analyzer` was already configured in `next.config.ts` via `ANALYZE=true`).
+- **Slash command descriptions** are now uniform English em-dash format. The last command is renamed `/tgd-ship` → `/tgd-release` (the `/^/tgd-(\w+)(.*)$/` regex generalises to it automatically).
+- **Brand mark unification**: "π with tGD" rendered consistently across all three sites (browser tab, ChatWindow welcome, AppShell welcome, sidebar PiAgentTitle). "π" is 28px / 700, "with tGD" is 22px / 700, baseline-aligned via flex+gap. The text "Pi" is gone from the visible UI; the Greek letter is the mark now.
+- **PiAgentTitle simplified**: removed the click-to-scramble animation and click-to-show-version. The component is now a static 19-line span (was 91 lines).
+- **Typography consistency**: removed `var(--font-mono)` from non-code UI chrome (ChatWindow welcome header, CwdPicker paths / items / custom-path input). Added `PingFang TC` and `Microsoft JhengHei` to the font-family fallback chain so Traditional Chinese renders correctly on macOS / Windows.
 
 ### Verified
 - TypeScript: `tsc --noEmit` — 0 errors
 - ESLint: 0 errors (12 pre-existing unused-import warnings, unrelated)
-- Vitest: 34/34 pass (`normalize`, `file-paths`, `session-reader`)
-- Next.js production build (`next build --webpack`): ✓ 7.7s compile, 9 static pages, 23 API routes
-- Bundle analyzer: 3 reports generated (`client.html` 766K, `nodejs.html` 883K, `edge.html` 268K)
-
-### Known Bundle Bloat (investigate next)
-| Chunk | Size | Source |
-|---|---:|---|
-| `da12927c.00775c0e4542fd3e.js` | 1288.9 KB | **mermaid** diagram types — require custom mermaid build to split |
-| `90542734.b75ad0df50bf68f5.js` | 1246.9 KB | **mermaid** diagram variants |
-| `4bd1b696` | 598.5 KB | react-markdown + micromark (rootMainFiles) |
-| `0d8bff65` / `628fdacb` | 587.1 KB | mermaid diagram layouts (block, c4, sequence) |
-| `framework-594babcea68f40f6.js` | 523.5 KB | React + Next runtime (baseline, can't reduce) |
-| `d2c09beb` | 300.0 KB | mermaid layout |
-| `28f0fb3b` | 260.6 KB | mermaid |
-
-**Estimated savings**: mermaid is now dynamic-imported but its **internal** diagram types (block, c4, sequence, etc.) are bundled eagerly. Replacing `import("mermaid")` with `import("mermaid/dist/mermaid.esm.min.mjs")` or building a custom mermaid build with only the diagram types actually used could shave ~2.4 MB from the mermaid chunk.
+- Server: `http://localhost:30141` HTTP 200
+- API smoke: pin/rename/delete all idempotent (GET empty, POST new, POST existing → no-op, DELETE existing, DELETE missing → no-op, POST missing id → 400), `pins.json` written to disk
 
 ---
 
