@@ -12,6 +12,8 @@ interface SessionTreeItemProps {
   onRenamed?: () => void;
   onSessionDeleted?: (id: string) => void;
   depth: number;
+  isPinned?: boolean;
+  onPinToggle?: (id: string) => void;
 }
 
 export function SessionTreeItem({
@@ -21,6 +23,8 @@ export function SessionTreeItem({
   onRenamed,
   onSessionDeleted,
   depth,
+  isPinned = false,
+  onPinToggle,
 }: SessionTreeItemProps) {
   const [collapsed, setCollapsed] = useState(false);
   const hasChildren = node.children.length > 0;
@@ -49,6 +53,8 @@ export function SessionTreeItem({
           hasChildren={hasChildren}
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed((v) => !v)}
+          isPinned={isPinned}
+          onPinToggle={onPinToggle}
         />
       </div>
       {hasChildren && !collapsed && (
@@ -62,6 +68,8 @@ export function SessionTreeItem({
               onRenamed={onRenamed}
               onSessionDeleted={onSessionDeleted}
               depth={depth + 1}
+              isPinned={isPinned}
+              onPinToggle={onPinToggle}
             />
           ))}
         </div>

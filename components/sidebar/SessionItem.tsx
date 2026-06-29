@@ -15,6 +15,8 @@ interface SessionItemProps {
   hasChildren?: boolean;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  isPinned?: boolean;
+  onPinToggle?: (id: string) => void;
 }
 
 export function SessionItem({
@@ -27,6 +29,8 @@ export function SessionItem({
   hasChildren = false,
   collapsed = false,
   onToggleCollapse,
+  isPinned = false,
+  onPinToggle,
 }: SessionItemProps) {
   const [renaming, setRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState("");
@@ -80,6 +84,11 @@ export function SessionItem({
     e.stopPropagation();
     setConfirmDelete(false);
   }, []);
+
+  const handlePinClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPinToggle?.(session.id);
+  }, [onPinToggle, session.id]);
 
   // Fixed-height outer wrapper — content swaps in place so the list never reflows
   const ITEM_HEIGHT = 54;
@@ -182,8 +191,20 @@ export function SessionItem({
             </button>
           )}
 
-          {/* Action buttons — shown on hover */}
+          {/* Action buttons — shown on hover. Pin first (benign state toggle),
+              then rename (edit), then delete (destructive — kept last). */}
             <div className={`hover-reveal ${styles.hoverActions}`}>
+              <button
+                onClick={handlePinClick}
+                title={isPinned ? "Unpin session" : "Pin session"}
+                aria-label={isPinned ? "Unpin session" : "Pin session"}
+                aria-pressed={isPinned}
+                className={`hover-bg-selected-accent ${styles.actionButton} ${isPinned ? styles.actionButtonActive : ""}`}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </button>
               <button
                 onClick={startRename}
                 title="Rename"

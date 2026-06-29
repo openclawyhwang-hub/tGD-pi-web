@@ -41,6 +41,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const [explorerKey, setExplorerKey] = useState(0);
   const [sessionRefreshDone, setSessionRefreshDone] = useState(false);
   const [explorerRefreshDone, setExplorerRefreshDone] = useState(false);
+  const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const sessionRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const explorerRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -64,12 +65,50 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     }
   }, []);
 
+  const loadPins = useCallback(async () => {
+    try {
+      const res = await fetch("/api/sessions/pins");
+      if (!res.ok) return;
+      const data = await res.json() as { pinned?: string[] };
+      setPinnedIds(Array.isArray(data.pinned) ? data.pinned : []);
+    } catch {
+      // Pins are best-effort; missing file is fine.
+    }
+  }, []);
+
+  const handlePinToggle = useCallback(async (id: string) => {
+    const isPinned = pinnedIds.includes(id);
+    // Optimistic update so the star flips immediately.
+    setPinnedIds((prev) =>
+      isPinned ? prev.filter((x) => x !== id) : [id, ...prev.filter((x) => x !== id)],
+    );
+    try {
+      const res = await fetch("/api/sessions/pins", {
+        method: isPinned ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) {
+        // Roll back on server error.
+        setPinnedIds((prev) =>
+          isPinned ? [id, ...prev.filter((x) => x !== id)] : prev.filter((x) => x !== id),
+        );
+      }
+    } catch {
+      // Roll back on network error.
+      setPinnedIds((prev) =>
+        isPinned ? [id, ...prev.filter((x) => x !== id)] : prev.filter((x) => x !== id),
+      );
+    }
+  }, [pinnedIds]);
+
   const initialLoadDone = useRef(false);
   useEffect(() => {
     const isFirst = !initialLoadDone.current;
     initialLoadDone.current = true;
     loadSessions(isFirst);
-  }, [loadSessions, refreshKey]);
+    loadPins();
+  }, [loadSessions, loadPins, refreshKey]);
 
   useEffect(() => {
     if (explorerRefreshKey !== undefined) setExplorerKey((k) => k + 1);
@@ -198,6 +237,15 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   // Build parent-child tree within the filtered set
   const sessionTree = buildSessionTree(searchFilteredSessions);
 
+  // Split into pinned vs unpinned. Pinned sessions float to the top, preserving
+  // their order in the pins file (most recently pinned first). Unpinned sessions
+  // keep the tree layout (parents + forks) with date group headers.
+  const pinnedSet = new Set(pinnedIds);
+  const pinnedNodes = pinnedIds
+    .map((id) => sessionTree.find((n) => n.session.id === id) ?? null)
+    .filter((n): n is NonNullable<typeof n> => n !== null);
+  const unpinnedNodes = sessionTree.filter((n) => !pinnedSet.has(n.session.id));
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -312,14 +360,48 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             No matches for &ldquo;{searchQuery}&rdquo;
           </div>
         )}
-        {sessionTree.map((node, idx) => {
+        {pinnedNodes.length > 0 && (
+          <>
+            <div className={`${styles.groupHeader} ${styles.groupHeaderDivider}`}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--text-dim)" stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                Pinned
+              </span>
+            </div>
+            {pinnedNodes.map((node) => (
+              <div key={node.session.id}>
+                <SessionTreeItem
+                  node={node}
+                  selectedSessionId={selectedSessionId}
+                  onSelectSession={onSelectSession}
+                  onRenamed={loadSessions}
+                  onSessionDeleted={(id) => {
+                    onSessionDeleted?.(id);
+                    loadSessions();
+                  }}
+                  depth={0}
+                  isPinned
+                  onPinToggle={handlePinToggle}
+                />
+              </div>
+            ))}
+          </>
+        )}
+        {unpinnedNodes.map((node, idx) => {
           const group = getSessionDateGroup(node.session.modified);
-          const prevGroup = idx > 0 ? getSessionDateGroup(sessionTree[idx - 1].session.modified) : null;
+          const prevGroup = idx > 0 ? getSessionDateGroup(unpinnedNodes[idx - 1].session.modified) : null;
           const showHeader = group !== prevGroup;
+          // First section never gets a divider (nothing to separate from). Pinned
+          // section already adds its own divider; the first unpinned group is
+          // the "first" only if there's no Pinned section above it.
+          const isFirstSection = idx === 0 && pinnedNodes.length === 0;
+          const headerClass = isFirstSection ? styles.groupHeader : `${styles.groupHeader} ${styles.groupHeaderDivider}`;
           return (
             <div key={node.session.id}>
               {showHeader && (
-                <div className={styles.groupHeader}>
+                <div className={headerClass}>
                   {group}
                 </div>
               )}
@@ -333,6 +415,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                   loadSessions();
                 }}
                 depth={0}
+                isPinned={false}
+                onPinToggle={handlePinToggle}
               />
             </div>
           );

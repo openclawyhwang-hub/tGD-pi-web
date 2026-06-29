@@ -152,3 +152,15 @@
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
+
+/* ── Pin star — was standalone, now merged into hoverActions with rename/delete.
+   The .actionButtonActive variant is the only Pin-specific CSS we still need:
+   pinned sessions show a filled star in a neutral (non-warning) tone so the
+   state toggle is visible without the bright yellow screaming for attention. ── */
+.actionButtonActive {
+  color: var(--text-muted);
+}
+
+.actionButtonActive:hover {
+  color: var(--text);
+}

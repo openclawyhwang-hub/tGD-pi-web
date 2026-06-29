@@ -145,6 +145,13 @@
   user-select: none;
 }
 
+/* ── Divider between sections ── */
+.groupHeaderDivider {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
 /* ── File explorer section ── */
 .explorerSection {
   border-top: 1px solid var(--border);
