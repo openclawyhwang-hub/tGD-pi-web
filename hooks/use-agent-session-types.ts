@@ -71,6 +71,7 @@ export type ThinkingLevelOption = "auto" | "off" | "minimal" | "low" | "medium" 
 export interface ChatInputHandle {
   insertText: (text: string) => void;
   insertIfEmpty: (content: string) => void;
+  setText: (text: string) => void;
   addImages: (files: File[]) => void;
 }
 

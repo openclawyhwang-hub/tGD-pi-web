@@ -16,11 +16,11 @@ export const THINKING_LEVEL_DESC: Record<ThinkingLevelOption, string> = {
 
 // tGD 7-phase slash commands
 export const TGD_COMMANDS = [
-  { name: "/tgd-map", description: "Map - 定義問題空間" },
-  { name: "/tgd-define", description: "Define - 拆解需求" },
-  { name: "/tgd-plan", description: "Plan - 規劃實作" },
-  { name: "/tgd-develop", description: "Develop - 實作開發" },
-  { name: "/tgd-verify", description: "Verify - 測試驗證" },
-  { name: "/tgd-review", description: "Review - 程式碼審查" },
-  { name: "/tgd-ship", description: "Ship - 部署上線" },
+  { name: "/tgd-map", description: "Map — understand the codebase" },
+  { name: "/tgd-define", description: "Define — write the PRD" },
+  { name: "/tgd-plan", description: "Plan — break into tasks" },
+  { name: "/tgd-develop", description: "Develop — implement features" },
+  { name: "/tgd-verify", description: "Verify — run tests" },
+  { name: "/tgd-review", description: "Review — code review" },
+  { name: "/tgd-release", description: "Release — ship to production" },
 ];

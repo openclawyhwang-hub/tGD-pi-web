@@ -48,6 +48,8 @@ interface Props {
 export interface ChatInputHandle {
   insertText: (text: string) => void;
   insertIfEmpty: (text: string) => void;
+  /** Forcefully replace the entire input value (no-op on identical value). */
+  setText: (text: string) => void;
   addImages: (files: File[]) => void;
 }
 
@@ -81,6 +83,22 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
       requestAnimationFrame(() => {
         if (!ta) return;
         ta.focus();
+        ta.style.height = "auto";
+        ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`;
+      });
+    },
+    setText(text: string) {
+      // Forcefully replace the entire input value. Used by quick-action
+      // buttons (e.g. tGD phase chips) so clicking a different phase
+      // swaps the slash command rather than appending to the existing one.
+      setValue(text);
+      requestAnimationFrame(() => {
+        const ta = textareaRef.current;
+        if (!ta) return;
+        ta.focus();
+        // Move cursor to end of the new text.
+        const end = ta.value.length;
+        ta.setSelectionRange(end, end);
         ta.style.height = "auto";
         ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`;
       });
