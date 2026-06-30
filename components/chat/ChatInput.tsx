@@ -412,7 +412,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             onPaste={handlePaste}
             placeholder={
               isStreaming && (onSteer || onFollowUp)
-                ? "Steer 立即注入 / Follow-up 排队…"
+                ? "Steer: interrupt & inject · Follow-up: queue after"
                 : isStreaming ? "Agent is running…"
                 : "Message…"
             }
