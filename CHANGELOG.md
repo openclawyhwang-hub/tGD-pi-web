@@ -4,7 +4,7 @@ All notable changes to tGD-pi-web are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: `YYYY.MM.DD` (date-based, aligned with upstream tGD).
 
-## [Unreleased]
+## [2026.07.02] — b3d107c9
 
 ### Refactored
 - **Sidebar hooks** (S1): Extracted `useSessions`, `useCwd`, `useExplorer` hooks from `SessionSidebar.tsx` (483 → 317 lines). The hooks own all session list, pin toggle, CWD picker, and file-explorer state independently. `CwdPicker.tsx` now accepts a single consolidated `state` + `actions` + `refs` object instead of 17 individual props (168 → 100 lines).
@@ -60,7 +60,7 @@ Versioning: `YYYY.MM.DD` (date-based, aligned with upstream tGD).
 
 ---
 
-## [2026.06.28-2] — 621efa86 / TBD
+## [2026.06.28-2] — 621efa86
 
 ### Changed
 - **Lazy-load math plugins**: `remark-math` + `rehype-katex` are no longer in the initial bundle. `MarkdownBody` scans the markdown source with a `containsMath()` heuristic and dynamically imports both plugins only when `$...$` or `$$...$$` is detected. Falls back to plain rendering if plugin load fails.
