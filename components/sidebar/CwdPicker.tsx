@@ -4,49 +4,61 @@ import type { RefObject } from "react";
 import { shortenCwd } from "./session-utils";
 import styles from "./CwdPicker.module.css";
 
-interface CwdPickerProps {
+interface CwdPickerState {
   selectedCwd: string | null;
   homeDir: string;
-  initialSessionId: string | null;
-  isRestoring: boolean;
   dropdownOpen: boolean;
-  setDropdownOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
   customPathOpen: boolean;
-  setCustomPathOpen: (v: boolean) => void;
   customPathValue: string;
-  setCustomPathValue: (v: string) => void;
   customPathError: string | null;
-  setCustomPathError: (v: string | null) => void;
   customPathValidating: boolean;
-  customPathInputRef: RefObject<HTMLInputElement | null>;
-  dropdownRef: RefObject<HTMLDivElement | null>;
-  recentCwds: string[];
-  onSelectCwd: (cwd: string) => void;
-  onDefaultCwd: () => void;
-  onCommitCustomPath: () => void;
 }
 
-export function CwdPicker({
-  selectedCwd,
-  homeDir,
-  initialSessionId,
-  isRestoring,
-  dropdownOpen,
-  setDropdownOpen,
-  customPathOpen,
-  setCustomPathOpen,
-  customPathValue,
-  setCustomPathValue,
-  customPathError,
-  setCustomPathError,
-  customPathValidating,
-  customPathInputRef,
-  dropdownRef,
-  recentCwds,
-  onSelectCwd,
-  onDefaultCwd,
-  onCommitCustomPath,
-}: CwdPickerProps) {
+interface CwdPickerActions {
+  setDropdownOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+  setCustomPathOpen: (v: boolean) => void;
+  setCustomPathValue: (v: string) => void;
+  setCustomPathError: (v: string | null) => void;
+  setSelectedCwd: (cwd: string) => void;
+  commitCustomPath: () => Promise<void>;
+  handleDefaultCwd: () => Promise<void>;
+}
+
+interface CwdPickerRefs {
+  customPathInputRef: RefObject<HTMLInputElement | null>;
+  dropdownRef: RefObject<HTMLDivElement | null>;
+}
+
+interface CwdPickerProps {
+  state: CwdPickerState;
+  actions: CwdPickerActions;
+  refs: CwdPickerRefs;
+  recentCwds: string[];
+  initialSessionId: string | null;
+  isRestoring: boolean;
+}
+
+export function CwdPicker({ state, actions, refs, recentCwds, initialSessionId, isRestoring }: CwdPickerProps) {
+  const {
+    selectedCwd,
+    homeDir,
+    dropdownOpen,
+    customPathOpen,
+    customPathValue,
+    customPathError,
+    customPathValidating,
+  } = state;
+  const {
+    setDropdownOpen,
+    setCustomPathOpen,
+    setCustomPathValue,
+    setCustomPathError,
+    setSelectedCwd,
+    commitCustomPath,
+    handleDefaultCwd,
+  } = actions;
+  const { customPathInputRef, dropdownRef } = refs;
+
   return (
     <div ref={dropdownRef} className={styles.root}>
       <button
@@ -67,7 +79,7 @@ export function CwdPicker({
             <button
               key={cwd}
               onClick={() => {
-                onSelectCwd(cwd);
+                setSelectedCwd(cwd);
                 setCustomPathOpen(false);
                 setCustomPathValue("");
                 setCustomPathError(null);
@@ -89,7 +101,7 @@ export function CwdPicker({
           {/* Default cwd shortcut */}
           {!customPathOpen && (
             <button
-              onClick={(e) => { e.stopPropagation(); onDefaultCwd(); }}
+              onClick={(e) => { e.stopPropagation(); void handleDefaultCwd(); }}
               className={recentCwds.length > 0 ? styles.dropdownButtonWithBorder : styles.dropdownButton}
             >
               <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" className={styles.flexShrink0}>
@@ -128,7 +140,7 @@ export function CwdPicker({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    void onCommitCustomPath();
+                    void commitCustomPath();
                   }
                   if (e.key === "Escape") {
                     setCustomPathOpen(false);
@@ -146,7 +158,7 @@ export function CwdPicker({
               )}
               <div className={styles.customPathButtons}>
                 <button
-                  onClick={() => void onCommitCustomPath()}
+                  onClick={() => void commitCustomPath()}
                   disabled={customPathValidating || !customPathValue.trim()}
                   className={styles.openButton}
                 >

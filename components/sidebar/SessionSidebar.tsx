@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { SessionInfo } from "@/lib/types";
 import { FileExplorer } from "./FileExplorer";
 import { getRecentCwds, getSessionDateGroup, buildSessionTree } from "./session-utils";
 import { PiAgentTitle } from "./PiAgentTitle";
 import { SessionTreeItem } from "./SessionTreeItem";
 import { CwdPicker } from "./CwdPicker";
+import { useSessions } from "@/hooks/useSessions";
+import { useCwd } from "@/hooks/useCwd";
+import { useExplorer } from "@/hooks/useExplorer";
 import styles from "./SessionSidebar.module.css";
 
 interface Props {
@@ -25,106 +28,13 @@ interface Props {
 }
 
 export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onAtMention }: Props) {
-  const [allSessions, setAllSessions] = useState<SessionInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCwd, setSelectedCwd] = useState<string | null>(null);
-  const [homeDir, setHomeDir] = useState<string>("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [customPathOpen, setCustomPathOpen] = useState(false);
-  const [customPathValue, setCustomPathValue] = useState("");
-  const [customPathError, setCustomPathError] = useState<string | null>(null);
-  const [customPathValidating, setCustomPathValidating] = useState(false);
-  const customPathInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [explorerOpen, setExplorerOpen] = useState(true);
-  const [explorerKey, setExplorerKey] = useState(0);
-  const [sessionRefreshDone, setSessionRefreshDone] = useState(false);
-  const [explorerRefreshDone, setExplorerRefreshDone] = useState(false);
-  const [pinnedIds, setPinnedIds] = useState<string[]>([]);
-  const sessionRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const explorerRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const loadSessions = useCallback(async (showLoading = false) => {
-    try {
-      if (showLoading) setLoading(true);
-      const res = await fetch("/api/sessions");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json() as { sessions: SessionInfo[] };
-      setAllSessions(data.sessions);
-      setError(null);
-      if (!showLoading) {
-        setSessionRefreshDone(true);
-        if (sessionRefreshTimerRef.current) clearTimeout(sessionRefreshTimerRef.current);
-        sessionRefreshTimerRef.current = setTimeout(() => setSessionRefreshDone(false), 2000);
-      }
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  }, []);
-
-  const loadPins = useCallback(async () => {
-    try {
-      const res = await fetch("/api/sessions/pins");
-      if (!res.ok) return;
-      const data = await res.json() as { pinned?: string[] };
-      setPinnedIds(Array.isArray(data.pinned) ? data.pinned : []);
-    } catch {
-      // Pins are best-effort; missing file is fine.
-    }
-  }, []);
-
-  const handlePinToggle = useCallback(async (id: string) => {
-    const isPinned = pinnedIds.includes(id);
-    // Optimistic update so the star flips immediately.
-    setPinnedIds((prev) =>
-      isPinned ? prev.filter((x) => x !== id) : [id, ...prev.filter((x) => x !== id)],
-    );
-    try {
-      const res = await fetch("/api/sessions/pins", {
-        method: isPinned ? "DELETE" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      if (!res.ok) {
-        // Roll back on server error.
-        setPinnedIds((prev) =>
-          isPinned ? [id, ...prev.filter((x) => x !== id)] : prev.filter((x) => x !== id),
-        );
-      }
-    } catch {
-      // Roll back on network error.
-      setPinnedIds((prev) =>
-        isPinned ? [id, ...prev.filter((x) => x !== id)] : prev.filter((x) => x !== id),
-      );
-    }
-  }, [pinnedIds]);
-
-  const initialLoadDone = useRef(false);
-  useEffect(() => {
-    const isFirst = !initialLoadDone.current;
-    initialLoadDone.current = true;
-    loadSessions(isFirst);
-    loadPins();
-  }, [loadSessions, loadPins, refreshKey]);
-
-  useEffect(() => {
-    if (explorerRefreshKey !== undefined) setExplorerKey((k) => k + 1);
-  }, [explorerRefreshKey]);
-
-  useEffect(() => {
-    fetch("/api/home").then((r) => r.json()).then((d: { home?: string }) => {
-      if (d.home) setHomeDir(d.home);
-    }).catch(() => {});
-  }, []);
+  const { allSessions, loading, error, pinnedIds, sessionRefreshDone, loadSessions, handlePinToggle } = useSessions(refreshKey);
+  const { state: cwdState, actions: cwdActions, refs: cwdRefs } = useCwd(onCwdChange);
+  const { selectedCwd } = cwdState;
+  const { setSelectedCwd } = cwdActions;
+  const { explorerOpen, explorerKey, explorerRefreshDone, toggleExplorer, refreshExplorer } = useExplorer(explorerRefreshKey);
 
   const restoredRef = useRef(false);
-
-  useEffect(() => {
-    onCwdChange?.(selectedCwd);
-  }, [selectedCwd, onCwdChange]);
 
   // Auto-select cwd and restore session from URL on first load
   useEffect(() => {
@@ -146,65 +56,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       const cwds = getRecentCwds(allSessions);
       if (cwds.length > 0) setSelectedCwd(cwds[0]);
     }
-  }, [allSessions, selectedCwd, initialSessionId, onSelectSession, onInitialRestoreDone]);
-
-  const commitCustomPath = useCallback(async () => {
-    const path = customPathValue.trim();
-    if (!path || customPathValidating) return;
-
-    setCustomPathValidating(true);
-    setCustomPathError(null);
-    try {
-      const res = await fetch("/api/cwd/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cwd: path }),
-      });
-      const data = await res.json().catch(() => ({})) as { cwd?: string; error?: string };
-      if (!res.ok || data.error) {
-        setCustomPathError(data.error ?? `HTTP ${res.status}`);
-        return;
-      }
-      setSelectedCwd(data.cwd ?? path);
-      setCustomPathOpen(false);
-      setCustomPathValue("");
-      setDropdownOpen(false);
-    } catch (e) {
-      setCustomPathError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setCustomPathValidating(false);
-    }
-  }, [customPathValue, customPathValidating]);
-
-  const handleDefaultCwd = useCallback(async () => {
-    try {
-      const res = await fetch("/api/default-cwd", { method: "POST" });
-      const data = await res.json() as { cwd?: string; error?: string };
-      if (data.cwd) {
-        setSelectedCwd(data.cwd);
-        setCustomPathOpen(false);
-        setCustomPathValue("");
-        setCustomPathError(null);
-        setDropdownOpen(false);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-        setCustomPathOpen(false);
-        setCustomPathValue("");
-        setCustomPathError(null);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  }, [allSessions, selectedCwd, initialSessionId, onSelectSession, onInitialRestoreDone, setSelectedCwd]);
 
   const handleNewSession = useCallback(() => {
     if (!selectedCwd) return;
@@ -219,7 +71,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const recentCwds = getRecentCwds(allSessions);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
-  
+
   const filteredSessions = selectedCwd
     ? allSessions.filter((s) => s.cwd === selectedCwd)
     : allSessions;
@@ -286,25 +138,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
         {/* CWD picker */}
         <CwdPicker
-          selectedCwd={selectedCwd}
-          homeDir={homeDir}
+          state={cwdState}
+          actions={cwdActions}
+          refs={cwdRefs}
+          recentCwds={recentCwds}
           initialSessionId={initialSessionId ?? null}
           isRestoring={restoredRef.current}
-          dropdownOpen={dropdownOpen}
-          setDropdownOpen={setDropdownOpen}
-          customPathOpen={customPathOpen}
-          setCustomPathOpen={setCustomPathOpen}
-          customPathValue={customPathValue}
-          setCustomPathValue={setCustomPathValue}
-          customPathError={customPathError}
-          setCustomPathError={setCustomPathError}
-          customPathValidating={customPathValidating}
-          customPathInputRef={customPathInputRef}
-          dropdownRef={dropdownRef}
-          recentCwds={recentCwds}
-          onSelectCwd={setSelectedCwd}
-          onDefaultCwd={handleDefaultCwd}
-          onCommitCustomPath={commitCustomPath}
         />
       </div>
 
@@ -431,7 +270,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         >
           <div className={styles.explorerHeader}>
             <button
-              onClick={() => setExplorerOpen((v) => !v)}
+              onClick={toggleExplorer}
               className={styles.explorerToggle}
             >
               <svg
@@ -445,12 +284,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               Explorer
             </button>
             <button
-              onClick={() => {
-                setExplorerKey((k) => k + 1);
-                setExplorerRefreshDone(true);
-                if (explorerRefreshTimerRef.current) clearTimeout(explorerRefreshTimerRef.current);
-                explorerRefreshTimerRef.current = setTimeout(() => setExplorerRefreshDone(false), 2000);
-              }}
+              onClick={refreshExplorer}
               title="Refresh explorer"
               className={`${styles.explorerRefreshButton} ${explorerRefreshDone ? styles.explorerRefreshButtonDone : styles.explorerRefreshButtonDefault} ${explorerRefreshDone ? "" : "hover-bg-selected-accent"}`}
             >

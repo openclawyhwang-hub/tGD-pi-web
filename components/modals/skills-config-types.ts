@@ -1,5 +1,3 @@
-import type { SkillSearchResult } from "@/app/api/skills/search/route";
-
 export interface Skill {
   name: string;
   description: string;

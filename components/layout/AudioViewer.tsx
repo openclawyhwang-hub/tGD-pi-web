@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
+import { useFileWatch } from "@/hooks/useFileWatch";
 import { formatSize, formatDuration } from "./file-viewer-utils";
 
 export function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
-  const [watching, setWatching] = useState(false);
+  const { watching, refreshTrigger } = useFileWatch(filePath);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
 
   const ext = getFileName(filePath).toLowerCase().split(".").pop() ?? "";
 
@@ -19,35 +19,16 @@ export function AudioViewer({ filePath, cwd }: { filePath: string; cwd?: string 
     setSize(null);
     setDuration(null);
     setError(null);
-    setWatching(false);
+  }, [filePath]);
 
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
-    const encoded = encodeFilePathForApi(filePath);
-    const es = new EventSource(`/api/files/${encoded}?type=watch`);
-    esRef.current = es;
-
-    es.addEventListener("connected", () => setWatching(true));
-    es.addEventListener("change", (e) => {
-      try {
-        const d = JSON.parse((e as MessageEvent).data) as { size?: number };
-        if (typeof d.size === "number") setSize(d.size);
-      } catch { /* ignore */ }
+  // Bust audio cache on each file-watch change event
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      setBust((b) => b + 1);
       setDuration(null);
       setError(null);
-      setBust((b) => b + 1);
-    });
-    es.addEventListener("error", () => setWatching(false));
-    es.onerror = () => setWatching(false);
-
-    return () => {
-      es.close();
-      esRef.current = null;
-    };
-  }, [filePath]);
+    }
+  }, [refreshTrigger]);
 
   const encoded = encodeFilePathForApi(filePath);
   const src = `/api/files/${encoded}?type=read${bust ? `&v=${bust}` : ""}`;

@@ -6,18 +6,13 @@ import { SlashMenu } from "./SlashMenu";
 import { ModelSelector } from "./ModelSelector";
 import { ThinkingSelector } from "./ThinkingSelector";
 import { ToolPresetSelector } from "./ToolPresetSelector";
+import { useChatInputControls } from "@/hooks/useChatInputControls";
 import styles from "./ChatInput.module.css";
 
 export interface AttachedImage {
   data: string;   // base64, no prefix
   mimeType: string;
   previewUrl: string; // object URL for display
-}
-
-interface ModelOption {
-  provider: string;
-  modelId: string;
-  name: string;
 }
 
 interface Props {
@@ -302,29 +297,19 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
 
 
 
-  // Build model options: prefer modelList (has provider info), fallback to modelNames
-  const modelOptions: ModelOption[] = (() => {
-    if (modelList && modelList.length > 0) {
-      return modelList.map((m) => ({ provider: m.provider, modelId: m.id, name: m.name }));
-    }
-    return Object.entries(modelNames ?? {}).map(([modelId, name]) => ({
-      provider: model?.provider ?? "unknown",
-      modelId,
-      name,
-    }));
-  })();
-
-  // Group options by provider, preserving insertion order
-  const modelsByProvider: { provider: string; options: ModelOption[] }[] = [];
-  for (const opt of modelOptions) {
-    const group = modelsByProvider.find((g) => g.provider === opt.provider);
-    if (group) group.options.push(opt);
-    else modelsByProvider.push({ provider: opt.provider, options: [opt] });
-  }
-
-  const currentName = model
-    ? (modelOptions.find((o) => o.modelId === model.modelId && o.provider === model.provider)?.name ?? model.modelId)
-    : modelOptions.length > 0 ? modelOptions[0].name : null;
+  // Consolidate model/thinking/tool-preset state derivations
+  const { modelOptions, modelsByProvider, currentName } = useChatInputControls({
+    model,
+    modelNames,
+    modelList,
+    onModelChange,
+    thinkingLevel,
+    onThinkingLevelChange,
+    availableThinkingLevels,
+    thinkingLevelMap,
+    toolPreset,
+    onToolPresetChange,
+  });
 
   // Close dropdowns on outside click
   useEffect(() => {

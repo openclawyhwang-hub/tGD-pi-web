@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useCallback, useRef, lazy, Suspense } from "react";
 import { SessionSidebar } from "../sidebar/SessionSidebar";
 import { ChatWindow } from "../chat/ChatWindow";
 import { FileViewer } from "./FileViewer";
-import { TabBar, type Tab } from "./TabBar";
+import { TabBar } from "./TabBar";
 import { BranchNavigator } from "../chat/BranchNavigator";
 import { useTheme } from "@/hooks/useTheme";
+import { useAppShellState } from "@/hooks/useAppShellState";
+import { useFileTabs } from "@/hooks/useFileTabs";
 import { ErrorBoundary } from "./ErrorBoundary";
-import type { SessionInfo, SessionTreeNode } from "@/lib/types";
+import type { SessionTreeNode } from "@/lib/types";
 import type { ChatInputHandle } from "../chat/ChatInput";
 import s from "./AppShell.module.css";
 
@@ -18,237 +19,60 @@ const ModelsConfig = lazy(() => import("../modals/ModelsConfig").then((m) => ({ 
 const SkillsConfig = lazy(() => import("../modals/SkillsConfig").then((m) => ({ default: m.SkillsConfig })));
 
 export function AppShell() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { isDark, toggleTheme } = useTheme();
-  const [selectedSession, setSelectedSession] = useState<SessionInfo | null>(null);
-  // When user clicks +, we only store the cwd — no fake session id
-  const [newSessionCwd, setNewSessionCwd] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [sessionKey, setSessionKey] = useState(0);
-  const [explorerRefreshKey, setExplorerRefreshKey] = useState(0);
+  const { state, actions, refs, topBarRef } = useAppShellState();
+  const { fileTabs, activeFileTabId, rightPanelOpen, setRightPanelOpen, setActiveFileTabId, handleOpenFile, handleCloseFileTab } = useFileTabs();
+
   const [modelsConfigOpen, setModelsConfigOpen] = useState(false);
   const [modelsRefreshKey, setModelsRefreshKey] = useState(0);
   const [skillsConfigOpen, setSkillsConfigOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const chatInputRef = useRef<ChatInputHandle | null>(null);
-  const topBarRef = useRef<HTMLDivElement>(null);
-
-  // Branch navigator state — populated by ChatWindow via onBranchDataChange
-  const [branchTree, setBranchTree] = useState<SessionTreeNode[]>([]);
-  const [branchActiveLeafId, setBranchActiveLeafId] = useState<string | null>(null);
-  const branchLeafChangeFnRef = useRef<((leafId: string | null) => void) | null>(null);
-
-  const handleBranchDataChange = useCallback((tree: SessionTreeNode[], activeLeafId: string | null, onLeafChange: (leafId: string | null) => void) => {
-    setBranchTree(tree);
-    setBranchActiveLeafId(activeLeafId);
-    branchLeafChangeFnRef.current = onLeafChange;
-  }, []);
 
   const handleBranchLeafChange = useCallback((leafId: string | null) => {
-    branchLeafChangeFnRef.current?.(leafId);
-  }, []);
+    refs.branchLeafChangeFnRef.current?.(leafId);
+  }, [refs]);
 
-  const [systemPrompt, setSystemPrompt] = useState<string | null>(null);
-  const systemBtnRef = useRef<HTMLButtonElement>(null);
-
-  const handleSystemPromptChange = useCallback((prompt: string | null) => {
-    setSystemPrompt(prompt);
-  }, []);
-
-  // Session stats (tokens + cost) — populated by ChatWindow, displayed in top bar
-  const [sessionStats, setSessionStats] = useState<{ tokens: { input: number; output: number; cacheRead: number; cacheWrite: number }; cost?: number } | null>(null);
-  const handleSessionStatsChange = useCallback((stats: { tokens: { input: number; output: number; cacheRead: number; cacheWrite: number }; cost?: number } | null) => {
-    setSessionStats(stats);
-  }, []);
-
-  // Context usage — populated by ChatWindow, displayed in top bar
-  const [contextUsage, setContextUsage] = useState<{ percent: number | null; contextWindow: number; tokens: number | null } | null>(null);
-  const handleContextUsageChange = useCallback((usage: { percent: number | null; contextWindow: number; tokens: number | null } | null) => {
-    setContextUsage(usage);
-  }, []);
-
-  // Single active panel — only one dropdown open at a time
-  const [activeTopPanel, setActiveTopPanel] = useState<"branches" | "system" | null>(null);
-  const [topPanelPos, setTopPanelPos] = useState<{ top: number; left: number; width: number } | null>(null);
-
-  const toggleTopPanel = useCallback((panel: "branches" | "system") => {
-    setActiveTopPanel((cur) => cur === panel ? null : panel);
-  }, []);
-
-  useEffect(() => {
-    if (!activeTopPanel || !topBarRef.current) return;
-    const update = () => {
-      const rect = topBarRef.current!.getBoundingClientRect();
-      setTopPanelPos({ top: rect.bottom, left: rect.left, width: rect.width });
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(topBarRef.current);
-    return () => ro.disconnect();
-  }, [activeTopPanel]);
-
-  // Right panel — file tabs only
-  const [fileTabs, setFileTabs] = useState<Tab[]>([]);
-  const [activeFileTabId, setActiveFileTabId] = useState<string | null>(null);
-  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  const handleBranchDataChange = useCallback(
+    (tree: SessionTreeNode[], activeLeafId: string | null, onLeafChange: (leafId: string | null) => void) => {
+      actions.setBranchTree(tree);
+      actions.setBranchActiveLeafId(activeLeafId);
+      refs.branchLeafChangeFnRef.current = onLeafChange;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [actions.setBranchTree, actions.setBranchActiveLeafId, refs.branchLeafChangeFnRef]
+  );
 
   const handleAtMention = useCallback((relativePath: string) => {
     chatInputRef.current?.insertText("`" + relativePath + "`");
   }, []);
 
-  const [initialSessionId] = useState<string | null>(() => searchParams.get("session"));
-  const [activeCwd, setActiveCwd] = useState<string | null>(null);
-  // True once the initial ?session= URL param has been resolved (or confirmed absent)
-  const [initialSessionRestored, setInitialSessionRestored] = useState<boolean>(() => !searchParams.get("session"));
-  // Suppresses sessionKey bump in handleCwdChange during the initial URL restore
-  const suppressCwdBumpRef = useRef(false);
-
-  const handleCwdChange = useCallback((cwd: string | null) => {
-    setActiveCwd(cwd);
-    // Skip if cwd is null (initial mount) or during the initial URL restore.
-    if (!cwd || suppressCwdBumpRef.current) return;
-    // Close any session that belongs to a different cwd — it no longer
-    // matches the selected project directory.
-    setSelectedSession((prev) => {
-      if (prev && prev.cwd !== cwd) return null;
-      return prev;
-    });
-    setNewSessionCwd((prev) => {
-      if (prev && prev !== cwd) return null;
-      return prev;
-    });
-    setSessionKey((k) => k + 1);
-    setBranchTree([]);
-    setBranchActiveLeafId(null);
-    setSystemPrompt(null);
-    setActiveTopPanel(null);
-    router.replace("/", { scroll: false });
-  }, [router]);
-
-  const handleSelectSession = useCallback((session: SessionInfo, isRestore = false) => {
-    setNewSessionCwd(null);
-    setSelectedSession(session);
-    setSessionKey((k) => k + 1);
-    setSystemPrompt(null);
-    setInitialSessionRestored(true);
-    if (isRestore) {
-      // Suppress the redundant sessionKey bump that would come from the
-      // onCwdChange effect firing after setSelectedCwd in the sidebar
-      suppressCwdBumpRef.current = true;
-      setTimeout(() => { suppressCwdBumpRef.current = false; }, 0);
-    }
-    // Skip router.replace when restoring from URL — the param is already correct
-    // and calling replace in production Next.js triggers a Suspense remount loop
-    if (!isRestore) {
-      router.replace(`?session=${encodeURIComponent(session.id)}`, { scroll: false });
-    }
-  }, [router]);
-
-  const handleNewSession = useCallback((_sessionId: string, cwd: string) => {
-    setSelectedSession(null);
-    setNewSessionCwd(cwd);
-    setSessionKey((k) => k + 1);
-    setBranchTree([]);
-    setBranchActiveLeafId(null);
-    setSystemPrompt(null);
-    setActiveTopPanel(null);
-    router.replace("/", { scroll: false });
-  }, [router]);
-
-  // Called by ChatWindow when a new session gets its real id from pi
-  const handleSessionCreated = useCallback((session: SessionInfo) => {
-    setNewSessionCwd(null);
-    setSelectedSession(session);
-    setRefreshKey((k) => k + 1);
-    router.replace(`?session=${encodeURIComponent(session.id)}`, { scroll: false });
-  }, [router]);
-
-  const handleAgentEnd = useCallback(() => {
-    setRefreshKey((k) => k + 1);
-    setExplorerRefreshKey((k) => k + 1);
-  }, []);
-
-  const handleSessionForked = useCallback((newSessionId: string) => {
-    setRefreshKey((k) => k + 1);
-    setSessionKey((k) => k + 1);
-    setNewSessionCwd(null);
-    setSelectedSession((prev) => ({
-      ...(prev ?? { path: "", cwd: "", created: "", modified: "", messageCount: 0, firstMessage: "" }),
-      id: newSessionId,
-    }));
-    router.replace(`?session=${encodeURIComponent(newSessionId)}`, { scroll: false });
-  }, [router]);
-
-  const handleInitialRestoreDone = useCallback(() => {
-    setInitialSessionRestored(true);
-  }, []);
-
-  const handleSessionDeleted = useCallback((sessionId: string) => {
-    setRefreshKey((k) => k + 1);
-    if (selectedSession?.id === sessionId) {
-      const cwd = selectedSession.cwd;
-      setSelectedSession(null);
-      setNewSessionCwd(cwd ?? null);
-      setSessionKey((k) => k + 1);
-      setBranchTree([]);
-      setBranchActiveLeafId(null);
-      setSystemPrompt(null);
-      setActiveTopPanel(null);
-      router.replace("/", { scroll: false });
-    }
-  }, [selectedSession, router]);
-
-  const handleOpenFile = useCallback((filePath: string, fileName: string) => {
-    const tabId = `file:${filePath}`;
-    setFileTabs((prev) => {
-      if (prev.find((t) => t.id === tabId)) return prev;
-      return [...prev, { id: tabId, label: fileName, filePath }];
-    });
-    setActiveFileTabId(tabId);
-    setRightPanelOpen(true);
-  }, []);
-
-  const handleCloseFileTab = useCallback((tabId: string) => {
-    setFileTabs((prev) => {
-      const next = prev.filter((t) => t.id !== tabId);
-      if (next.length === 0) setRightPanelOpen(false);
-      return next;
-    });
-    setActiveFileTabId((cur) => {
-      if (cur !== tabId) return cur;
-      const remaining = fileTabs.filter((t) => t.id !== tabId);
-      return remaining.length > 0 ? remaining[remaining.length - 1].id : null;
-    });
-  }, [fileTabs]);
-
   const handleExportSession = useCallback(() => {
-    if (!selectedSession) return;
-    window.location.href = `/api/sessions/${encodeURIComponent(selectedSession.id)}/export`;
-  }, [selectedSession]);
+    if (!state.selectedSession) return;
+    window.location.href = `/api/sessions/${encodeURIComponent(state.selectedSession.id)}/export`;
+  }, [state.selectedSession]);
 
   // Show chat area if a session is selected, or if we have a cwd to start a new session in
-  const effectiveNewSessionCwd = newSessionCwd ?? (selectedSession === null && activeCwd ? activeCwd : null);
-  const showChat = selectedSession !== null || effectiveNewSessionCwd !== null;
-  // While restoring initial session from URL, don't show the placeholder
-  const showPlaceholder = initialSessionRestored && !showChat;
+  const effectiveNewSessionCwd = state.newSessionCwd ?? (state.selectedSession === null && state.activeCwd ? state.activeCwd : null);
+  const showChat = state.selectedSession !== null || effectiveNewSessionCwd !== null;
+  const showPlaceholder = state.initialSessionRestored && !showChat;
 
   const activeFileTab = fileTabs.find((t) => t.id === activeFileTabId) ?? null;
 
   const sidebarContent = (
     <ErrorBoundary>
       <SessionSidebar
-        selectedSessionId={selectedSession?.id ?? null}
-        onSelectSession={handleSelectSession}
-        onNewSession={handleNewSession}
-        initialSessionId={initialSessionId}
-        onInitialRestoreDone={handleInitialRestoreDone}
-        refreshKey={refreshKey}
-        onSessionDeleted={handleSessionDeleted}
-        selectedCwd={selectedSession?.cwd ?? newSessionCwd ?? null}
-        onCwdChange={handleCwdChange}
+        selectedSessionId={state.selectedSession?.id ?? null}
+        onSelectSession={actions.handleSelectSession}
+        onNewSession={actions.handleNewSession}
+        initialSessionId={state.initialSessionId}
+        onInitialRestoreDone={actions.handleInitialRestoreDone}
+        refreshKey={state.refreshKey}
+        onSessionDeleted={actions.handleSessionDeleted}
+        selectedCwd={state.selectedSession?.cwd ?? state.newSessionCwd ?? null}
+        onCwdChange={actions.handleCwdChange}
         onOpenFile={handleOpenFile}
-        explorerRefreshKey={explorerRefreshKey}
+        explorerRefreshKey={state.explorerRefreshKey}
         onAtMention={handleAtMention}
       />
       <div className={s.sidebarFooter}>
@@ -270,7 +94,7 @@ export function AppShell() {
           {
             label: "Skills",
             onClick: () => setSkillsConfigOpen(true),
-            disabled: !activeCwd && !selectedSession?.cwd && !newSessionCwd,
+            disabled: !state.activeCwd && !state.selectedSession?.cwd && !state.newSessionCwd,
             icon: (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -352,7 +176,7 @@ export function AppShell() {
                 <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
                 <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
                 <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="5.64" />
               </svg>
             ) : (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -364,14 +188,14 @@ export function AppShell() {
             <div className={s.chatActions}>
               <button
                 onClick={handleExportSession}
-                disabled={!selectedSession}
-                title={selectedSession ? "Export HTML" : "Export is available after the session is saved"}
+                disabled={!state.selectedSession}
+                title={state.selectedSession ? "Export HTML" : "Export is available after the session is saved"}
                 aria-label="Export HTML"
-                className={`${s.exportButton} ${selectedSession ? s.exportButtonEnabled : s.exportButtonDisabled}`}
+                className={`${s.exportButton} ${state.selectedSession ? s.exportButtonEnabled : s.exportButtonDisabled}`}
               >
                 <span
                   className={s.exportIcon}
-                  style={{ color: selectedSession ? "var(--text-muted)" : "var(--text-dim)" }}
+                  style={{ color: state.selectedSession ? "var(--text-muted)" : "var(--text-dim)" }}
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -382,21 +206,20 @@ export function AppShell() {
                 <span>Export</span>
               </button>
               <BranchNavigator
-                tree={branchTree}
-                activeLeafId={branchActiveLeafId}
+                tree={state.branchTree}
+                activeLeafId={state.branchActiveLeafId}
                 onLeafChange={handleBranchLeafChange}
                 inline
                 containerRef={topBarRef}
-                open={activeTopPanel === "branches"}
-                onToggle={() => toggleTopPanel("branches")}
+                open={state.activeTopPanel === "branches"}
+                onToggle={() => actions.toggleTopPanel("branches")}
                 hasSession
               />
               <button
-                ref={systemBtnRef}
-                onClick={() => toggleTopPanel("system")}
-                className={`${s.systemButton} ${activeTopPanel === "system" ? s.systemButtonActive : s.systemButtonDefault} hover-text`}
+                onClick={() => actions.toggleTopPanel("system")}
+                className={`${s.systemButton} ${state.activeTopPanel === "system" ? s.systemButtonActive : s.systemButtonDefault} hover-text`}
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: systemPrompt ? "var(--accent)" : "var(--text-dim)", flexShrink: 0 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: state.systemPrompt ? "var(--accent)" : "var(--text-dim)", flexShrink: 0 }}>
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                   <line x1="8" y1="13" x2="16" y2="13" />
@@ -407,19 +230,19 @@ export function AppShell() {
             </div>
           )}
           {/* Session stats — right-aligned in top bar */}
-          {showChat && (sessionStats || contextUsage) && (() => {
-            const t = sessionStats?.tokens;
-            const c = sessionStats?.cost ?? 0;
+          {showChat && (state.sessionStats || state.contextUsage) && (() => {
+            const t = state.sessionStats?.tokens;
+            const c = state.sessionStats?.cost ?? 0;
             const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n);
             const costStr = c > 0 ? (c >= 0.01 ? `$${c.toFixed(2)}` : `<$0.01`) : null;
 
             let ctxColor = "var(--text-muted)";
             let ctxStr: string | null = null;
-            if (contextUsage?.contextWindow) {
-              const pct = contextUsage.percent;
+            if (state.contextUsage?.contextWindow) {
+              const pct = state.contextUsage.percent;
               if (pct !== null && pct > 90) ctxColor = "var(--color-error)";
               else if (pct !== null && pct > 70) ctxColor = "var(--color-warning-text-strong)";
-              ctxStr = pct !== null ? `${pct.toFixed(0)}% / ${fmt(contextUsage.contextWindow)}` : `? / ${fmt(contextUsage.contextWindow)}`;
+              ctxStr = pct !== null ? `${pct.toFixed(0)}% / ${fmt(state.contextUsage.contextWindow)}` : `? / ${fmt(state.contextUsage.contextWindow)}`;
             }
 
             const tooltipParts: string[] = [];
@@ -430,9 +253,9 @@ export function AppShell() {
               tooltipParts.push(`cache write: ${t.cacheWrite.toLocaleString()}`);
               if (c > 0) tooltipParts.push(`cost: $${c.toFixed(4)}`);
             }
-            if (contextUsage?.contextWindow) {
-              const pct = contextUsage.percent;
-              tooltipParts.push(`context: ${pct !== null ? pct.toFixed(1) + "%" : "unknown"} of ${contextUsage.contextWindow.toLocaleString()} tokens`);
+            if (state.contextUsage?.contextWindow) {
+              const pct = state.contextUsage.percent;
+              tooltipParts.push(`context: ${pct !== null ? pct.toFixed(1) + "%" : "unknown"} of ${state.contextUsage.contextWindow.toLocaleString()} tokens`);
             }
             const tooltip = tooltipParts.join("  |  ");
 
@@ -483,22 +306,22 @@ export function AppShell() {
             );
           })()}
           {/* Top panel dropdown — shared, only one active at a time */}
-          {activeTopPanel && topPanelPos && (
+          {state.activeTopPanel && state.topPanelPos && (
             <div
               className={s.topPanelDropdown}
               style={{
-                top: topPanelPos.top,
-                left: topPanelPos.left,
-                width: topPanelPos.width,
+                top: state.topPanelPos.top,
+                left: state.topPanelPos.left,
+                width: state.topPanelPos.width,
               }}
             >
-              {activeTopPanel === "system" && (
+              {state.activeTopPanel === "system" && (
                 <div className={s.systemPanel}>
-                  {systemPrompt ? (
+                  {state.systemPrompt ? (
                     <div className={s.systemPromptContent}>
-                      {systemPrompt}
+                      {state.systemPrompt}
                     </div>
-                  ) : systemPrompt === "" ? (
+                  ) : state.systemPrompt === "" ? (
                     <div className={s.systemPromptPlaceholder}>
                       System prompt is empty (tools are disabled)
                     </div>
@@ -518,22 +341,22 @@ export function AppShell() {
         <div className={s.chatContent}>
           {showChat ? (
             <ChatWindow
-              key={sessionKey}
-              session={selectedSession}
+              key={state.sessionKey}
+              session={state.selectedSession}
               newSessionCwd={effectiveNewSessionCwd}
-              onAgentEnd={handleAgentEnd}
-              onSessionCreated={handleSessionCreated}
-              onSessionForked={handleSessionForked}
+              onAgentEnd={actions.handleAgentEnd}
+              onSessionCreated={actions.handleSessionCreated}
+              onSessionForked={actions.handleSessionForked}
               modelsRefreshKey={modelsRefreshKey}
               chatInputRef={chatInputRef}
               onBranchDataChange={handleBranchDataChange}
-              onSystemPromptChange={handleSystemPromptChange}
-              onSessionStatsChange={handleSessionStatsChange}
-              onContextUsageChange={handleContextUsageChange}
-              onSessionNamed={() => setRefreshKey((k) => k + 1)}
+              onSystemPromptChange={actions.setSystemPrompt}
+              onSessionStatsChange={actions.setSessionStats}
+              onContextUsageChange={actions.setContextUsage}
+              onSessionNamed={actions.bumpRefreshKey}
             />
           ) : showPlaceholder ? (
-            activeCwd ? (
+            state.activeCwd ? (
               <div className={s.placeholderContainer}>
                 <div className={s.placeholderIconBg}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={s.placeholderIcon}>
@@ -604,7 +427,7 @@ export function AppShell() {
         {/* File content */}
         <div className={s.rightPanelContent}>
           {activeFileTab?.filePath ? (
-            <FileViewer filePath={activeFileTab.filePath} cwd={activeCwd ?? undefined} />
+            <FileViewer filePath={activeFileTab.filePath} cwd={state.activeCwd ?? undefined} />
           ) : (
             <div className={s.rightPanelEmpty}>
               No file open
@@ -625,8 +448,8 @@ export function AppShell() {
       </svg>
     </button>
     {modelsConfigOpen && <Suspense fallback={null}><ModelsConfig onClose={() => { setModelsConfigOpen(false); setModelsRefreshKey((k) => k + 1); }} /></Suspense>}
-    {skillsConfigOpen && (activeCwd ?? selectedSession?.cwd ?? newSessionCwd) && (
-      <Suspense fallback={null}><SkillsConfig cwd={(activeCwd ?? selectedSession?.cwd ?? newSessionCwd)!} onClose={() => setSkillsConfigOpen(false)} /></Suspense>
+    {skillsConfigOpen && (state.activeCwd ?? state.selectedSession?.cwd ?? state.newSessionCwd) && (
+      <Suspense fallback={null}><SkillsConfig cwd={(state.activeCwd ?? state.selectedSession?.cwd ?? state.newSessionCwd)!} onClose={() => setSkillsConfigOpen(false)} /></Suspense>
     )}
     </>
   );

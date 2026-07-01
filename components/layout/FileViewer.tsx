@@ -1,8 +1,6 @@
 "use client";
 
-import { useTheme } from "@/hooks/useTheme";
-import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
-import { DiffView } from "./DiffView";
+import { encodeFilePathForApi, getFileName } from "@/lib/file-paths";
 import { ImageViewer } from "./ImageViewer";
 import { AudioViewer } from "./AudioViewer";
 import { DocumentViewer } from "./DocumentViewer";
@@ -63,12 +61,6 @@ export function DownloadLink({ filePath, label = "Download" }: { filePath: strin
       {label}
     </a>
   );
-}
-
-export function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export function formatDuration(seconds: number): string {

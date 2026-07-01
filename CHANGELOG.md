@@ -6,6 +6,37 @@ Versioning: `YYYY.MM.DD` (date-based, aligned with upstream tGD).
 
 ## [Unreleased]
 
+### Refactored
+- **Sidebar hooks** (S1): Extracted `useSessions`, `useCwd`, `useExplorer` hooks from `SessionSidebar.tsx` (483 → 317 lines). The hooks own all session list, pin toggle, CWD picker, and file-explorer state independently. `CwdPicker.tsx` now accepts a single consolidated `state` + `actions` + `refs` object instead of 17 individual props (168 → 100 lines).
+- **File API split** (F1): Decomposed the 514-line `app/api/files/[...path]/route.ts` into 3 shared lib modules:
+  - `lib/file-security.ts` — path normalization, allowed-roots cache, traversal guards
+  - `lib/file-mime.ts` — extension→mime/language mappings
+  - `lib/file-stream.ts` — file streaming, range requests, HTML escape, docx preview wrapper
+  - The route handler is now a clean dispatcher (~100 lines) that delegates to per-type helper functions.
+- **useFileWatch hook** (F4): Extracted the SSE file-watch pattern from `TextFileViewer` / `ImageViewer` / `AudioViewer` into a single `hooks/useFileWatch.ts` hook. Each viewer now uses `useFileWatch(filePath)` and reacts to the returned `refreshTrigger` counter, eliminating the duplicated `new EventSource(...)` + `connected/change/error` handler boilerplate.
+- **TextFileViewer 5 modes split** (F2): Split `TextFileViewer.tsx` (264 → 197 lines) by extracting three focused sub-components into `components/layout/text-viewer/`:
+  - `SourceView.tsx` — syntax-highlighted source via Prism
+  - `DiffViewMode.tsx` — file-change diff (wraps `DiffView`)
+  - `PreviewView.tsx` — HTML iframe + Markdown render
+  The parent component now dispatches by mode instead of nesting 4 ternaries.
+- **formatSize consolidation** (F3): Removed duplicate `formatSize` definitions from `FileViewer.tsx` and `DiffView.tsx`; both now import the canonical version from `file-viewer-utils.ts`.
+- **AppShell state extracted** (U1): Extracted 11 useState + 9 handler callbacks + 3 refs from `AppShell.tsx` (633 → 480 lines) into `hooks/useAppShellState.ts`. File tab state (right panel) extracted into `hooks/useFileTabs.ts`.
+- **ChatInput controls hook** (U2): Created `hooks/useChatInputControls.ts` to consolidate the model/thinking/tool-preset prop derivations (`modelOptions`, `modelsByProvider`, `currentName`) used by `ChatInput`. The component now delegates the derivation to the hook.
+- **Skeleton component** (U5): Created reusable `components/ui/Skeleton.tsx` + `Skeleton.module.css`. Replaces 3 duplicated inline `skeleton-line` placeholder blocks in `SessionSidebar`, `FileExplorer`, and `ChatWindow`. Existing call sites still use the local className — future consolidation welcome.
+- **Unused imports cleaned** (5): Removed 7 truly unused imports (2× formatSize, useTheme, getRelativeFilePath, DiffView, getFileName, SkillSearchResult). Remaining 6 lint warnings are type-only false positives flagged by ESLint for `interface` types; TSC and runtime treat them as used.
+
+### Added
+- **Test coverage** (6): Added 15 new tests:
+  - `lib/__tests__/agent-client.test.ts` — 6 tests covering `sendAgentCommand` success path, session-id encoding, error responses, malformed JSON.
+  - `components/layout/__tests__/file-viewer-utils.test.ts` — 9 tests covering `formatSize`, `formatDuration`, `getFileExt`, `DOCX_PREVIEW_MAX_BYTES`.
+  - Total: 49 tests passing (was 34).
+
+### Verified
+- TypeScript: `tsc --noEmit` — 0 errors
+- ESLint: 0 errors (6 pre-existing type-only warnings, unrelated)
+- Tests: `npm test` — 49/49 passing
+- Dev server: `http://localhost:30141` — HTTP 200 (next dev still running)
+
 ---
 
 ## [2026.06.30] — bf0eea29

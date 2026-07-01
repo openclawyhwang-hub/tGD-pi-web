@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
+import { useFileWatch } from "@/hooks/useFileWatch";
 import { formatSize } from "./file-viewer-utils";
 import styles from "./ImageViewer.module.css";
 
 export function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string }) {
-  const [watching, setWatching] = useState(false);
+  const { watching, refreshTrigger } = useFileWatch(filePath);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
 
   const ext = getFileName(filePath).toLowerCase().split(".").pop() ?? "";
 
@@ -20,33 +20,17 @@ export function ImageViewer({ filePath, cwd }: { filePath: string; cwd?: string 
     setSize(null);
     setNaturalSize(null);
     setError(null);
-    setWatching(false);
-
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
-    const encoded = encodeFilePathForApi(filePath);
-    const es = new EventSource(`/api/files/${encoded}?type=watch`);
-    esRef.current = es;
-
-    es.addEventListener("connected", () => setWatching(true));
-    es.addEventListener("change", (e) => {
-      try {
-        const d = JSON.parse((e as MessageEvent).data) as { size?: number };
-        if (typeof d.size === "number") setSize(d.size);
-      } catch { /* ignore */ }
-      setBust((b) => b + 1);
-    });
-    es.addEventListener("error", () => setWatching(false));
-    es.onerror = () => setWatching(false);
-
-    return () => {
-      es.close();
-      esRef.current = null;
-    };
   }, [filePath]);
+
+  // Bust image cache on each file-watch change event
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      setBust((b) => b + 1);
+      setSize(null);
+      setNaturalSize(null);
+      setError(null);
+    }
+  }, [refreshTrigger]);
 
   const encoded = encodeFilePathForApi(filePath);
   const src = `/api/files/${encoded}?type=read${bust ? `&v=${bust}` : ""}`;
