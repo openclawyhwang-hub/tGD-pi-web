@@ -1,10 +1,12 @@
 # Pi with tGD — Web Interface
 
-[Pi 編程智能體](https://github.com/earendil-works/pi) 的網頁界面。在瀏覽器中瀏覽會話、與智能體即時對話、分叉對話、切換消息分支。
+[繁體中文](./README.zh-TW.md)
+
+A web interface for [Pi Coding Agent](https://github.com/earendil-works/pi). Browse conversations, chat with the agent in real time, fork threads, and switch between message branches — all in the browser.
 
 ## Quick Start
 
-**一鍵安裝：**
+**One-command install:**
 
 ```bash
 git clone https://github.com/openclawyhwang-hub/tGD-pi-web.git
@@ -12,9 +14,9 @@ cd tGD-pi-web
 ./setup.sh
 ```
 
-`setup.sh` 會自動檢查 Node.js 版本、安裝依賴、驗證編譯，並詢問是否立即啟動。
+`setup.sh` checks Node.js version, installs dependencies, verifies the build, and asks whether to start the dev server.
 
-**手動安裝：**
+**Manual install:**
 
 ```bash
 git clone https://github.com/openclawyhwang-hub/tGD-pi-web.git
@@ -23,67 +25,67 @@ npm install
 npm run dev
 ```
 
-啟動後打開 [http://localhost:30141](http://localhost:30141)。
+Open [http://localhost:30141](http://localhost:30141) after startup.
 
-**可選參數：**
+**Custom port:**
 
 ```bash
-npm run dev -- --port 8080               # 自訂連接埠
-PORT=8080 npm run dev                    # 環境變數
+npm run dev -- --port 8080               # via CLI flag
+PORT=8080 npm run dev                    # via env var
 ```
 
 ## Features
 
-### 對話
-- **即時串流** — SSE 串流輸出，邊生成邊顯示
-- **引導 / 追加** — 中斷正在運行的智能體，或在其完成後追加訊息
-- **模型切換** — 對話中途隨時切換模型和 thinking level
-- **工具面板** — 控制智能體可使用的工具（無工具 / 預設 / 全部）
-- **壓縮會話** — 對長會話進行摘要，節省上下文窗口
+### Chat
+- **Live streaming** — SSE streaming, tokens appear as they're generated
+- **Steer / Follow-up** — Interrupt a running agent, or append a message after completion
+- **Model switching** — Change model and thinking level mid-conversation
+- **Tool panel** — Control which tools the agent can use (none / preset / all)
+- **Compact session** — Summarize long threads to save context window
 
-### 會話管理
-- **會話瀏覽器** — 按工作目錄分組，自動偵測最近使用的專案
-- **時間分組** — Today / Yesterday / This Week / Earlier
-- **會話搜尋** — 按名稱或首條訊息即時搜尋
-- **自動命名** — 首次對話後自動生成會話標題
-- **會話分叉** — 從任意用戶訊息建立獨立的新會話
-- **會話內分支** — 回退到任意節點繼續對話，同一檔案內建立分支
-- **分支導航器** — 視覺化切換同一會話內的各個分支
-- **匯出 HTML** — 將會話匯出為獨立 HTML 檔
+### Session Management
+- **Session browser** — Grouped by working directory, auto-detects recent projects
+- **Time grouping** — Today / Yesterday / This Week / Earlier
+- **Search** — Instant filter by session name or first message
+- **Auto-naming** — Generates a title after the first exchange
+- **Fork** — Branch off from any user message into an independent new session
+- **In-session branches** — Roll back to any node and continue; branches share one file
+- **Branch navigator** — Visual switching between branches within a session
+- **Export HTML** — Save a session as a standalone HTML file
 
-### 檔案瀏覽
-- **檔案總管** — 側邊欄內建檔案樹，支援展開/摺疊
-- **檔案搜尋** — 即時過濾，匹配的目錄自動展開
-- **垃圾目錄過濾** — 自動隱藏 `.git`、`node_modules`、`__pycache__` 等
-- **檔案預覽** — 在分頁中查看檔案內容，支援 Markdown 渲染
-- **@提及** — 點擊檔案旁的按鈕插入路徑到聊天輸入框
+### File Browsing
+- **File explorer** — In-sidebar file tree with expand/collapse
+- **File search** — Instant filter; matched directories auto-expand
+- **Junk filtering** — Hides `.git`, `node_modules`, `__pycache__`, etc.
+- **File preview** — View file contents in a tab; Markdown rendered
+- **@-mention** — Click the button next to a file to insert its path into chat
 
-### 渲染
-- **Markdown** — GFM 語法、表格、任務清單
-- **程式碼** — 語法高亮 + 行號
-- **數學公式** — KaTeX 渲染行內與區塊公式
-- **圖表** — Mermaid 流程圖、時序圖等
-- **Provider 圖示** — Anthropic、OpenAI、Google、ZAI 等
+### Rendering
+- **Markdown** — GFM syntax, tables, task lists
+- **Code** — Syntax highlighting + line numbers
+- **Math** — KaTeX for inline and block formulas
+- **Diagrams** — Mermaid flowcharts, sequence diagrams, etc.
+- **Provider icons** — Anthropic, OpenAI, Google, ZAI, etc.
 
-### 體驗
-- **深色模式** — 自動偵測系統主題，手動切換有圓形展開動畫
-- **跨平台字型** — 打包 Inter + JetBrains Mono，零網路依賴
-- **無障礙** — 鍵盤焦點指示、減少動態效果尊重、ARIA 標籤
-- **響應式** — 桌面與觸控裝置自適應（scrollbar、佈局）
-- **IME 支援** — 正確處理中文/日文輸入法組字
+### Experience
+- **Dark mode** — Auto-detects system theme; manual toggle has a circular reveal animation
+- **Cross-platform fonts** — Bundled Inter + JetBrains Mono, zero network dependency
+- **Accessibility** — Keyboard focus indicators, respects `prefers-reduced-motion`, ARIA labels
+- **Responsive** — Adapts to desktop and touch devices (scrollbars, layout)
+- **IME support** — Correctly handles CJK input method composition
 
-### tGD 整合
-- **Slash Commands** — 在網頁直接執行 `/tgd-map`、`/tgd-define` 等 7-phase 命令
-- **Skills 管理** — 搜尋與安裝 tGD skills
+### tGD Integration
+- **Slash commands** — Run `/tgd-map`, `/tgd-define`, etc. (7-phase commands) directly in the web UI
+- **Skills management** — Search and install tGD skills
 
 ## Configuration
 
-| 項目 | 說明 |
-|------|------|
-| 會話目錄 | 預設 `~/.pi/agent/sessions/`，可設 `PI_CODING_AGENT_DIR` |
-| 模型配置 | 讀取 `models.json`，可在側邊欄 Models 面板編輯 |
-| API Keys | 各 provider 的 key 存於 `auth.json` |
-| 預設目錄 | 可在 CWD 選擇器中設定或自訂路徑 |
+| Item | Description |
+|------|-------------|
+| Session directory | Defaults to `~/.pi/agent/sessions/`; set `PI_CODING_AGENT_DIR` to override |
+| Model config | Reads `models.json`; editable via the Models panel in the sidebar |
+| API keys | Per-provider keys stored in `auth.json` |
+| Default directory | Set or customize via the CWD picker |
 
 ## Development
 
@@ -92,19 +94,19 @@ npm install
 npm run dev    # port 30141
 ```
 
-**驗證指令：**
+**Verification commands:**
 
 ```bash
 node_modules/.bin/tsc --noEmit     # Typecheck
 npx eslint .                       # Lint
 ```
 
-> ⚠️ 開發期間**不要**跑 `next build` — 會污染 `.next/` 並導致 `npm run dev` 異常。
+> ⚠️ **Never** run `next build` during development — it pollutes `.next/` and breaks `npm run dev`.
 
 ## Tech Stack
 
-| 層 | 技術 |
-|----|------|
+| Layer | Technology |
+|-------|------------|
 | Framework | Next.js 16 (App Router) |
 | UI | React 19 + CSS Variables (zero CSS-in-JS) |
 | Agent SDK | @earendil-works/pi-ai + pi-coding-agent |
@@ -135,22 +137,24 @@ Browser                Next.js Server              AgentSession (in-process)
 ```
 app/
   api/
-    agent/          # 發送命令、SSE 事件流、自動命名
-    sessions/       # 讀寫會話檔案、匯出
-    files/          # 檔案內容讀取
-    models/         # 可用模型與預設模型
-    models-config/  # 讀寫 models.json
-    auth/           # Provider 登入/登出
-    skills/         # tGD skills 搜尋與安裝
-    cwd/            # 工作目錄驗證
-components/         # UI 元件
+    agent/          # send commands, SSE event stream, auto-naming
+    sessions/       # read/write session files, export
+    files/          # file content read (stream, meta, preview, watch)
+    models/         # available models + default model
+    models-config/  # read/write models.json
+    auth/           # provider login/logout
+    skills/         # tGD skills search & install
+    cwd/            # working directory validation
+components/         # UI components
 lib/
-  rpc-manager.ts    # AgentSession 生命週期管理
-  session-reader.ts # 解析 .jsonl 會話檔案
-  normalize.ts      # 規範化 toolCall 欄位名
-  types.ts          # 共用 TypeScript 型別
-hooks/
-  useTheme.ts       # 深色模式切換 + View Transitions API
+  rpc-manager.ts    # AgentSession lifecycle management
+  session-reader.ts # parse .jsonl session files
+  file-security.ts  # path validation + allowed roots
+  file-mime.ts      # extension → MIME/language mapping
+  file-stream.ts    # streaming, Content-Disposition, HTML preview
+  normalize.ts      # normalize toolCall field names
+  types.ts          # shared TypeScript types
+hooks/              # extracted state logic (useSessions, useCwd, useFileWatch, …)
 ```
 
 ## License
